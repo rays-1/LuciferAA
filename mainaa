@@ -17,7 +17,7 @@ local Window = Fluent:CreateWindow({
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
     Farm = Window:AddTab({ Title = "Farm", Icon = "activity" }),
-    Joiner = Window:AddTab({ Title = "Joiner", Icon = "door-open" }),
+    Joiner = Window:AddTab({ Title = "Joiner", Icon = "door" }),
     ["Farm Config"] = Window:AddTab({ Title = "Farm Config", Icon = "settings" }),
     Shop = Window:AddTab({ Title = "Shop", Icon = "shopping-cart" }),
     Misc = Window:AddTab({ Title = "Misc", Icon = "box" }),
@@ -57,12 +57,42 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 
 Window:SelectTab(1)
 
-Tabs.Main:AddButton({
+-- Main Tab Sections
+local MainWelcome = Tabs.Main:AddSection("Welcome Message", 1)
+local MainActions = Tabs.Main:AddSection("Quick Actions", 2)
+
+-- Add Teleport Button to Quick Actions section
+MainActions:AddButton({
     Title = "Teleport to Lobby",
+    Description = "Return to main game lobby",
     Callback = function()
-        if _G.SelectedLobby then
-            game:GetService("ReplicatedStorage").endpoints.client_to_server.request_join_lobby:InvokeServer(_G.SelectedLobby)
-        end
+        Window:Dialog({
+            Title = "Confirmation",
+            Content = "Are you sure you want to teleport to the lobby?",
+            Buttons = {
+                {
+                    Title = "Confirm",
+                    Callback = function()
+                        local TeleportService = game:GetService("TeleportService")
+                        local success, err = pcall(function()
+                            TeleportService:Teleport(8304191830, game.Players.LocalPlayer)
+                        end)
+                        
+                        if not success then
+                            Fluent:Notify({
+                                Title = "Teleport Failed",
+                                Content = "Error: " .. tostring(err),
+                                Duration = 5
+                            })
+                        end
+                    end
+                },
+                {
+                    Title = "Cancel",
+                    Callback = function() end
+                }
+            }
+        })
     end
 })
 
