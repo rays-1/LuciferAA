@@ -51,7 +51,18 @@ Tabs.Misc:AddSection("Environment", 2)
 -- Settings Tab (Required for Save/Load)
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
+
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
 Window:SelectTab(1)
+
+Tabs.Main:AddButton({
+    Title = "Teleport to Lobby",
+    Callback = function()
+        if _G.SelectedLobby then
+            game:GetService("ReplicatedStorage").endpoints.client_to_server.request_join_lobby:InvokeServer(_G.SelectedLobby)
+        end
+    end
+})
+
