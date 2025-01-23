@@ -70,11 +70,11 @@ local teleportButton = MainActions:AddButton({
         teleportClickCount += 1
         
         if teleportClickCount == 1 then
-            teleportButton:SetTitle("Click again to confirm"
+            teleportButton.Title = "Click again to confirm"
             task.delay(teleportCooldown, function()
                 if teleportClickCount == 1 then
                     teleportClickCount = 0
-                    teleportButton:SetTitle("Teleport to Lobby"
+                    teleportButton.Title = "Teleport to Lobby"
                 end
             end)
         elseif teleportClickCount >= 2 and not isTeleporting then
