@@ -25,8 +25,8 @@ local Tabs = {
 }
 
 -- Main Tab Sections
-Tabs.Main:AddSection("Welcome Message", 1)
-Tabs.Main:AddSection("Quick Actions", 2)
+local MainWelcome = Tabs.Main:AddSection("Welcome to Lucifer", 1)
+local MainActions = Tabs.Main:AddSection("Quick Actions", 2)
 
 -- Farm Tab Sections
 Tabs.Farm:AddSection("Auto Farming", 1)
@@ -57,10 +57,6 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 
 Window:SelectTab(1)
 
--- Main Tab Sections
-local MainWelcome = Tabs.Main:AddSection("Welcome Message", 1)
-local MainActions = Tabs.Main:AddSection("Quick Actions", 2)
-
 -- Add Teleport Button to Quick Actions section
 -- Add to your Main tab sections
 local teleportClickCount = 0
@@ -74,16 +70,16 @@ local teleportButton = MainActions:AddButton({
         teleportClickCount += 1
         
         if teleportClickCount == 1 then
-            teleportButton:SetTitle("Click again to Confirm")
+            teleportButton:SetTitle("Click again to confirm"
             task.delay(teleportCooldown, function()
                 if teleportClickCount == 1 then
                     teleportClickCount = 0
-                    teleportButton:SetTitle("Teleport to Lobby")
+                    teleportButton:SetTitle("Teleport to Lobby"
                 end
             end)
         elseif teleportClickCount >= 2 and not isTeleporting then
             isTeleporting = true
-            teleportButton:SetTitle("Teleporting...")
+            teleportButton.Title = "Teleporting.."
             
             local TeleportService = game:GetService("TeleportService")
             local success, err = pcall(function()
@@ -96,7 +92,7 @@ local teleportButton = MainActions:AddButton({
                     Content = "Error: " .. tostring(err),
                     Duration = 5
                 })
-                teleportButton:SetTitle("Teleport to Lobby")
+                teleportButton.Title = "Teleport to Lobby"
             end
             
             teleportClickCount = 0
