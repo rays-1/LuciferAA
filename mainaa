@@ -62,37 +62,45 @@ local MainWelcome = Tabs.Main:AddSection("Welcome Message", 1)
 local MainActions = Tabs.Main:AddSection("Quick Actions", 2)
 
 -- Add Teleport Button to Quick Actions section
-MainActions:AddButton({
+-- Add to your Main tab sections
+local teleportClickCount = 0
+local teleportCooldown = 2 -- seconds between clicks
+local isTeleporting = false
+
+local teleportButton = MainActions:AddButton({
     Title = "Teleport to Lobby",
-    Description = "Return to main game lobby",
+    Description = "Double-click to confirm",
     Callback = function()
-        Window:Dialog({
-            Title = "Confirmation",
-            Content = "Are you sure you want to teleport to the lobby?",
-            Buttons = {
-                {
-                    Title = "Confirm",
-                    Callback = function()
-                        local TeleportService = game:GetService("TeleportService")
-                        local success, err = pcall(function()
-                            TeleportService:Teleport(8304191830, game.Players.LocalPlayer)
-                        end)
-                        
-                        if not success then
-                            Fluent:Notify({
-                                Title = "Teleport Failed",
-                                Content = "Error: " .. tostring(err),
-                                Duration = 5
-                            })
-                        end
-                    end
-                },
-                {
-                    Title = "Cancel",
-                    Callback = function() end
-                }
-            }
-        })
+        teleportClickCount += 1
+        
+        if teleportClickCount == 1 then
+            teleportButton:SetTitle("Click again to Confirm")
+            task.delay(teleportCooldown, function()
+                if teleportClickCount == 1 then
+                    teleportClickCount = 0
+                    teleportButton:SetTitle("Teleport to Lobby")
+                end
+            end)
+        elseif teleportClickCount >= 2 and not isTeleporting then
+            isTeleporting = true
+            teleportButton:SetTitle("Teleporting...")
+            
+            local TeleportService = game:GetService("TeleportService")
+            local success, err = pcall(function()
+                TeleportService:Teleport(8304191830, game.Players.LocalPlayer)
+            end)
+            
+            if not success then
+                Fluent:Notify({
+                    Title = "Teleport Failed",
+                    Content = "Error: " .. tostring(err),
+                    Duration = 5
+                })
+                teleportButton:SetTitle("Teleport to Lobby")
+            end
+            
+            teleportClickCount = 0
+            isTeleporting = false
+        end
     end
 })
-
