@@ -78,6 +78,12 @@ local teleportButton = MainActions:AddButton({
         elseif teleportClickCount >= 2 and not isTeleporting then
             isTeleporting = true
             
+            Fluent:Notify({
+                Title = "Attempt Teleport",
+                Content = "Attempting to Teleport",
+                Duration = 3
+            })
+
             local TeleportService = game:GetService("TeleportService")
             local success, err = pcall(function()
                 TeleportService:Teleport(8304191830, game.Players.LocalPlayer)
