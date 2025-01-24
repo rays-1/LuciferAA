@@ -2,7 +2,7 @@ local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/discoa
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 local LuciferVer = "v0.0001"
-local processedUnits = {}
+
 local Window = Fluent:CreateWindow({
     Title = "Lucifer " .. LuciferVer,
     SubTitle = "Made by Haro",
@@ -147,15 +147,17 @@ local autoSellConfig = {
     Epic = false,
     Legendary = false,
     Cooldown = .5, -- Constant cooldown
-    AutoSellEnabled = false
+    AutoSellEnabled = true
 }
 
-
+-- Track processed units
 local UnitData = require(ReplicatedStorage.src.Data.Units)
+local processedUnits = {}
 local endpoints = ReplicatedStorage:WaitForChild("endpoints")
 local sellEndpoint = endpoints:WaitForChild("client_to_server"):WaitForChild("sell_units")
 
 local function processUnit(uniqueId, unitEntry)
+
     -- Add nil checks for critical components
     if not unitEntry or not unitEntry.unit_id then
         warn("Invalid unit entry for ID: " .. tostring(uniqueId))
@@ -171,27 +173,28 @@ local function processUnit(uniqueId, unitEntry)
     end
 
     -- Safely handle potentially missing values
-    print(unitId .. " IS A " .. unitInfo["rarity"])
-    local rarity = unitInfo["rarity"] or "Common"
+    local rarity = unitInfo.rarity or "Common"
     local unitName = unitInfo.name or "Unknown Unit"
 
     local args = { tostring(uniqueId) }
 
     if autoSellConfig[rarity] and autoSellConfig.AutoSellEnabled then
         local success, result = pcall(function()
-            if processedUnits[uniqueId] then return end 
-            processedUnits[uniqueId] = true
+            if processedUnits[uniqueId] then return end
             sellEndpoint:InvokeServer(args)
+            processedUnits[uniqueId] = true
         end)
         
         if success then
             -- Safe string concatenation using format
             print(string.format("Sold %s (Rarity: %s)", unitName, rarity))
+            processedUnits[uniqueId] = true
         else
             warn(string.format("Failed to sell %s: %s", unitName, tostring(result)))
         end
     else
         print(string.format("Keeping %s (Rarity: %s)", unitName, rarity))
+        processedUnits[uniqueId] = true
     end
 
     -- Display upgrade info safely
@@ -213,7 +216,7 @@ local function monitorCollection()
             continue
         end
 
-        print("\n=== SCANNING COLLECTION ===\n")
+        print("\n=== SCANNING COLLECTION ===")
         
         for uniqueId, unitEntry in pairs(collection) do
             if unitEntry and unitEntry.unit_id then
@@ -221,7 +224,7 @@ local function monitorCollection()
             end
         end
         
-        print("\n=== SCAN COMPLETE ===\n")
+        print("=== SCAN COMPLETE ===\n")
         if not autoSellConfig.AutoSellEnabled then break end
     end
 end
@@ -241,6 +244,65 @@ local function stopMonitoring()
         monitoringTask = nil
     end
     print("\n=== AUTO-SELL SYSTEM DEACTIVATED ===")
+end
+
+-- Optimization Functions
+local originalProperties = {}
+
+local function optimizeGame()
+    if originalProperties.Enabled then return end
+    originalProperties = {Enabled = true}
+    for _, descendant in ipairs(game:GetDescendants()) do
+        if descendant:IsA("BasePart") or descendant:IsA("MeshPart") then
+            local castShadow = descendant.CastShadow
+            if castShadow then
+              originalProperties[descendant] = {castShadow=castShadow}
+            descendant.CastShadow = false
+            end
+
+        elseif descendant:IsA("Beam") then
+           local enabled = descendant.Enabled
+           if enabled then
+            originalProperties[descendant] = {enabled=enabled}
+                descendant.Enabled = false
+           end
+        elseif descendant:IsA("ParticleEmitter") then
+            local enabled = descendant.Enabled
+            if enabled then
+            originalProperties[descendant] = {enabled=enabled}
+                 descendant.Enabled = false
+            end
+        elseif descendant:IsA("MeshPart") or descendant:IsA("FileMesh") then
+            local meshId = descendant.MeshId
+            if meshId then
+               originalProperties[descendant] = {MeshId=meshId}
+              descendant.MeshId = ""
+            end
+       end
+
+    end
+        print("Game optimized.")
+end
+
+local function restoreGame()
+    if not originalProperties.Enabled then return end
+     for descendant, originalState in pairs(originalProperties) do
+        if descendant:IsA("BasePart") or descendant:IsA("MeshPart") then
+          if originalState and originalState.castShadow then
+            descendant.CastShadow = originalState.castShadow
+            end
+        elseif descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") then
+            if originalState and originalState.enabled then
+               descendant.Enabled = originalState.enabled
+            end
+         elseif descendant:IsA("MeshPart") or descendant:IsA("FileMesh") then
+            if originalState and originalState.MeshId then
+                descendant.MeshId = originalState.MeshId
+           end
+       end
+    end
+    originalProperties = {Enabled = false}
+     print("Game restored to original state.")
 end
 
 local Options = Fluent.Options
@@ -284,17 +346,25 @@ do
         end
     end)
 
-
     -- Constant cooldown (no slider)
     autoSellConfig.Cooldown = 0.5
-    -- Remove block/exclude remotes since they are no longer needed
+
+    -- Add optimizer toggle
+    local OptimizerToggle = Tabs.Misc:AddToggle("OptimizerEnabled", {Title = "Enable Optimizer", Default = false})
+    OptimizerToggle:OnChanged(function()
+        if Options.OptimizerEnabled.Value then
+            optimizeGame()
+        else
+            restoreGame()
+        end
+    end)
 
     -- Update toggle for current state
     AutoSellEnabledToggle:SetValue(autoSellConfig.AutoSellEnabled)
 
-    
     -- Initial scan
     print("\n=== INITIAL UNIT SCAN ===")
+    processedUnits = {}
     local initialCollection = ItemInventoryService.session.collection.collection_profile_data.owned_units
     if initialCollection then
         for uniqueId, unitEntry in pairs(initialCollection) do
