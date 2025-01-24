@@ -262,20 +262,19 @@ local function optimizeGame()
                 originalProperties[descendant] = {castShadow=castShadow}
                 descendant.CastShadow = false
             end
-
         elseif descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
-           local enabled = descendant.Enabled
-           if enabled then
-            originalProperties[descendant] = {enabled=enabled}
-                descendant.Enabled = false
-           end
+            local enabled = descendant.Enabled
+            if enabled then
+                originalProperties[descendant] = {enabled=enabled}
+                    descendant.Enabled = false
+            end
         elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
             local meshId = descendant.MeshID
             local textureID = descendant.TextureID
             if meshId and textureID then
                 originalProperties[descendant] = {MeshID=meshId,TextureID = textureID}
-              descendant.MeshID = ""
-              descendant.TextureID = ""
+                descendant.MeshID = ""
+                descendant.TextureID = ""
             end
         elseif descendant:IsA("BillboardGui") then
             local enabled = descendant.Enabled
@@ -284,26 +283,25 @@ local function optimizeGame()
                 descendant.Enabled = false
             end
         end
-
     end
 end
 
 local function restoreGame()
     if not originalProperties.Enabled then return end
-     for descendant, originalState in pairs(originalProperties) do
+    for descendant, originalState in pairs(originalProperties) do
         if descendant:IsA("BasePart") or descendant:IsA("MeshPart") then
-          if originalState and originalState.castShadow then
+            if originalState and originalState.castShadow then
             descendant.CastShadow = originalState.castShadow
             end
         elseif descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
             if originalState and originalState.enabled then
-               descendant.Enabled = originalState.enabled
+                descendant.Enabled = originalState.enabled
             end
-         elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
+        elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
             if originalState and originalState.MeshID then
                 descendant.MeshID = originalState.MeshID
                 descendant.TextureID = originalState.TextureID
-           end
+            end
         elseif descendant:IsA("BillboardGui") then
             if originalState and originalState.enabled then
                 descendant.Enabled = originalState.enabled
@@ -311,7 +309,7 @@ local function restoreGame()
         end
     end
     originalProperties = {Enabled = false}
-     print("Game restored to original state.")
+    print("Game restored to original state.")
 end
 
 local Options = Fluent.Options
@@ -359,18 +357,22 @@ do
     autoSellConfig.Cooldown = 0.5
 
     -- Add optimizer toggle
-    local OptimizerToggle = Tabs.Misc:AddToggle("OptimizerEnabled", {Title = "Enable Optimizer", Default = false, Callback = function()
-        Fluent:Notify({
-            Title = "Optimization Applied",
-            Content = "optimizations activated",
-            Duration = 3
-        })
-    end})
+    local OptimizerToggle = Tabs.Misc:AddToggle("OptimizerEnabled", {Title = "Enable Optimizer", Default = false})
     OptimizerToggle:OnChanged(function()
         if Options.OptimizerEnabled.Value then
             optimizeGame()
+            Fluent:Notify({
+                Title = "Optimization Applied",
+                Content = "optimizations activated",
+                Duration = 3
+            })
         else
             restoreGame()
+            Fluent:Notify({
+                Title = "Optimization Disabled",
+                Content = "optimizations Disabled",
+                Duration = 3
+            })
         end
     end)
 
