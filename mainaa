@@ -294,8 +294,10 @@ do
     -- Update toggle for current state
     AutoSellEnabledToggle:SetValue(autoSellConfig.AutoSellEnabled)
 
-     -- Initial scan
+    
+    -- Initial scan
     print("\n=== INITIAL UNIT SCAN ===")
+    processedUnits = {}
     local initialCollection = ItemInventoryService.session.collection.collection_profile_data.owned_units
     if initialCollection then
         for uniqueId, unitEntry in pairs(initialCollection) do
