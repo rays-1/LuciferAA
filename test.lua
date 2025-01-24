@@ -52,20 +52,28 @@ local processedUnits = {}
 local endpoints = ReplicatedStorage:WaitForChild("endpoints")
 local sellEndpoint = endpoints:WaitForChild("client_to_server"):WaitForChild("sell_units")
 
--- Function to handle unit processing
 local function processUnit(uniqueId, unitEntry)
     if processedUnits[uniqueId] then return end
+
+    -- Add nil checks for critical components
+    if not unitEntry or not unitEntry.unit_id then
+        warn("Invalid unit entry for ID: " .. tostring(uniqueId))
+        return
+    end
 
     local unitId = unitEntry.unit_id
     local unitInfo = UnitData[unitId]
     
     if not unitInfo then
-        warn("Unknown unit ID: " .. unitId)
+        warn("Unknown unit ID: " .. tostring(unitId))
         return
     end
 
+    -- Safely handle potentially missing values
     local rarity = unitInfo.rarity or "Common"
-    local args = { { uniqueId } }
+    local unitName = unitInfo.name or "Unknown Unit"
+
+    local args = { { tostring(uniqueId) } }  -- Ensure uniqueId is string
 
     if autoSellConfig[rarity] then
         local success, result = pcall(function()
@@ -73,14 +81,22 @@ local function processUnit(uniqueId, unitEntry)
         end)
         
         if success then
-            print("Sold " .. unitInfo.name .. " (" .. rarity .. ")")
+            -- Safe string concatenation using format
+            print(string.format("Sold %s (Rarity: %s)", unitName, rarity))
             processedUnits[uniqueId] = true
         else
-            warn("Failed to sell unit: " .. tostring(result))
+            warn(string.format("Failed to sell %s: %s", unitName, tostring(result)))
         end
     else
-        print("Keeping " .. unitInfo.name .. " (" .. rarity .. ")")
+        print(string.format("Keeping %s (Rarity: %s)", unitName, rarity))
         processedUnits[uniqueId] = true
+    end
+
+    -- Display upgrade info safely
+    if unitInfo.upgrade then
+        local maxLevel = #unitInfo.upgrade
+        local finalDamage = unitInfo.upgrade[maxLevel] and unitInfo.upgrade[maxLevel].damage or "N/A"
+        print(string.format("  Can upgrade to: %s damage (Lvl %d)", finalDamage, maxLevel))
     end
 end
 
