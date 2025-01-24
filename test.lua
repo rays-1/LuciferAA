@@ -35,7 +35,7 @@ for uniqueId, unitEntry in pairs(collection) do
             local rarity = unitInfo.rarity or "Common"
             local shinyStatus = unitEntry["shiny"] and "✨ SHINY" or ""
             
-            print(unitEntry)
+            print(SimpleSpy:ValueToString(unitEntry))
             print(string.format(
                 "[%s] %s %s\n- Rarity: %s\n- Base Damage: %s\n- Type: %s\n- Cost: %s\n",
                 unitId:upper(),
