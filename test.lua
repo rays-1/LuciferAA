@@ -1,57 +1,88 @@
--- SimpleSpy initialization
-if not SimpleSpy then
-    loadstring(game:HttpGet("https://github.com/exxtremestuffs/SimpleSpySource/raw/master/SimpleSpy.lua"))()
+-- Service initialization
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Safe service loading with retries
+local Loader
+local maxAttempts = 5
+local attempt = 0
+
+repeat
+    attempt += 1
+    Loader = require(ReplicatedStorage:WaitForChild("src"):WaitForChild("Loader"))
+    task.wait(1)
+until Loader or attempt >= maxAttempts
+
+if not Loader then
+    error("Failed to load Loader after " .. maxAttempts .. " attempts")
 end
 
--- Service initialization
-local Loader = require(game:GetService("ReplicatedStorage").src.Loader)
-
-local success, ItemInventoryService = pcall(function()
-    return Loader.load_client_service(script, "ItemInventoryServiceClient")
+-- Service initialization with validation
+local ItemInventoryService
+local success, err = pcall(function()
+    ItemInventoryService = Loader.load_client_service(script, "ItemInventoryServiceClient")
 end)
 
 if not success or not ItemInventoryService then
-    error("Failed to load ItemInventoryServiceClient: " .. tostring(ItemInventoryService))
+    error("Failed to load ItemInventoryServiceClient: " .. tostring(err))
 end
 
--- Load unit data from ReplicatedStorage
-local UnitData = require(game:GetService("ReplicatedStorage").src.Data.Units)
-local collection = ItemInventoryService.session.collection.collection_profile_data.owned_units
+-- Data validation
+local UnitData
+pcall(function()
+    UnitData = require(ReplicatedStorage.src.Data.Units)
+end)
+
+if not UnitData then
+    error("Failed to load UnitData from ReplicatedStorage")
+end
+
+-- Configuration
+local autoSellConfig = {
+    Rare = true,
+    Epic = false,
+    Legendary = false
+}
+
+-- Wait for collection data to be available
+local collection
+local waitTimeout = 10 -- seconds
+local startTime = os.time()
+
+repeat
+    if ItemInventoryService.session and
+       ItemInventoryService.session.collection and
+       ItemInventoryService.session.collection.collection_profile_data then
+        collection = ItemInventoryService.session.collection.collection_profile_data.owned_units
+    end
+    task.wait(1)
+until collection or (os.time() - startTime) >= waitTimeout
 
 if not collection then
-    error("Unit collection not found!")
+    error("Unit collection not found after " .. waitTimeout .. " seconds")
 end
 
--- Print formatted unit information
-print("\n=== UNIT COLLECTION WITH RARITIES ===\n")
+-- Main processing
+print("\n=== UNIT COLLECTION PROCESSING ===")
+
+local endpoints = ReplicatedStorage:WaitForChild("endpoints"):WaitForChild("client_to_server")
+local sellEndpoint = endpoints:WaitForChild("sell_units")
 
 for uniqueId, unitEntry in pairs(collection) do
-    if unitEntry and unitEntry.unit_id then
+    if type(unitEntry) == "table" and unitEntry.unit_id then
         local unitId = unitEntry.unit_id
         local unitInfo = UnitData[unitId]
-        
+
         if unitInfo then
-            local displayName = unitInfo.name or "Unknown Unit"
             local rarity = unitInfo.rarity or "Common"
-            local shinyStatus = unitEntry["shiny"] and "✨ SHINY" or ""
             
-            print(SimpleSpy:ValueToString(unitEntry))
-            print(string.format(
-                "[%s] %s %s\n- Rarity: %s\n- Base Damage: %s\n- Type: %s\n- Cost: %s\n",
-                unitId:upper(),
-                displayName,
-                shinyStatus,
-                rarity:upper(),
-                unitInfo.damage or "N/A",
-                unitInfo._base_damage_type or "Unknown",
-                unitInfo.cost or "Free"
-            ))
-            
-            -- Show upgrade path if available
-            if unitInfo.upgrade then
-                local maxLevel = #unitInfo.upgrade
-                local finalDamage = unitInfo.upgrade[maxLevel].damage
-                print(`  Can upgrade to: {finalDamage} damage (Lvl {maxLevel})`)
+            if autoSellConfig[rarity] then
+                -- Safe sell execution with validation
+                pcall(function()
+                    sellEndpoint:InvokeServer({uniqueId})
+                    print(string.format("Sold %s (Rarity: %s)", unitInfo.name, rarity))
+                end)
+            else
+                print(string.format("Keeping %s (Rarity: %s)", unitInfo.name, rarity))
             end
         else
             warn(string.format("Unknown unit ID: %s", unitId))
@@ -59,5 +90,4 @@ for uniqueId, unitEntry in pairs(collection) do
     end
 end
 
-print("\n=== COLLECTION SUMMARY ===")
-print(string.format("Total units owned: %d", table.count(collection)))
+print("\n=== PROCESSING COMPLETE ===")
