@@ -147,7 +147,7 @@ local autoSellConfig = {
     Epic = false,
     Legendary = false,
     Cooldown = .5, -- Constant cooldown
-    AutoSellEnabled = true
+    AutoSellEnabled = false
 }
 
 -- Track processed units
