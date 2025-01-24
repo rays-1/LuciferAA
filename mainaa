@@ -248,13 +248,14 @@ end
 
 -- Optimization Functions
 local originalProperties = {}
+local ws = game:GetService("Workspace")
 local optimized = false
 
 local function optimizeGame()
     if optimized then return end
     optimized = true
     for _, descendant in ipairs(game:GetDescendants()) do
-        if not descendant:IsDescendantOf(workspace.Camera) then
+        if not descendant:IsDescendantOf(ws:WaitForChild("Camera")) then
             if descendant:IsA("BasePart") then
                 descendant.Material = Enum.Material.Plastic
             end
