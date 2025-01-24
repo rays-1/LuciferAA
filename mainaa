@@ -1,4 +1,4 @@
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/discoart/FluentPlus/refs/heads/main/release.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 local LuciferVer = "v0.0001"
@@ -17,7 +17,7 @@ local Window = Fluent:CreateWindow({
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
     Farm = Window:AddTab({ Title = "Farm", Icon = "activity" }),
-    Joiner = Window:AddTab({ Title = "Joiner", Icon = "door" }),
+    Joiner = Window:AddTab({ Title = "Joiner", Icon = "lucide-timer" }),
     ["Farm Config"] = Window:AddTab({ Title = "Farm Config", Icon = "settings" }),
     Shop = Window:AddTab({ Title = "Shop", Icon = "shopping-cart" }),
     Misc = Window:AddTab({ Title = "Misc", Icon = "box" }),
