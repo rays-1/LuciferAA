@@ -151,7 +151,7 @@ local autoSellConfig = {
 }
 
 -- Track processed units
-local processed = {}
+local processedUnits = {}
 local UnitData = require(ReplicatedStorage.src.Data.Units)
 local endpoints = ReplicatedStorage:WaitForChild("endpoints")
 local sellEndpoint = endpoints:WaitForChild("client_to_server"):WaitForChild("sell_units")
