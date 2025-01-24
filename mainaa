@@ -259,38 +259,30 @@ do
         end
     end)
 
-    -- Add dropdown for rarities
-    local RarityDropdown = Tabs.Shop:AddDropdown("RarityDropdown", {
+     -- Add multi-select dropdown for rarities
+    local RarityMultiDropdown = Tabs.Shop:AddDropdown("RarityMultiDropdown", {
         Title = "Auto Sell Rarities",
         Description = "Select which rarities to auto sell",
-        Values = {"None", "Rare", "Epic", "Legendary", "Rare, Epic", "Rare, Legendary", "Epic, Legendary", "All"},
-        Multi = false,
-        Default = "None",
+        Values = {"Rare", "Epic", "Legendary"},
+        Multi = true,
+        Default = {},
     })
 
-    RarityDropdown:OnChanged(function(Value)
+    RarityMultiDropdown:OnChanged(function(Value)
         autoSellConfig.Rare = false
         autoSellConfig.Epic = false
         autoSellConfig.Legendary = false
-        if Value == "Rare" then
-            autoSellConfig.Rare = true
-        elseif Value == "Epic" then
-             autoSellConfig.Epic = true
-        elseif Value == "Legendary" then
-            autoSellConfig.Legendary = true
-        elseif Value == "Rare, Epic" then
-             autoSellConfig.Rare = true
-             autoSellConfig.Epic = true
-        elseif Value == "Rare, Legendary" then
-             autoSellConfig.Rare = true
-             autoSellConfig.Legendary = true
-        elseif Value == "Epic, Legendary" then
-             autoSellConfig.Epic = true
-             autoSellConfig.Legendary = true
-        elseif Value == "All" then
-             autoSellConfig.Rare = true
-             autoSellConfig.Epic = true
-             autoSellConfig.Legendary = true
+
+        for rarity, state in pairs(Value) do
+            if state then
+                if rarity == "Rare" then
+                    autoSellConfig.Rare = true
+                elseif rarity == "Epic" then
+                    autoSellConfig.Epic = true
+                elseif rarity == "Legendary" then
+                    autoSellConfig.Legendary = true
+                end
+            end
         end
     end)
 
