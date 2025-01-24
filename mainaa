@@ -301,9 +301,11 @@ do
     local initialCollection = ItemInventoryService.session.collection.collection_profile_data.owned_units
     if initialCollection then
         for uniqueId, unitEntry in pairs(initialCollection) do
-            if unitEntry and unitEntry.unit_id then
-                processUnit(uniqueId, unitEntry)
-            end
+            print(SimpleSpy:ValueToString(unitEntry))
+            -- if unitEntry and unitEntry.unit_id then
+            --     print("hello")
+            --     processUnit(uniqueId, unitEntry)
+            -- end
         end
     end
     if autoSellConfig.AutoSellEnabled then
