@@ -152,12 +152,10 @@ local autoSellConfig = {
 
 -- Track processed units
 local UnitData = require(ReplicatedStorage.src.Data.Units)
-local processedUnits = {}
 local endpoints = ReplicatedStorage:WaitForChild("endpoints")
 local sellEndpoint = endpoints:WaitForChild("client_to_server"):WaitForChild("sell_units")
 
 local function processUnit(uniqueId, unitEntry)
-    if processedUnits[uniqueId] then return end
 
     -- Add nil checks for critical components
     if not unitEntry or not unitEntry.unit_id then
@@ -174,7 +172,8 @@ local function processUnit(uniqueId, unitEntry)
     end
 
     -- Safely handle potentially missing values
-    local rarity = unitInfo.rarity or "Common"
+    print(unitId .. " IS A " .. unitInfo["rarity"])
+    local rarity = unitInfo["rarity"] or "Common"
     local unitName = unitInfo.name or "Unknown Unit"
 
     local args = { tostring(uniqueId) }
@@ -301,11 +300,9 @@ do
     local initialCollection = ItemInventoryService.session.collection.collection_profile_data.owned_units
     if initialCollection then
         for uniqueId, unitEntry in pairs(initialCollection) do
-            print(SimpleSpy:ValueToString(unitEntry))
-            -- if unitEntry and unitEntry.unit_id then
-            --     print("hello")
-            --     processUnit(uniqueId, unitEntry)
-            -- end
+            if unitEntry and unitEntry.unit_id then
+                processUnit(uniqueId, unitEntry)
+            end
         end
     end
     if autoSellConfig.AutoSellEnabled then
