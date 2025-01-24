@@ -250,15 +250,6 @@ end
 local originalProperties = {}
 
 local function optimizeGame()
-    local lighting = game:GetService("Lighting")
-    originalProperties["Lighting"] = {
-        Technology = sethiddenproperty(lighting, "Technology"),
-        GlobalShadows = lighting.GlobalShadows,
-        FogEnd = lighting.FogEnd
-    }
-    lighting.GlobalShadows = false
-    lighting.FogEnd = 9e9
-    sethiddenproperty(lighting, "Technology", "Legacy")
     if originalProperties.Enabled then return end
     originalProperties = {Enabled = true}
     for _, descendant in ipairs(game:GetDescendants()) do
