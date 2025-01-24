@@ -147,7 +147,7 @@ local autoSellConfig = {
     Epic = false,
     Legendary = false,
     Cooldown = .5, -- Constant cooldown
-    AutoSellEnabled = true
+    AutoSellEnabled = false
 }
 
 -- Track processed units
@@ -186,13 +186,11 @@ local function processUnit(uniqueId, unitEntry)
         if success then
             -- Safe string concatenation using format
             print(string.format("Sold %s (Rarity: %s)", unitName, rarity))
-            processedUnits[uniqueId] = true
         else
             warn(string.format("Failed to sell %s: %s", unitName, tostring(result)))
         end
     else
         print(string.format("Keeping %s (Rarity: %s)", unitName, rarity))
-        processedUnits[uniqueId] = true
     end
 
     -- Display upgrade info safely
@@ -214,7 +212,7 @@ local function monitorCollection()
             continue
         end
 
-        print("\n=== SCANNING COLLECTION ===")
+        print("\n=== SCANNING COLLECTION ===\n")
         
         for uniqueId, unitEntry in pairs(collection) do
             if unitEntry and unitEntry.unit_id then
@@ -222,7 +220,7 @@ local function monitorCollection()
             end
         end
         
-        print("=== SCAN COMPLETE ===\n")
+        print("\n=== SCAN COMPLETE ===\n")
         if not autoSellConfig.AutoSellEnabled then break end
     end
 end
@@ -296,7 +294,6 @@ do
     
     -- Initial scan
     print("\n=== INITIAL UNIT SCAN ===")
-    processedUnits = {}
     local initialCollection = ItemInventoryService.session.collection.collection_profile_data.owned_units
     if initialCollection then
         for uniqueId, unitEntry in pairs(initialCollection) do
