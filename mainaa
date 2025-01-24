@@ -105,6 +105,16 @@ local teleportButton = MainActions:AddButton({
 
 -- Start Auto-Sell Integration
 
+-- SimpleSpy initialization (use with caution)
+if not SimpleSpy then
+    local success, err = pcall(function()
+        loadstring(game:HttpGet("https://github.com/exxtremestuffs/SimpleSpySource/raw/master/SimpleSpy.lua"))()
+    end)
+    if not success then
+        warn("Failed to load SimpleSpy: " .. tostring(err))
+    end
+end
+
 -- Service initialization with retries
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Loader
@@ -136,8 +146,8 @@ local autoSellConfig = {
     Rare = false,
     Epic = false,
     Legendary = false,
-    Cooldown = .5,
-    AutoSellEnabled = false
+    Cooldown = .5, -- Constant cooldown
+    AutoSellEnabled = true
 }
 
 -- Track processed units
@@ -249,17 +259,45 @@ do
         end
     end)
 
-    -- Add toggles for rarities
-    Tabs.Shop:AddParagraph({Title = "Unit Rarities", Content = "Select rarities to auto sell"})
+    -- Add dropdown for rarities
+    local RarityDropdown = Tabs.Shop:AddDropdown("RarityDropdown", {
+        Title = "Auto Sell Rarities",
+        Description = "Select which rarities to auto sell",
+        Values = {"None", "Rare", "Epic", "Legendary", "Rare, Epic", "Rare, Legendary", "Epic, Legendary", "All"},
+        Multi = false,
+        Default = "None",
+    })
 
-    local RareToggle = Tabs.Shop:AddToggle("Rare", { Title = "Rare", Default = autoSellConfig.Rare })
-    RareToggle:OnChanged(function() autoSellConfig.Rare = Options.Rare.Value end)
+    RarityDropdown:OnChanged(function(Value)
+        autoSellConfig.Rare = false
+        autoSellConfig.Epic = false
+        autoSellConfig.Legendary = false
+        if Value == "Rare" then
+            autoSellConfig.Rare = true
+        elseif Value == "Epic" then
+             autoSellConfig.Epic = true
+        elseif Value == "Legendary" then
+            autoSellConfig.Legendary = true
+        elseif Value == "Rare, Epic" then
+             autoSellConfig.Rare = true
+             autoSellConfig.Epic = true
+        elseif Value == "Rare, Legendary" then
+             autoSellConfig.Rare = true
+             autoSellConfig.Legendary = true
+        elseif Value == "Epic, Legendary" then
+             autoSellConfig.Epic = true
+             autoSellConfig.Legendary = true
+        elseif Value == "All" then
+             autoSellConfig.Rare = true
+             autoSellConfig.Epic = true
+             autoSellConfig.Legendary = true
+        end
+    end)
 
-    local EpicToggle = Tabs.Shop:AddToggle("Epic", { Title = "Epic", Default = autoSellConfig.Epic })
-    EpicToggle:OnChanged(function() autoSellConfig.Epic = Options.Epic.Value end)
 
-    local LegendaryToggle = Tabs.Shop:AddToggle("Legendary", { Title = "Legendary", Default = autoSellConfig.Legendary })
-    LegendaryToggle:OnChanged(function() autoSellConfig.Legendary = Options.Legendary.Value end)
+    -- Constant cooldown (no slider)
+    autoSellConfig.Cooldown = 0.5
+    -- Remove block/exclude remotes since they are no longer needed
 
     -- Update toggle for current state
     AutoSellEnabledToggle:SetValue(autoSellConfig.AutoSellEnabled)
