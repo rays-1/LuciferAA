@@ -253,11 +253,14 @@ local function optimizeGame()
     if originalProperties.Enabled then return end
     originalProperties = {Enabled = true}
     for _, descendant in ipairs(game:GetDescendants()) do
-        if descendant:IsA("BasePart") or descendant:IsA("MeshPart") then
+        if descendant:IsA("BasePart") then
+            descendant.Material = Enum.Material.Plastic
+        end
+        if descendant:IsA("BasePart") or descendant:IsA("MeshPart") or descendant:IsA("Part") then
             local castShadow = descendant.CastShadow
             if castShadow then
-              originalProperties[descendant] = {castShadow=castShadow}
-            descendant.CastShadow = false
+                originalProperties[descendant] = {castShadow=castShadow}
+                descendant.CastShadow = false
             end
 
         elseif descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
@@ -266,15 +269,21 @@ local function optimizeGame()
             originalProperties[descendant] = {enabled=enabled}
                 descendant.Enabled = false
            end
-        elseif descendant:IsA("MeshPart") or descendant:IsA("FileMesh") then
-            local meshId = descendant.MeshId
+        elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
+            local meshId = descendant.MeshID
             local textureID = descendant.TextureID
             if meshId and textureID then
-                originalProperties[descendant] = {MeshId=meshId,TextureID = textureID}
-              descendant.MeshId = ""
+                originalProperties[descendant] = {MeshID=meshId,TextureID = textureID}
+              descendant.MeshID = ""
               descendant.TextureID = ""
             end
-       end
+        elseif descendant:IsA("BillboardGui") then
+            local enabled = descendant.Enabled
+            if enabled then
+                originalProperties[descendant] = {enabled = enabled}
+                descendant.Enabled = false
+            end
+        end
 
     end
     Fluent:Notify({
@@ -295,12 +304,16 @@ local function restoreGame()
             if originalState and originalState.enabled then
                descendant.Enabled = originalState.enabled
             end
-         elseif descendant:IsA("MeshPart") or descendant:IsA("FileMesh") then
-            if originalState and originalState.MeshId then
-                descendant.MeshId = originalState.MeshId
+         elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
+            if originalState and originalState.MeshID then
+                descendant.MeshID = originalState.MeshID
                 descendant.TextureID = originalState.TextureID
            end
-       end
+        elseif descendant:IsA("BillboardGui") then
+            if originalState and originalState.enabled then
+                descendant.Enabled = originalState.enabled
+            end
+        end
     end
     originalProperties = {Enabled = false}
      print("Game restored to original state.")
