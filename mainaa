@@ -2,7 +2,7 @@ local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/discoa
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 local LuciferVer = "v0.0001"
-
+local processedUnits = {}
 local Window = Fluent:CreateWindow({
     Title = "Lucifer " .. LuciferVer,
     SubTitle = "Made by Haro",
@@ -150,8 +150,7 @@ local autoSellConfig = {
     AutoSellEnabled = false
 }
 
--- Track processed units
-local processedUnits = {}
+
 local UnitData = require(ReplicatedStorage.src.Data.Units)
 local endpoints = ReplicatedStorage:WaitForChild("endpoints")
 local sellEndpoint = endpoints:WaitForChild("client_to_server"):WaitForChild("sell_units")
