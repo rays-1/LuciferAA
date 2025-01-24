@@ -35,14 +35,8 @@ if not success or not ItemInventoryService then
 end
 
 -- Data validation
-local UnitData
-pcall(function()
-    UnitData = require(ReplicatedStorage.src.Data.Units)
-end)
 
-if not UnitData then
-    error("Failed to load UnitData from ReplicatedStorage")
-end
+
 
 -- Configuration
 local autoSellConfig = {
@@ -53,6 +47,7 @@ local autoSellConfig = {
 }
 
 -- Track processed units
+local UnitData = require(ReplicatedStorage.src.Data.Units)
 local processedUnits = {}
 local endpoints = ReplicatedStorage:WaitForChild("endpoints")
 local sellEndpoint = endpoints:WaitForChild("client_to_server"):WaitForChild("sell_units")
