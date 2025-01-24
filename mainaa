@@ -2,7 +2,50 @@ local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/discoa
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 local LuciferVer = "v0.0001"
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Loader
+local maxAttempts = 5
+local autoSellConfig = {
+    Rare = false,
+    Epic = false,
+    Legendary = false,
+    Cooldown = .5,
+    AutoSellEnabled = false
+}
+-- Track processed units
+local UnitData = require(ReplicatedStorage.src.Data.Units)
+local processedUnits = {}
+local endpoints = ReplicatedStorage:WaitForChild("endpoints")
+local sellEndpoint = endpoints:WaitForChild("client_to_server"):WaitForChild("sell_units")
+-- Optimization Functions
+local originalProperties = {}
+local ws = game:GetService("Workspace")
+local optimized = false
 
+
+for attempt = 1, maxAttempts do
+    local success, result = pcall(function()
+        Loader = require(ReplicatedStorage.src.Loader)
+    end)
+    if success then break end
+    if attempt == maxAttempts then
+        error("Failed to load Loader after " .. maxAttempts .. " attempts: " .. tostring(result))
+    end
+    task.wait(1)
+end
+
+-- SimpleSpy initialization (use with caution)
+if not SimpleSpy then
+    local success, err = pcall(function()
+        loadstring(game:HttpGet("https://github.com/exxtremestuffs/SimpleSpySource/raw/master/SimpleSpy.lua"))()
+    end)
+    if not success then
+        warn("Failed to load SimpleSpy: " .. tostring(err))
+    end
+end
+
+
+--aw
 local Window = Fluent:CreateWindow({
     Title = "Lucifer " .. LuciferVer,
     SubTitle = "Made by Haro",
@@ -62,6 +105,13 @@ Window:SelectTab(1)
 local teleportClickCount = 0
 local teleportCooldown = 2 -- seconds between clicks
 local isTeleporting = false
+local ItemInventoryService
+local success, err = pcall(function()
+    ItemInventoryService = Loader.load_client_service(script, "ItemInventoryServiceClient")
+end)
+if not success or not ItemInventoryService then
+    error("Failed to load ItemInventoryServiceClient: " .. tostring(err))
+end
 
 local teleportButton = MainActions:AddButton({
     Title = "Teleport to Lobby",
@@ -103,58 +153,9 @@ local teleportButton = MainActions:AddButton({
     end
 })
 
--- Start Auto-Sell Integration
 
--- SimpleSpy initialization (use with caution)
-if not SimpleSpy then
-    local success, err = pcall(function()
-        loadstring(game:HttpGet("https://github.com/exxtremestuffs/SimpleSpySource/raw/master/SimpleSpy.lua"))()
-    end)
-    if not success then
-        warn("Failed to load SimpleSpy: " .. tostring(err))
-    end
-end
 
--- Service initialization with retries
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Loader
-local maxAttempts = 5
 
-for attempt = 1, maxAttempts do
-    local success, result = pcall(function()
-        Loader = require(ReplicatedStorage.src.Loader)
-    end)
-    if success then break end
-    if attempt == maxAttempts then
-        error("Failed to load Loader after " .. maxAttempts .. " attempts: " .. tostring(result))
-    end
-    task.wait(1)
-end
-
--- Service loading with validation
-local ItemInventoryService
-local success, err = pcall(function()
-    ItemInventoryService = Loader.load_client_service(script, "ItemInventoryServiceClient")
-end)
-
-if not success or not ItemInventoryService then
-    error("Failed to load ItemInventoryServiceClient: " .. tostring(err))
-end
-
--- Configuration
-local autoSellConfig = {
-    Rare = false,
-    Epic = false,
-    Legendary = false,
-    Cooldown = .5, -- Constant cooldown
-    AutoSellEnabled = false
-}
-
--- Track processed units
-local UnitData = require(ReplicatedStorage.src.Data.Units)
-local processedUnits = {}
-local endpoints = ReplicatedStorage:WaitForChild("endpoints")
-local sellEndpoint = endpoints:WaitForChild("client_to_server"):WaitForChild("sell_units")
 
 local function processUnit(uniqueId, unitEntry)
 
@@ -246,10 +247,6 @@ local function stopMonitoring()
     print("\n=== AUTO-SELL SYSTEM DEACTIVATED ===")
 end
 
--- Optimization Functions
-local originalProperties = {}
-local ws = game:GetService("Workspace")
-local optimized = false
 
 local function optimizeGame()
     if optimized then return end
