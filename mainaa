@@ -248,10 +248,11 @@ end
 
 -- Optimization Functions
 local originalProperties = {}
+local optimized = false
 
 local function optimizeGame()
-    if originalProperties.Enabled then return end
-    originalProperties = {Enabled = true}
+    if optimized then return end
+    optimized = true
     for _, descendant in ipairs(game:GetDescendants()) do
         if descendant:IsA("BasePart") then
             descendant.Material = Enum.Material.Plastic
@@ -287,7 +288,7 @@ local function optimizeGame()
 end
 
 local function restoreGame()
-    if not originalProperties.Enabled then return end
+    if not optimized then return end
     for descendant, originalState in pairs(originalProperties) do
         if descendant:IsA("BasePart") or descendant:IsA("MeshPart") then
             if originalState and originalState.castShadow then
@@ -308,8 +309,7 @@ local function restoreGame()
             end
         end
     end
-    originalProperties = {Enabled = false}
-    print("Game restored to original state.")
+    optimized = false
 end
 
 local Options = Fluent.Options
