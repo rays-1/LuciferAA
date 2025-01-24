@@ -49,7 +49,7 @@ local autoSellConfig = {
     Rare = true,
     Epic = false,
     Legendary = false,
-    Cooldown = 5
+    Cooldown = .5
 }
 
 -- Track processed units
@@ -86,13 +86,6 @@ local function processUnit(uniqueId, unitEntry)
     else
         print("Keeping " .. unitInfo.name .. " (" .. rarity .. ")")
         processedUnits[uniqueId] = true
-    end
-
-    -- Display upgrade info
-    if unitInfo.upgrade then
-        local maxLevel = #unitInfo.upgrade
-        local finalDamage = unitInfo.upgrade[maxLevel].damage
-        print("  Can upgrade to: " .. finalDamage .. " damage (Lvl " .. maxLevel .. ")")
     end
 end
 
