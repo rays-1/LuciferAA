@@ -250,6 +250,15 @@ end
 local originalProperties = {}
 
 local function optimizeGame()
+    local lighting = game:GetService("Lighting")
+    originalProperties["Lighting"] = {
+        Technology = sethiddenproperty(lighting, "Technology"),
+        GlobalShadows = lighting.GlobalShadows,
+        FogEnd = lighting.FogEnd
+    }
+    lighting.GlobalShadows = false
+    lighting.FogEnd = 9e9
+    sethiddenproperty(lighting, "Technology", "Legacy")
     if originalProperties.Enabled then return end
     originalProperties = {Enabled = true}
     for _, descendant in ipairs(game:GetDescendants()) do
@@ -260,28 +269,28 @@ local function optimizeGame()
             descendant.CastShadow = false
             end
 
-        elseif descendant:IsA("Beam") then
+        elseif descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
            local enabled = descendant.Enabled
            if enabled then
             originalProperties[descendant] = {enabled=enabled}
                 descendant.Enabled = false
            end
-        elseif descendant:IsA("ParticleEmitter") then
-            local enabled = descendant.Enabled
-            if enabled then
-            originalProperties[descendant] = {enabled=enabled}
-                 descendant.Enabled = false
-            end
         elseif descendant:IsA("MeshPart") or descendant:IsA("FileMesh") then
             local meshId = descendant.MeshId
-            if meshId then
-               originalProperties[descendant] = {MeshId=meshId}
+            local textureID = descendant.TextureID
+            if meshId and textureID then
+                originalProperties[descendant] = {MeshId=meshId,TextureID = textureID}
               descendant.MeshId = ""
+              descendant.TextureID = ""
             end
        end
 
     end
-        print("Game optimized.")
+    Fluent:Notify({
+        Title = "Optimization Applied",
+        Content = "optimizations activated",
+        Duration = 3
+    })
 end
 
 local function restoreGame()
@@ -291,13 +300,14 @@ local function restoreGame()
           if originalState and originalState.castShadow then
             descendant.CastShadow = originalState.castShadow
             end
-        elseif descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") then
+        elseif descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
             if originalState and originalState.enabled then
                descendant.Enabled = originalState.enabled
             end
          elseif descendant:IsA("MeshPart") or descendant:IsA("FileMesh") then
             if originalState and originalState.MeshId then
                 descendant.MeshId = originalState.MeshId
+                descendant.TextureID = originalState.TextureID
            end
        end
     end
