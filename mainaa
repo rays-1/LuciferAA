@@ -254,7 +254,7 @@ local function optimizeGame()
     if optimized then return end
     optimized = true
     for _, descendant in ipairs(game:GetDescendants()) do
-        if not descendant:IsDescendantOf(game.Workspace.Camera) then
+        if not descendant:IsDescendantOf(workspace.Camera) then
             if descendant:IsA("BasePart") then
                 descendant.Material = Enum.Material.Plastic
             end
