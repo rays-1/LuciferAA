@@ -87,7 +87,7 @@ local teleportButton = MainActions:AddButton({
                 Fluent:Notify({
                     Title = "Teleport Failed",
                     Content = "Error: " .. tostring(err),
-                    Duration = 5
+                    Duration = 3
                 })
             end
             
