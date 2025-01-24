@@ -156,7 +156,6 @@ local endpoints = ReplicatedStorage:WaitForChild("endpoints")
 local sellEndpoint = endpoints:WaitForChild("client_to_server"):WaitForChild("sell_units")
 
 local function processUnit(uniqueId, unitEntry)
-    if processedUnits[uniqueId] then return end
     -- Add nil checks for critical components
     if not unitEntry or not unitEntry.unit_id then
         warn("Invalid unit entry for ID: " .. tostring(uniqueId))
@@ -180,6 +179,7 @@ local function processUnit(uniqueId, unitEntry)
 
     if autoSellConfig[rarity] and autoSellConfig.AutoSellEnabled then
         local success, result = pcall(function()
+            if processedUnits[uniqueId] then return end 
             processedUnits[uniqueId] = true
             sellEndpoint:InvokeServer(args)
         end)
