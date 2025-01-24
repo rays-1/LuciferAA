@@ -33,7 +33,7 @@ for uniqueId, unitEntry in pairs(collection) do
         if unitInfo then
             local displayName = unitInfo.name or "Unknown Unit"
             local rarity = unitInfo.rarity or "Common"
-            local shinyStatus = unitInfo.shiny and "✨ SHINY" or ""
+            local shinyStatus = unitEntry["shiny"] and "✨ SHINY" or ""
             
             print(string.format(
                 "[%s] %s %s\n- Rarity: %s\n- Base Damage: %s\n- Type: %s\n- Cost: %s\n",
