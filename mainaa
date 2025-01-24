@@ -70,16 +70,13 @@ local teleportButton = MainActions:AddButton({
         teleportClickCount += 1
         
         if teleportClickCount == 1 then
-            teleportButton.Title = "Click again to confirm"
             task.delay(teleportCooldown, function()
                 if teleportClickCount == 1 then
                     teleportClickCount = 0
-                    teleportButton.Title = "Teleport to Lobby"
                 end
             end)
         elseif teleportClickCount >= 2 and not isTeleporting then
             isTeleporting = true
-            teleportButton.Title = "Teleporting.."
             
             local TeleportService = game:GetService("TeleportService")
             local success, err = pcall(function()
@@ -92,7 +89,6 @@ local teleportButton = MainActions:AddButton({
                     Content = "Error: " .. tostring(err),
                     Duration = 5
                 })
-                teleportButton.Title = "Teleport to Lobby"
             end
             
             teleportClickCount = 0
