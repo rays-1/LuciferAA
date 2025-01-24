@@ -291,7 +291,7 @@ local function restoreGame()
     for descendant, originalState in pairs(originalProperties) do
         if descendant:IsA("BasePart") or descendant:IsA("MeshPart") then
             if originalState and originalState.castShadow then
-            descendant.CastShadow = originalState.castShadow
+                descendant.CastShadow = originalState.castShadow
             end
         elseif descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
             if originalState and originalState.enabled then
@@ -314,85 +314,84 @@ end
 
 local Options = Fluent.Options
 
-do
-    -- UI Elements for Auto-Sell in Shop Tab
-    local AutoSellEnabledToggle = Tabs.Shop:AddToggle("AutoSellEnabled", { Title = "Enable Auto Sell", Default = autoSellConfig.AutoSellEnabled })
-    AutoSellEnabledToggle:OnChanged(function()
-        autoSellConfig.AutoSellEnabled = Options.AutoSellEnabled.Value
-        if autoSellConfig.AutoSellEnabled then
-            startMonitoring()
-        else
-            stopMonitoring()
-        end
-    end)
 
-     -- Add multi-select dropdown for rarities
-    local RarityMultiDropdown = Tabs.Shop:AddDropdown("RarityMultiDropdown", {
-        Title = "Auto Sell Rarities",
-        Description = "Select which rarities to auto sell",
-        Values = {"Rare", "Epic", "Legendary"},
-        Multi = true,
-        Default = {},
-    })
-
-    RarityMultiDropdown:OnChanged(function(Value)
-        autoSellConfig.Rare = false
-        autoSellConfig.Epic = false
-        autoSellConfig.Legendary = false
-
-        for rarity, state in pairs(Value) do
-            if state then
-                if rarity == "Rare" then
-                    autoSellConfig.Rare = true
-                elseif rarity == "Epic" then
-                    autoSellConfig.Epic = true
-                elseif rarity == "Legendary" then
-                    autoSellConfig.Legendary = true
-                end
-            end
-        end
-    end)
-
-    -- Constant cooldown (no slider)
-    autoSellConfig.Cooldown = 0.5
-
-    -- Add optimizer toggle
-    local OptimizerToggle = Tabs.Misc:AddToggle("OptimizerEnabled", {Title = "Enable Optimizer", Default = false})
-    OptimizerToggle:OnChanged(function()
-        if Options.OptimizerEnabled.Value then
-            optimizeGame()
-            Fluent:Notify({
-                Title = "Optimization Applied",
-                Content = "optimizations activated",
-                Duration = 3
-            })
-        else
-            restoreGame()
-            Fluent:Notify({
-                Title = "Optimization Disabled",
-                Content = "optimizations Disabled",
-                Duration = 3
-            })
-        end
-    end)
-
-    -- Update toggle for current state
-    AutoSellEnabledToggle:SetValue(autoSellConfig.AutoSellEnabled)
-
-    -- Initial scan
-    print("\n=== INITIAL UNIT SCAN ===")
-    processedUnits = {}
-    local initialCollection = ItemInventoryService.session.collection.collection_profile_data.owned_units
-    if initialCollection then
-        for uniqueId, unitEntry in pairs(initialCollection) do
-            if unitEntry and unitEntry.unit_id then
-                processUnit(uniqueId, unitEntry)
-            end
-        end
-    end
+-- UI Elements for Auto-Sell in Shop Tab
+local AutoSellEnabledToggle = Tabs.Shop:AddToggle("AutoSellEnabled", { Title = "Enable Auto Sell", Default = autoSellConfig.AutoSellEnabled })
+AutoSellEnabledToggle:OnChanged(function()
+    autoSellConfig.AutoSellEnabled = Options.AutoSellEnabled.Value
     if autoSellConfig.AutoSellEnabled then
         startMonitoring()
+    else
+        stopMonitoring()
     end
+end)
+
+    -- Add multi-select dropdown for rarities
+local RarityMultiDropdown = Tabs.Shop:AddDropdown("RarityMultiDropdown", {
+    Title = "Auto Sell Rarities",
+    Description = "Select which rarities to auto sell",
+    Values = {"Rare", "Epic", "Legendary"},
+    Multi = true,
+    Default = {},
+})
+
+RarityMultiDropdown:OnChanged(function(Value)
+    autoSellConfig.Rare = false
+    autoSellConfig.Epic = false
+    autoSellConfig.Legendary = false
+
+    for rarity, state in pairs(Value) do
+        if state then
+            if rarity == "Rare" then
+                autoSellConfig.Rare = true
+            elseif rarity == "Epic" then
+                autoSellConfig.Epic = true
+            elseif rarity == "Legendary" then
+                autoSellConfig.Legendary = true
+            end
+        end
+    end
+end)
+
+-- Constant cooldown (no slider)
+autoSellConfig.Cooldown = 0.5
+
+-- Add optimizer toggle
+local OptimizerToggle = Tabs.Misc:AddToggle("OptimizerEnabled", {Title = "Enable Optimizer", Default = false})
+OptimizerToggle:OnChanged(function()
+    if Options.OptimizerEnabled.Value then
+        optimizeGame()
+        Fluent:Notify({
+            Title = "Optimization Applied",
+            Content = "optimizations activated",
+            Duration = 3
+        })
+    else
+        restoreGame()
+        Fluent:Notify({
+            Title = "Optimization Disabled",
+            Content = "optimizations Disabled",
+            Duration = 3
+        })
+    end
+end)
+
+-- Update toggle for current state
+AutoSellEnabledToggle:SetValue(autoSellConfig.AutoSellEnabled)
+
+-- Initial scan
+print("\n=== INITIAL UNIT SCAN ===")
+processedUnits = {}
+local initialCollection = ItemInventoryService.session.collection.collection_profile_data.owned_units
+if initialCollection then
+    for uniqueId, unitEntry in pairs(initialCollection) do
+        if unitEntry and unitEntry.unit_id then
+            processUnit(uniqueId, unitEntry)
+        end
+    end
+end
+if autoSellConfig.AutoSellEnabled then
+    startMonitoring()
 end
 
 -- Addons:
