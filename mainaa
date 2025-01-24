@@ -105,16 +105,6 @@ local teleportButton = MainActions:AddButton({
 
 -- Start Auto-Sell Integration
 
--- SimpleSpy initialization (use with caution)
-if not SimpleSpy then
-    local success, err = pcall(function()
-        loadstring(game:HttpGet("https://github.com/exxtremestuffs/SimpleSpySource/raw/master/SimpleSpy.lua"))()
-    end)
-    if not success then
-        warn("Failed to load SimpleSpy: " .. tostring(err))
-    end
-end
-
 -- Service initialization with retries
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Loader
