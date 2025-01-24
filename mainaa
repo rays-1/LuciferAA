@@ -255,7 +255,7 @@ local function optimizeGame()
     if optimized then return end
     optimized = true
     for _, descendant in ipairs(game:GetDescendants()) do
-        if not descendant:IsDescendantOf(ws:WaitForChild("Camera")) then
+        if not descendant:IsDescendantOf(ws:WaitForChild("Camera") then
             if descendant:IsA("BasePart") then
                 descendant.Material = Enum.Material.Plastic
             end
@@ -275,7 +275,7 @@ local function optimizeGame()
                         descendant.Enabled = false
                     end
                 end
-            elseif descendant:IsA("MeshPart") then
+            elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
                 if descendant.MeshID and descendant.TextureID then
                     local meshId = descendant.MeshID
                     local textureID = descendant.TextureID
@@ -309,7 +309,7 @@ local function restoreGame()
             if originalState and originalState.enabled then
                 descendant.Enabled = originalState.enabled
             end
-        elseif descendant:IsA("MeshPart") then
+        elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
             if originalState and originalState.MeshID then
                 descendant.MeshID = originalState.MeshID
                 descendant.TextureID = originalState.TextureID
