@@ -267,7 +267,7 @@ local function optimizeGame()
             local enabled = descendant.Enabled
             if enabled then
                 originalProperties[descendant] = {enabled=enabled}
-                    descendant.Enabled = false
+                descendant.Enabled = false
             end
         elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
             local meshId = descendant.MeshID
