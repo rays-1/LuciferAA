@@ -286,11 +286,6 @@ local function optimizeGame()
         end
 
     end
-    Fluent:Notify({
-        Title = "Optimization Applied",
-        Content = "optimizations activated",
-        Duration = 3
-    })
 end
 
 local function restoreGame()
@@ -364,7 +359,13 @@ do
     autoSellConfig.Cooldown = 0.5
 
     -- Add optimizer toggle
-    local OptimizerToggle = Tabs.Misc:AddToggle("OptimizerEnabled", {Title = "Enable Optimizer", Default = false})
+    local OptimizerToggle = Tabs.Misc:AddToggle("OptimizerEnabled", {Title = "Enable Optimizer", Default = false, Callback = function()
+        Fluent:Notify({
+            Title = "Optimization Applied",
+            Content = "optimizations activated",
+            Duration = 3
+        })
+    end})
     OptimizerToggle:OnChanged(function()
         if Options.OptimizerEnabled.Value then
             optimizeGame()
