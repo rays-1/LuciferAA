@@ -258,30 +258,38 @@ local function optimizeGame()
             descendant.Material = Enum.Material.Plastic
         end
         if descendant:IsA("BasePart") or descendant:IsA("MeshPart") or descendant:IsA("Part") then
-            local castShadow = descendant.CastShadow
-            if castShadow then
-                originalProperties[descendant] = {castShadow=castShadow}
-                descendant.CastShadow = false
+            if descendant.CastShadow then
+                local castShadow = descendant.CastShadow
+                if castShadow then
+                    originalProperties[descendant] = {castShadow=castShadow}
+                    descendant.CastShadow = false
+                end
             end
         elseif descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
-            local enabled = descendant.Enabled
-            if enabled then
-                originalProperties[descendant] = {enabled=enabled}
-                descendant.Enabled = false
+            if descendant.Enabled then
+                local enabled = descendant.Enabled
+                if enabled then
+                    originalProperties[descendant] = {enabled=enabled}
+                    descendant.Enabled = false
+                end
             end
         elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
-            local meshId = descendant.MeshID
-            local textureID = descendant.TextureID
-            if meshId and textureID then
-                originalProperties[descendant] = {MeshID=meshId,TextureID = textureID}
-                descendant.MeshID = ""
-                descendant.TextureID = ""
+            if descendant.MeshID and descendant.TextureID then
+                local meshId = descendant.MeshID
+                local textureID = descendant.TextureID
+                if meshId and textureID then
+                    originalProperties[descendant] = {MeshID=meshId,TextureID = textureID}
+                    descendant.MeshID = ""
+                    descendant.TextureID = ""
+                end
             end
         elseif descendant:IsA("BillboardGui") then
-            local enabled = descendant.Enabled
-            if enabled then
-                originalProperties[descendant] = {enabled = enabled}
-                descendant.Enabled = false
+            if descendant.Enabled then
+                local enabled = descendant.Enabled
+                if enabled then
+                    originalProperties[descendant] = {enabled = enabled}
+                    descendant.Enabled = false
+                end
             end
         end
     end
