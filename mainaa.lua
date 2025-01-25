@@ -3,7 +3,7 @@ local maxAttempts = 5
 
 for attempt = 1, maxAttempts do
     local success, result = pcall(function()
-        Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+        Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/discoart/FluentPlus/refs/heads/main/release.lua"))()
     end)
     if success then break end
     if attempt == maxAttempts then
@@ -323,7 +323,7 @@ local function restoreGame()
             if originalState and originalState.enabled then
                 descendant.Enabled = originalState.enabled
             end
-        elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") or descendant:IsA("BasePart") or descendant:IsA("Part")  then
+        elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") or descendant:IsA("BasePart") or descendant:IsA("Part") then
             if originalState and originalState.castShadow then
                 descendant.CastShadow = originalState.castShadow
             end
