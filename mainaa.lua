@@ -131,6 +131,8 @@ local MainActions = Tabs.Main:AddSection("Quick Actions", 2)
 
 Tabs.Joiner:AddSection("Joiner Settings",1)
 Tabs.Joiner:AddSection("Join Friend", 2)
+local autoJoinWorldSection = Tabs.Joiner:AddSection("Auto Join World", 3)
+local friendSection = Tabs.Joiner:AddSection("Friend Management", 4)
 
 Tabs["Farm Config"]:AddSection("Combat Settings", 1)
 Tabs["Farm Config"]:AddSection("Target Filters", 2)
@@ -589,17 +591,6 @@ local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
     Multi = false,
     Callback = function(Value)
         joinerConfig.worldJoinerConfig.World = Value
-        -- Update acts when world changes
-        local acts = {}
-        for i = 1, 6 do
-            if Worlds[Value]["Act "..i] then
-                table.insert(acts, "Act "..i)
-            end
-        end
-        actSection:SetValues(acts)
-        if #acts > 0 then
-            actSection:SetValue(acts[1])
-        end
     end
 })
 
@@ -607,7 +598,7 @@ local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
 local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Title = "Select Act",
     Description = "Pick an act to join",
-    Values = {},  -- Start empty
+    Values = worldNames[joinerConfig.worldJoinerConfig.World],
     Default = "Act 1",
     Multi = false,
     Callback = function(Value)
@@ -669,7 +660,7 @@ OptimizerToggle:OnChanged(function()
     end
 end)
 
-local FriendJoiner = Tabs.Joiner:AddToggle("FriendJoinerEnabled", { Title = "Enable Friend Joiner", Description = "Must be used by MAIN account",Default = false })
+local FriendJoiner = friendSection:AddToggle("FriendJoinerEnabled", { Title = "Enable Friend Joiner", Description = "Must be used by MAIN account",Default = false })
 FriendJoiner:OnChanged(function()
     if Options.FriendJoinerEnabled.Value then
         if Options.FriendWaiterEnabled.Value then
@@ -681,7 +672,7 @@ FriendJoiner:OnChanged(function()
     end
 end)
 
-local FriendJoinName = Tabs.Joiner:AddInput("Name", {
+local FriendJoinName = friendSection:AddInput("Name", {
     Title = "Join Who?",
     Default = "",
     Numeric = false,
@@ -692,7 +683,7 @@ local FriendJoinName = Tabs.Joiner:AddInput("Name", {
     end
 })
 
-local FriendWaiter = Tabs.Joiner:AddToggle("FriendWaiterEnabled", { Title = "Enable Friend Waiter", Description = "Must be used by ALT account", Default = false })
+local FriendWaiter = friendSection:AddToggle("FriendWaiterEnabled", { Title = "Enable Friend Waiter", Description = "Must be used by ALT account", Default = false })
 FriendWaiter:OnChanged(function()
     if Options.FriendWaiterEnabled.Value then
         if Options.FriendJoinerEnabled.Value then
@@ -704,7 +695,7 @@ FriendWaiter:OnChanged(function()
     end
 end)
 
-local FriendWaitName = Tabs.Joiner:AddInput("Name", {
+local FriendWaitName = friendSection:AddInput("Name", {
     Title = "Wait Who?",
     Default = "",
     Numeric = false,
