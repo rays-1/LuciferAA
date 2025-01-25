@@ -256,7 +256,7 @@ local function optimizeGame()
                     end
                 end
             end
-            if descendant and descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") or descendant:IsA("FileMesh") then
+            if descendant and descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
                 if descendant.MeshId then
                     local meshId = descendant.MeshId
                     if meshId then
@@ -291,7 +291,7 @@ local function restoreGame()
                 descendant.Enabled = originalState.enabled
             end
         end
-        if descendant and descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") or descendant:IsA("FileMesh")then
+        if descendant and descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
             if originalState and originalState.MeshId then
                 descendant.MeshId = originalState.MeshId
             end
