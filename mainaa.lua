@@ -565,15 +565,6 @@ end
 
 local Options = Fluent.Options
 
-local AutoSellEnabledToggle = Tabs.Shop:AddToggle("AutoSellEnabled", { Title = "Enable Auto Sell", Default = autoSellConfig.AutoSellEnabled })
-AutoSellEnabledToggle:OnChanged(function()
-    autoSellConfig.AutoSellEnabled = Options.AutoSellEnabled.Value
-    if autoSellConfig.AutoSellEnabled then
-        startMonitoring()
-    else
-        stopMonitoring()
-    end
-end)
 local friendOnly = joinerSets:AddToggle("FriendsOnlyEnabled", {Title = "Friends Only?",Default = joinerConfig.friendOnly})
 
 friendOnly:OnChanged(function(Value)
@@ -591,6 +582,7 @@ local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
     end
 })
 
+print(worldNames[joinerConfig.worldJoinerConfig.World])
 -- Fix the act section dropdown
 local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Title = "Select Act",
@@ -611,6 +603,16 @@ for i = 1, 6 do
     end
 end
 actSection:SetValues(initialActs)
+
+local AutoSellEnabledToggle = Tabs.Shop:AddToggle("AutoSellEnabled", { Title = "Enable Auto Sell", Default = autoSellConfig.AutoSellEnabled })
+AutoSellEnabledToggle:OnChanged(function()
+    autoSellConfig.AutoSellEnabled = Options.AutoSellEnabled.Value
+    if autoSellConfig.AutoSellEnabled then
+        startMonitoring()
+    else
+        stopMonitoring()
+    end
+end)
 
 local RarityMultiDropdown = Tabs.Shop:AddDropdown("RarityMultiDropdown", {
     Title = "Auto Sell Rarities",
