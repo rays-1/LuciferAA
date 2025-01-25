@@ -288,23 +288,27 @@ end
 local function restoreGame()
     if not optimized then return end
     for descendant, originalState in pairs(originalProperties) do
-        if descendant and descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") or descendant:IsA("SurfaceGui") or descendant:IsA("BillboardGui") then
-            if originalState and originalState.enabled then
-                descendant.Enabled = originalState.enabled
+        if descendant then
+            if descendant and descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") or descendant:IsA("SurfaceGui") or descendant:IsA("BillboardGui") then
+                if originalState and originalState.enabled then
+                    descendant.Enabled = originalState.enabled
+                end
             end
-        end
-        if descendant and descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
-            if originalState and originalState.MeshId then
-                descendant.MeshId = originalState.MeshId
+            if descendant and descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
+                if originalState and originalState.MeshId then
+                    descendant.MeshId = originalState.MeshId
+                end
+                if originalState and originalState.TextureId then
+                    descendant.TextureId = originalState.TextureId
+                end
             end
-            if originalState and originalState.TextureId then
-                descendant.TextureId = originalState.TextureId
-            end
-        end
-        if descendant and descendant:IsA("Texture")  then
-            if originalState and originalState.Texture then
-                descendant.Texture = originalState.Texture
-            end
+            if descendant and descendant:IsA("Texture")  then
+                if originalState and originalState.Texture then
+                    descendant.Texture = originalState.Texture
+                end
+            end 
+        else
+            print("eep")
         end
     end
     optimized = false
