@@ -35,27 +35,26 @@ for attempt = 1, maxAttempts do
     end
     task.wait(1)
 end
+
 local LuciferVer = "v0.0001"
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Loader
-local maxAttempts = 5
 local autoSellConfig = {
     Rare = false,
     Epic = false,
     Legendary = false,
-    Cooldown = .5,
+    Cooldown = 0.5,
     AutoSellEnabled = false
 }
--- Track processed units
+
 local UnitData = require(ReplicatedStorage.src.Data.Units)
 local processedUnits = {}
 local endpoints = ReplicatedStorage:WaitForChild("endpoints")
 local sellEndpoint = endpoints:WaitForChild("client_to_server"):WaitForChild("sell_units")
--- Optimization Functions
+
 local originalProperties = {}
 local ws = game:GetService("Workspace")
 local optimized = false
-
 
 for attempt = 1, maxAttempts do
     local success, result = pcall(function()
@@ -68,7 +67,6 @@ for attempt = 1, maxAttempts do
     task.wait(1)
 end
 
--- SimpleSpy initialization (use with caution)
 if not SimpleSpy then
     local success, err = pcall(function()
         loadstring(game:HttpGet("https://github.com/exxtremestuffs/SimpleSpySource/raw/master/SimpleSpy.lua"))()
@@ -78,8 +76,6 @@ if not SimpleSpy then
     end
 end
 
-
---aw
 local Window = Fluent:CreateWindow({
     Title = "Lucifer " .. LuciferVer,
     SubTitle = "Made by Haro",
@@ -90,7 +86,6 @@ local Window = Fluent:CreateWindow({
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
--- Create All Tabs
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
     Farm = Window:AddTab({ Title = "Farm", Icon = "activity" }),
@@ -101,31 +96,21 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
--- Main Tab Sections
 local MainWelcome = Tabs.Main:AddSection("Welcome to Lucifer", 1)
 local MainActions = Tabs.Main:AddSection("Quick Actions", 2)
 
--- Farm Tab Sections
 Tabs.Farm:AddSection("Auto Farming", 1)
 Tabs.Farm:AddSection("Loot Collection", 2)
 
--- Joiner Tab Sections
 Tabs.Joiner:AddSection("Lobby Selection", 1)
 Tabs.Joiner:AddSection("Matchmaking", 2)
 
--- Farm Config Tab Sections
 Tabs["Farm Config"]:AddSection("Combat Settings", 1)
 Tabs["Farm Config"]:AddSection("Target Filters", 2)
 
--- Shop Tab Sections
--- Tabs.Shop:AddSection("Auto Purchases", 1) -- Removed existing section
--- Tabs.Shop:AddSection("Item Priority", 2) -- Removed existing section
-
--- Misc Tab Sections
 Tabs.Misc:AddSection("Character Mods", 1)
 Tabs.Misc:AddSection("Environment", 2)
 
--- Settings Tab (Required for Save/Load)
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
 
@@ -134,10 +119,8 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 
 Window:SelectTab(1)
 
--- Add Teleport Button to Quick Actions section
--- Add to your Main tab sections
 local teleportClickCount = 0
-local teleportCooldown = 2 -- seconds between clicks
+local teleportCooldown = 2
 local isTeleporting = false
 local ItemInventoryService
 local success, err = pcall(function()
@@ -152,7 +135,7 @@ local teleportButton = MainActions:AddButton({
     Description = "Double-click to confirm",
     Callback = function()
         teleportClickCount += 1
-        
+
         if teleportClickCount == 1 then
             task.delay(teleportCooldown, function()
                 if teleportClickCount == 1 then
@@ -161,7 +144,7 @@ local teleportButton = MainActions:AddButton({
             end)
         elseif teleportClickCount >= 2 and not isTeleporting then
             isTeleporting = true
-            
+
             Fluent:Notify({
                 Title = "Attempt Teleport",
                 Content = "Attempting to Teleport",
@@ -172,7 +155,7 @@ local teleportButton = MainActions:AddButton({
             local success, err = pcall(function()
                 TeleportService:Teleport(8304191830, game.Players.LocalPlayer)
             end)
-            
+
             if not success then
                 Fluent:Notify({
                     Title = "Teleport Failed",
@@ -180,20 +163,14 @@ local teleportButton = MainActions:AddButton({
                     Duration = 3
                 })
             end
-            
+
             teleportClickCount = 0
             isTeleporting = false
         end
     end
 })
 
-
-
-
-
 local function processUnit(uniqueId, unitEntry)
-
-    -- Add nil checks for critical components
     if not unitEntry or not unitEntry.unit_id then
         warn("Invalid unit entry for ID: " .. tostring(uniqueId))
         return
@@ -201,13 +178,12 @@ local function processUnit(uniqueId, unitEntry)
 
     local unitId = unitEntry.unit_id
     local unitInfo = UnitData[unitId]
-    
+
     if not unitInfo then
         warn("Unknown unit ID: " .. tostring(unitId))
         return
     end
 
-    -- Safely handle potentially missing values
     local rarity = unitInfo.rarity or "Common"
     local unitName = unitInfo.name or "Unknown Unit"
 
@@ -219,9 +195,8 @@ local function processUnit(uniqueId, unitEntry)
             sellEndpoint:InvokeServer(args)
             processedUnits[uniqueId] = true
         end)
-        
+
         if success then
-            -- Safe string concatenation using format
             print(string.format("Sold %s (Rarity: %s)", unitName, rarity))
             processedUnits[uniqueId] = true
         else
@@ -232,7 +207,6 @@ local function processUnit(uniqueId, unitEntry)
         processedUnits[uniqueId] = true
     end
 
-    -- Display upgrade info safely
     if unitInfo.upgrade then
         local maxLevel = #unitInfo.upgrade
         local finalDamage = unitInfo.upgrade[maxLevel] and unitInfo.upgrade[maxLevel].damage or "N/A"
@@ -240,25 +214,24 @@ local function processUnit(uniqueId, unitEntry)
     end
 end
 
--- Monitoring system
 local monitoringTask
 local function monitorCollection()
     while task.wait(autoSellConfig.Cooldown) and autoSellConfig.AutoSellEnabled do
         local collection = ItemInventoryService.session.collection.collection_profile_data.owned_units
-        
+
         if not collection then
             warn("Collection data not available!")
             continue
         end
 
         print("\n=== SCANNING COLLECTION ===")
-        
+
         for uniqueId, unitEntry in pairs(collection) do
             if unitEntry and unitEntry.unit_id then
                 processUnit(uniqueId, unitEntry)
             end
         end
-        
+
         print("=== SCAN COMPLETE ===\n")
         if not autoSellConfig.AutoSellEnabled then break end
     end
@@ -281,12 +254,11 @@ local function stopMonitoring()
     print("\n=== AUTO-SELL SYSTEM DEACTIVATED ===")
 end
 
-
 local function optimizeGame()
     if optimized then return end
     optimized = true
     for _, descendant in ipairs(game:GetDescendants()) do
-        if not descendant:IsDescendantOf(ws:WaitForChild("Camera") then
+        if not descendant:IsDescendantOf(ws:WaitForChild("Camera")) then
             if descendant:IsA("BasePart") then
                 descendant.Material = Enum.Material.Plastic
             end
@@ -294,7 +266,7 @@ local function optimizeGame()
                 if descendant.CastShadow then
                     local castShadow = descendant.CastShadow
                     if castShadow then
-                        originalProperties[descendant] = {castShadow=castShadow}
+                        originalProperties[descendant] = { castShadow = castShadow }
                         descendant.CastShadow = false
                     end
                 end
@@ -302,16 +274,16 @@ local function optimizeGame()
                 if descendant.Enabled then
                     local enabled = descendant.Enabled
                     if enabled then
-                        originalProperties[descendant] = {enabled=enabled}
+                        originalProperties[descendant] = { enabled = enabled }
                         descendant.Enabled = false
                     end
                 end
             elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
                 if descendant.MeshId and descendant.TextureId then
                     local meshId = descendant.MeshId
-                    local textureID = descendant.TextureID
-                    if meshId and textureID then
-                        originalProperties[descendant] = {MeshID=meshId,TextureID = textureID}
+                    local textureId = descendant.TextureId
+                    if meshId and textureId then
+                        originalProperties[descendant] = { MeshId = meshId, TextureId = textureId }
                         descendant.MeshId = ""
                         descendant.TextureId = ""
                     end
@@ -320,7 +292,7 @@ local function optimizeGame()
                 if descendant.Enabled then
                     local enabled = descendant.Enabled
                     if enabled then
-                        originalProperties[descendant] = {enabled = enabled}
+                        originalProperties[descendant] = { enabled = enabled }
                         descendant.Enabled = false
                     end
                 end
@@ -341,9 +313,9 @@ local function restoreGame()
                 descendant.Enabled = originalState.enabled
             end
         elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
-            if originalState and originalState.MeshID then
-                descendant.MeshId= originalState.MeshID
-                descendant.TextureId= originalState.TextureID
+            if originalState and originalState.MeshId then
+                descendant.MeshId = originalState.MeshId
+                descendant.TextureId = originalState.TextureId
             end
         elseif descendant:IsA("BillboardGui") then
             if originalState and originalState.enabled then
@@ -356,8 +328,6 @@ end
 
 local Options = Fluent.Options
 
-
--- UI Elements for Auto-Sell in Shop Tab
 local AutoSellEnabledToggle = Tabs.Shop:AddToggle("AutoSellEnabled", { Title = "Enable Auto Sell", Default = autoSellConfig.AutoSellEnabled })
 AutoSellEnabledToggle:OnChanged(function()
     autoSellConfig.AutoSellEnabled = Options.AutoSellEnabled.Value
@@ -368,7 +338,6 @@ AutoSellEnabledToggle:OnChanged(function()
     end
 end)
 
-    -- Add multi-select dropdown for rarities
 local RarityMultiDropdown = Tabs.Shop:AddDropdown("RarityMultiDropdown", {
     Title = "Auto Sell Rarities",
     Description = "Select which rarities to auto sell",
@@ -395,33 +364,27 @@ RarityMultiDropdown:OnChanged(function(Value)
     end
 end)
 
--- Constant cooldown (no slider)
-autoSellConfig.Cooldown = 0.5
-
--- Add optimizer toggle
-local OptimizerToggle = Tabs.Misc:AddToggle("OptimizerEnabled", {Title = "Enable Optimizer", Default = false})
+local OptimizerToggle = Tabs.Misc:AddToggle("OptimizerEnabled", { Title = "Enable Optimizer", Default = false })
 OptimizerToggle:OnChanged(function()
     if Options.OptimizerEnabled.Value then
         optimizeGame()
         Fluent:Notify({
             Title = "Optimization Applied",
-            Content = "optimizations activated",
+            Content = "Optimizations activated",
             Duration = 3
         })
     else
         restoreGame()
         Fluent:Notify({
             Title = "Optimization Disabled",
-            Content = "optimizations Disabled",
+            Content = "Optimizations disabled",
             Duration = 3
         })
     end
 end)
 
--- Update toggle for current state
 AutoSellEnabledToggle:SetValue(autoSellConfig.AutoSellEnabled)
 
--- Initial scan
 print("\n=== INITIAL UNIT SCAN ===")
 processedUnits = {}
 local initialCollection = ItemInventoryService.session.collection.collection_profile_data.owned_units
@@ -436,24 +399,11 @@ if autoSellConfig.AutoSellEnabled then
     startMonitoring()
 end
 
--- Addons:
--- SaveManager (Allows you to have a configuration system)
--- InterfaceManager (Allows you to have a interface managment system)
-
--- Hand the library over to our managers
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
 
--- Ignore keys that are used by ThemeManager.
--- (we dont want configs to save themes, do we?)
 SaveManager:IgnoreThemeSettings()
-
--- You can add indexes of elements the save manager should ignore
 SaveManager:SetIgnoreIndexes({})
-
--- use case for doing it this way:
--- a script hub could have themes in a global folder
--- and game configs in a separate folder per game
 InterfaceManager:SetFolder("FluentScriptHub")
 SaveManager:SetFolder("FluentScriptHub/specific-game")
 
@@ -466,6 +416,4 @@ Fluent:Notify({
     Duration = 8
 })
 
--- You can use the SaveManager:LoadAutoloadConfig() to load a config
--- which has been marked to be one that auto loads!
 SaveManager:LoadAutoloadConfig()
