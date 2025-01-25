@@ -243,11 +243,11 @@ local function optimizeGame()
         if not descendant:IsDescendantOf(ws:WaitForChild("Camera")) then
             print("--"..count)
             count = count + 1
-            if descendant:IsA("BasePart") then
+            if descendant and  descendant:IsA("BasePart") then
                 descendant.Material = Enum.Material.Plastic
                 descendant.CastShadow = false
             end
-            if descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") or descendant:IsA("SurfaceGui") or descendant:IsA("BillboardGui") then
+            if descendant and descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") or descendant:IsA("SurfaceGui") or descendant:IsA("BillboardGui") then
                 if descendant.Enabled then
                     local enabled = descendant.Enabled
                     if enabled then
@@ -256,7 +256,7 @@ local function optimizeGame()
                     end
                 end
             end
-            if descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") or descendant:IsA("FileMesh") then
+            if descendant and descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") or descendant:IsA("FileMesh") then
                 if descendant.MeshId then
                     local meshId = descendant.MeshId
                     if meshId then
@@ -272,7 +272,7 @@ local function optimizeGame()
                     end
                 end
             end
-            if descendant:IsA("Texture") then
+            if  descendant and descendant:IsA("Texture") then
                 local Texture = descendant.Texture;
                 if Texture then
                     descendant.Texture = ""
@@ -286,12 +286,12 @@ end
 local function restoreGame()
     if not optimized then return end
     for descendant, originalState in pairs(originalProperties) do
-        if descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") or descendant:IsA("SurfaceGui") or descendant:IsA("BillboardGui") then
+        if descendant and descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") or descendant:IsA("SurfaceGui") or descendant:IsA("BillboardGui") then
             if originalState and originalState.enabled then
                 descendant.Enabled = originalState.enabled
             end
         end
-        if descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") or descendant:IsA("FileMesh")then
+        if descendant and descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") or descendant:IsA("FileMesh")then
             if originalState and originalState.MeshId then
                 descendant.MeshId = originalState.MeshId
             end
@@ -299,7 +299,7 @@ local function restoreGame()
                 descendant.TextureId = originalState.TextureId
             end
         end
-        if descendant:IsA("Texture")  then
+        if descendant and descendant:IsA("Texture")  then
             if originalState and originalState.Texture then
                 descendant.Texture = originalState.Texture
             end
