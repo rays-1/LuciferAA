@@ -262,15 +262,7 @@ local function optimizeGame()
             if descendant:IsA("BasePart") then
                 descendant.Material = Enum.Material.Plastic
             end
-            if descendant:IsA("BasePart") or descendant:IsA("MeshPart") or descendant:IsA("Part") then
-                if descendant.CastShadow then
-                    local castShadow = descendant.CastShadow
-                    if castShadow then
-                        originalProperties[descendant] = { castShadow = castShadow }
-                        descendant.CastShadow = false
-                    end
-                end
-            elseif descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
+            if descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
                 if descendant.Enabled then
                     local enabled = descendant.Enabled
                     if enabled then
@@ -278,7 +270,14 @@ local function optimizeGame()
                         descendant.Enabled = false
                     end
                 end
-            elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
+            elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") or descendant:IsA("BasePart") or descendant:IsA("Part")  then
+                if descendant.CastShadow then
+                    local castShadow = descendant.CastShadow
+                    if castShadow then
+                        originalProperties[descendant] = { castShadow = castShadow }
+                        descendant.CastShadow = false
+                    end
+                end
                 if descendant.MeshId then
                     local meshId = descendant.MeshId
                     if meshId then
@@ -289,7 +288,7 @@ local function optimizeGame()
                 if descendant.TextureId then
                     local textureId = descendant.TextureId
                     if textureId then
-                        originalProperties[descendant].TextureId = textureId 
+                        originalProperties[descendant].TextureId = textureId
                         descendant.TextureId = ""
                     end
                 end
@@ -316,15 +315,14 @@ end
 local function restoreGame()
     if not optimized then return end
     for descendant, originalState in pairs(originalProperties) do
-        if descendant:IsA("BasePart") or descendant:IsA("MeshPart") then
-            if originalState and originalState.castShadow then
-                descendant.CastShadow = originalState.castShadow
-            end
-        elseif descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
+        if descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
             if originalState and originalState.enabled then
                 descendant.Enabled = originalState.enabled
             end
-        elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
+        elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") or descendant:IsA("BasePart") or descendant:IsA("Part")  then
+            if originalState and originalState.castShadow then
+                descendant.CastShadow = originalState.castShadow
+            end
             if originalState and originalState.MeshId then
                 descendant.MeshId = originalState.MeshId
             end
