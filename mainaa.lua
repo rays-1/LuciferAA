@@ -251,7 +251,6 @@ local function monitorCollection()
 
         if not collection then
             warn("Collection data not available!")
-            continue
         end
 
         print("\n=== SCANNING COLLECTION ===")
@@ -587,7 +586,7 @@ print(worldNames[joinerConfig.worldJoinerConfig.World])
 local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Title = "Select Act",
     Description = "Pick an act to join",
-    Values = worldNames[joinerConfig.worldJoinerConfig.World],
+    Values = {worldNames[joinerConfig.worldJoinerConfig.World]},
     Default = "Act 1",
     Multi = false,
     Callback = function(Value)
@@ -595,14 +594,14 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     end
 })
 
--- Initialize acts for default world
-local initialActs = {}
-for i = 1, 6 do
-    if Worlds["Planet Greenie"]["Act "..i] then
-        table.insert(initialActs, "Act "..i)
-    end
-end
-actSection:SetValues(initialActs)
+-- -- Initialize acts for default world
+-- local initialActs = {}
+-- for i = 1, 6 do
+--     if Worlds["Planet Greenie"]["Act "..i] then
+--         table.insert(initialActs, "Act "..i)
+--     end
+-- end
+-- actSection:SetValues(initialActs)
 
 local AutoSellEnabledToggle = Tabs.Shop:AddToggle("AutoSellEnabled", { Title = "Enable Auto Sell", Default = autoSellConfig.AutoSellEnabled })
 AutoSellEnabledToggle:OnChanged(function()
