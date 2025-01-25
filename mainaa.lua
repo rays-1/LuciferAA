@@ -240,7 +240,7 @@ local function optimizeGame()
     print("reaching here..")
     for _, descendant in ipairs(game:GetDescendants()) do
         print("descendant")
-        if not descendant:IsDescendantOf(ws:WaitForChild("Camera")) then
+        if descendant then
             print("--"..count)
             count = count + 1
             if descendant and  descendant:IsA("BasePart") then
