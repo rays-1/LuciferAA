@@ -257,8 +257,11 @@ end
 local function optimizeGame()
     if optimized then return end
     optimized = true
+    local count = 0;
     for _, descendant in ipairs(game:GetDescendants()) do
         if not descendant:IsDescendantOf(ws:WaitForChild("Camera")) then
+            print("--"..count)
+            count+=1
             if descendant:IsA("BasePart") then
                 descendant.Material = Enum.Material.Plastic
             end
