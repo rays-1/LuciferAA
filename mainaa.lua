@@ -229,91 +229,96 @@ local function stopMonitoring()
     print("\n=== AUTO-SELL SYSTEM DEACTIVATED ===")
 end
 
-local havprop = pcall(function(ins,prop)
-    local prop = ins.prop
-end)
-
 local function optimizeGame()
     if optimized then return end
     optimized = true
-    local count = 0
-    print("reaching here..")
-    
-    for _, descendant in ipairs(game:GetDescendants()) do
-        if descendant then  -- Primary nil check
-            print("descendant")
-            print("--"..count)
-            count = count + 1
+    local camera = ws:WaitForChild("Camera")
+    print("Optimization started...")
 
-            -- Initialize entry for this descendant
+    for _, descendant in ipairs(game:GetDescendants()) do
+        if descendant and not descendant:IsDescendantOf(camera) then
+            -- Initialize property storage
             originalProperties[descendant] = originalProperties[descendant] or {}
 
-            -- BasePart modifications
+            -- BasePart optimizations
             if descendant:IsA("BasePart") then
+                originalProperties[descendant].Material = descendant.Material
+                originalProperties[descendant].CastShadow = descendant.CastShadow
                 descendant.Material = Enum.Material.Plastic
                 descendant.CastShadow = false
             end
 
             -- Visual effects
-            if descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") or descendant:IsA("SurfaceGui") or descendant:IsA("BillboardGui") then
-                if descendant.Enabled then
-                    originalProperties[descendant].enabled = descendant.Enabled
-                    descendant.Enabled = false
-                end
+            if descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
+                originalProperties[descendant].Enabled = descendant.Enabled
+                descendant.Enabled = false
             end
 
-            -- Mesh parts
+            -- Mesh handling with safety checks
             if descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
-                if descendant.MeshId ~= "" then
+                if pcall(function() return descendant.MeshId end) then
                     originalProperties[descendant].MeshId = descendant.MeshId
                     descendant.MeshId = ""
                 end
-                if descendant.TextureId ~= "" then
+                if pcall(function() return descendant.TextureId end) then
                     originalProperties[descendant].TextureId = descendant.TextureId
                     descendant.TextureId = ""
                 end
             end
 
-            -- Textures
+            -- Texture handling
             if descendant:IsA("Texture") then
-                if descendant.Texture ~= "" then
-                    originalProperties[descendant].Texture = descendant.Texture
-                    descendant.Texture = ""
-                end
+                originalProperties[descendant].Texture = descendant.Texture
+                descendant.Texture = ""
             end
-        else
-            print("eep")
         end
     end
 end
 
 local function restoreGame()
     if not optimized then return end
-    for descendant, originalState in pairs(originalProperties) do
-        if descendant then
-            if descendant and descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") or descendant:IsA("SurfaceGui") or descendant:IsA("BillboardGui") then
-                if originalState and originalState.enabled then
-                    descendant.Enabled = originalState.enabled
+    print("Restoring original state...")
+    
+    for descendant, props in pairs(originalProperties) do
+        if descendant and descendant.Parent then
+            -- Restore BasePart properties
+            if descendant:IsA("BasePart") then
+                if props.Material then
+                    descendant.Material = props.Material
+                end
+                if props.CastShadow ~= nil then
+                    descendant.CastShadow = props.CastShadow
                 end
             end
-            if descendant and descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
-                if originalState and originalState.MeshId then
-                    descendant.MeshId = originalState.MeshId
-                end
-                if originalState and originalState.TextureId then
-                    descendant.TextureId = originalState.TextureId
+
+            -- Restore visual effects
+            if descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
+                if props.Enabled ~= nil then
+                    descendant.Enabled = props.Enabled
                 end
             end
-            if descendant and descendant:IsA("Texture")  then
-                if originalState and originalState.Texture then
-                    descendant.Texture = originalState.Texture
+
+            -- Restore mesh properties
+            if descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
+                if props.MeshId and pcall(function() descendant.MeshId = props.MeshId end) then
+                    descendant.MeshId = props.MeshId
                 end
-            end 
-        else
-            print("eep")
+                if props.TextureId and pcall(function() descendant.TextureId = props.TextureId end) then
+                    descendant.TextureId = props.TextureId
+                end
+            end
+
+            -- Restore textures
+            if descendant:IsA("Texture") then
+                if props.Texture and pcall(function() descendant.Texture = props.Texture end) then
+                    descendant.Texture = props.Texture
+                end
+            end
         end
     end
+    
     optimized = false
+    table.clear(originalProperties)
 end
 
 local Options = Fluent.Options
