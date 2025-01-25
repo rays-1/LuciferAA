@@ -1,41 +1,24 @@
-local Fluent
 local maxAttempts = 5
 
-for attempt = 1, maxAttempts do
-    local success, result = pcall(function()
-        Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/discoart/FluentPlus/refs/heads/main/release.lua"))()
-    end)
-    if success then break end
-    if attempt == maxAttempts then
-        error("Failed to load Fluent after " .. maxAttempts .. " attempts: " .. tostring(result))
+local function attemptLoad(url, attempts)
+    for attempt = 1, attempts do
+        local success, result = pcall(function()
+            return loadstring(game:HttpGet(url))()
+        end)
+        if success then
+            return result
+        end
+        if attempt == attempts then
+            error("Failed to load resource after " .. attempts .. " attempts: " .. tostring(result))
+        end
+        task.wait(1)
     end
-    task.wait(1)
 end
 
-local SaveManager
-for attempt = 1, maxAttempts do
-    local success, result = pcall(function()
-        SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-    end)
-    if success then break end
-    if attempt == maxAttempts then
-        error("Failed to load SaveManager after " .. maxAttempts .. " attempts: " .. tostring(result))
-    end
-    task.wait(1)
-end
-
-local InterfaceManager
-for attempt = 1, maxAttempts do
-    local success, result = pcall(function()
-        InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
-    end)
-    if success then break end
-    if attempt == maxAttempts then
-        error("Failed to load InterfaceManager after " .. maxAttempts .. " attempts: " .. tostring(result))
-    end
-    task.wait(1)
-end
-
+local Fluent = attemptLoad("https://raw.githubusercontent.com/discoart/FluentPlus/refs/heads/main/release.lua", maxAttempts)
+local SaveManager = attemptLoad("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua", maxAttempts)
+local InterfaceManager = attemptLoad("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua", maxAttempts)
+local SimpleSpy = attemptLoad("https://github.com/exxtremestuffs/SimpleSpySource/raw/master/SimpleSpy.lua",maxAttempts)
 local LuciferVer = "v0.0001"
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Loader
@@ -67,14 +50,6 @@ for attempt = 1, maxAttempts do
     task.wait(1)
 end
 
-if not SimpleSpy then
-    local success, err = pcall(function()
-        loadstring(game:HttpGet("https://github.com/exxtremestuffs/SimpleSpySource/raw/master/SimpleSpy.lua"))()
-    end)
-    if not success then
-        warn("Failed to load SimpleSpy: " .. tostring(err))
-    end
-end
 
 local Window = Fluent:CreateWindow({
     Title = "Lucifer " .. LuciferVer,
@@ -267,7 +242,7 @@ local function optimizeGame()
         print("descendant")
         if not descendant:IsDescendantOf(ws:WaitForChild("Camera")) then
             print("--"..count)
-            count+=1
+            count = count + 1
             if descendant:IsA("BasePart") then
                 descendant.Material = Enum.Material.Plastic
                 descendant.CastShadow = false
