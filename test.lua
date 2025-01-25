@@ -1,44 +1,48 @@
-local Fluent
 local maxAttempts = 5
 
-for attempt = 1, maxAttempts do
-    local success, result = pcall(function()
-        Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-    end)
-    if success then break end
-    if attempt == maxAttempts then
-        error("Failed to load Fluent after " .. maxAttempts .. " attempts: " .. tostring(result))
+-- Function to load and execute a script
+local function loadAndExecute(url, moduleName)
+    print("Attempting to download " .. moduleName .. "...")
+    local loadedModule
+
+    for attempt = 1, maxAttempts do
+        local success, result = pcall(function()
+            loadedModule = loadstring(game:HttpGet(url))()
+        end)
+
+        if success then
+             print(moduleName .. " downloaded successfully.")
+            return loadedModule
+        else
+            warn("Failed to load " .. moduleName .. " (Attempt " .. attempt .. "): " .. tostring(result))
+            if attempt == maxAttempts then
+                error("Failed to load " .. moduleName .. " after " .. maxAttempts .. " attempts: " .. tostring(result))
+             end
+             task.wait(1)
+        end
     end
-    task.wait(1)
+    
+   error("Failed to load" .. moduleName .. " after multiple attempts.")
 end
 
+-- Load Fluent
+local Fluent
+Fluent = loadAndExecute("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua", "Fluent")
+
+-- Load SaveManager
 local SaveManager
-for attempt = 1, maxAttempts do
-    local success, result = pcall(function()
-        SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-    end)
-    if success then break end
-    if attempt == maxAttempts then
-        error("Failed to load SaveManager after " .. maxAttempts .. " attempts: " .. tostring(result))
-    end
-    task.wait(1)
-end
+SaveManager = loadAndExecute("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua", "SaveManager")
 
+-- Load InterfaceManager
 local InterfaceManager
-for attempt = 1, maxAttempts do
-    local success, result = pcall(function()
-        InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
-    end)
-    if success then break end
-    if attempt == maxAttempts then
-        error("Failed to load InterfaceManager after " .. maxAttempts .. " attempts: " .. tostring(result))
-    end
-    task.wait(1)
-end
+InterfaceManager = loadAndExecute("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua", "InterfaceManager")
+   
+print("All external libraries have been successfully loaded.")
+
+
 local LuciferVer = "v0.0001"
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Loader
-local maxAttempts = 5
 local autoSellConfig = {
     Rare = false,
     Epic = false,
@@ -57,16 +61,22 @@ local ws = game:GetService("Workspace")
 local optimized = false
 
 
+-- Loader
+local loadLoader
 for attempt = 1, maxAttempts do
-    local success, result = pcall(function()
-        Loader = require(ReplicatedStorage.src.Loader)
-    end)
-    if success then break end
-    if attempt == maxAttempts then
-        error("Failed to load Loader after " .. maxAttempts .. " attempts: " .. tostring(result))
+ local success, result = pcall(function()
+     loadLoader = require(ReplicatedStorage.src.Loader)
+ end)
+ if success then
+  Loader = loadLoader
+    break
+  end
+ if attempt == maxAttempts then
+    error("Failed to load Loader after " .. maxAttempts .. " attempts: " .. tostring(result))
     end
     task.wait(1)
 end
+print("Loader module has been successfully loaded")
 
 -- SimpleSpy initialization (use with caution)
 if not SimpleSpy then
@@ -89,6 +99,7 @@ local Window = Fluent:CreateWindow({
     Theme = "Dark",
     MinimizeKey = Enum.KeyCode.LeftControl
 })
+print("Fluent window has been successfully created.")
 
 -- Create All Tabs
 local Tabs = {
@@ -133,6 +144,7 @@ InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
 Window:SelectTab(1)
+print("Fluent tabs have been successfully created.")
 
 -- Add Teleport Button to Quick Actions section
 -- Add to your Main tab sections
@@ -420,6 +432,7 @@ end)
 
 -- Update toggle for current state
 AutoSellEnabledToggle:SetValue(autoSellConfig.AutoSellEnabled)
+print("UI elements created")
 
 -- Initial scan
 print("\n=== INITIAL UNIT SCAN ===")
@@ -435,6 +448,7 @@ end
 if autoSellConfig.AutoSellEnabled then
     startMonitoring()
 end
+print("Initial collection scanned")
 
 -- Addons:
 -- SaveManager (Allows you to have a configuration system)
@@ -459,6 +473,7 @@ SaveManager:SetFolder("FluentScriptHub/specific-game")
 
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
+print("Managers have been setup")
 
 Fluent:Notify({
     Title = "Lucifer",
@@ -469,3 +484,4 @@ Fluent:Notify({
 -- You can use the SaveManager:LoadAutoloadConfig() to load a config
 -- which has been marked to be one that auto loads!
 SaveManager:LoadAutoloadConfig()
+print("Script has completed its loading process")
