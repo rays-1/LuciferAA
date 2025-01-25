@@ -36,6 +36,18 @@ local friendJoinerConfig = {
     name = "",
 }
 
+local friendWaiterConfig = {
+    name = ""
+}
+
+local joinerConfig = {
+    friendOnly = false,
+    worldJoinerConfig = {
+        World = "",
+        Act = ""
+    }
+}
+
 DEBUG_MODE = true
 local UnitData = require(ReplicatedStorage.src.Data.Units)
 local processedUnits = {}
@@ -44,7 +56,8 @@ local clientToServer = endpoints:WaitForChild("client_to_server")
 local sellEndpoint = clientToServer:WaitForChild("sell_units")
 local joinRemote = clientToServer:WaitForChild("request_join_lobby")
 local leaveRemote = clientToServer:WaitForChild("request_leave_lobby")
-
+local lockRemote = clientToServer:WaitForChild("request_lock_level")
+local WorldsSrc = ReplicatedStorage.src.Data.Worlds:WaitForChild("Worlds")
 local originalProperties = {}
 local ws = game:GetService("Workspace")
 local optimized = false
@@ -58,6 +71,32 @@ for attempt = 1, maxAttempts do
         error("Failed to load Loader after " .. maxAttempts .. " attempts: " .. tostring(result))
     end
     task.wait(1)
+end
+
+local Worlds = {}
+
+-- GET WORLD DATA
+for _, moduleScript in ipairs(WorldsSrc:GetChildren()) do
+    if moduleScript:IsA("ModuleScript") and moduleScript.Name ~= "Worlds_raids" and moduleScript.Name ~= "UnitPresets" then
+        local worldData = require(moduleScript)
+        
+        for _, worldEntry in pairs(worldData) do
+            local formatted = {
+                Infinite = worldEntry.infinite and worldEntry.infinite.id or nil
+            }
+            
+            -- Parse levels
+            for i = 1, 6 do
+                local levelKey = tostring(i)
+                if worldEntry.levels[levelKey] then
+                    formatted["Act "..i] = worldEntry.levels[levelKey].id
+                end
+            end
+            
+            -- Use display name as key
+            Worlds[worldEntry.name] = formatted
+        end
+    end
 end
 
 
@@ -98,10 +137,13 @@ InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
 Window:SelectTab(1)
+
 local followingPLayer
+local waitingPlayer
 local teleportClickCount = 0
 local teleportCooldown = 2
 local isTeleporting = false
+local friendIsIn = false
 local ItemInventoryService
 local success, err = pcall(function()
     ItemInventoryService = Loader.load_client_service(script, "ItemInventoryServiceClient")
@@ -256,6 +298,7 @@ local function findPlayerInLobbies(targetName)
 
     return nil
 end
+
 
 local function startMonitoring()
     if monitoringTask then
@@ -416,6 +459,68 @@ local function followPlayer()
     end
 end
 
+local Timer = 60
+
+local function joinRandomLobby()
+
+    local freeLobby
+
+    for i = 1, 9 do
+        local lobbyName = "_lobbytemplategreen" .. i
+        local lobby = workspace._LOBBIES.Story:FindFirstChild(lobbyName)
+        if lobby and lobby:FindFirstChild("World") then
+            local playersFolder = lobby:FindFirstChild("Players")
+            if playersFolder then
+                for _, objValue in ipairs(playersFolder:GetChildren()) do
+                    if tostring(objValue.Value) == targetName then
+                        freeLobby = lobbyName
+                    end
+                end
+            end
+        end
+    end
+
+    if freeLobby then
+        local args = {
+            [1] = freeLobby
+        }
+        joinRemote:InvokeServer(unpack(args))
+    end
+    
+    return freeLobby
+end
+
+local function waitPlayer()
+
+    while friendIsIn ~= true do
+        task.wait(5)
+
+        local currentLobby = findPlayerInLobbies(game.Players.LocalPlayer.Name)
+
+        if currentLobby then
+            local lobby = workspace._LOBBIES.Story:FindFirstChild(currentLobby)
+            local playersFolder = lobby:FindFirstChild("Players")
+            if playersFolder then
+                for _, objValue in ipairs(playersFolder:GetChildren()) do
+                    if tostring(objValue.Value) == friendJoinerConfig.name then
+                        friendIsIn = true
+                    end
+                end
+            end
+        else
+            print("Player not in lobby yet..")
+            local Timer = workspace._LOBBIES.Story:FindFirstChild(currentLobby):FindFirstChild("Timer")
+            if Timer.Value <= 10 then
+                local args = {
+                    [1] = currentLobby
+                }
+                leaveRemote:InvokeServer(unpack(args))
+                currentLobby = joinRandomLobby()
+            end
+        end
+    end
+end
+
 local function startFollow()
     if followingPLayer then
         task.cancel(followingPLayer)
@@ -433,6 +538,23 @@ local function stopFollow()
     print("\n=== AUTO-JOIN SYSTEM DEACTIVATED ===")
 end
 
+local function startWait()
+    if waitingPlayer then
+        task.cancel(waitingPlayer)
+        waitingPlayer = nil
+    end
+    waitingPlayer = task.spawn(waitPlayer)
+    print("\n=== AUTO-JOIN SYSTEM ACTIVATED ===")
+end
+
+local function stopWait()
+    if waitingPlayer then
+        task.cancel(waitingPlayer)
+        waitingPlayer = nil
+    end
+    print("\n=== AUTO-JOIN SYSTEM DEACTIVATED ===")
+end
+
 local Options = Fluent.Options
 
 local AutoSellEnabledToggle = Tabs.Shop:AddToggle("AutoSellEnabled", { Title = "Enable Auto Sell", Default = autoSellConfig.AutoSellEnabled })
@@ -444,6 +566,28 @@ AutoSellEnabledToggle:OnChanged(function()
         stopMonitoring()
     end
 end)
+local friendOnly = Tabs.Joiner:AddToggle("FriendsOnlyEnabled", {Title = "Friends Only?",Default = joinerConfig.friendOnly})
+
+friendOnly:OnChanged(function(Value)
+    joinerConfig.friendOnly = Value
+end)
+
+local autoJoinWorldSection = Tabs.Joiner:AddSection("AutoJoinWorld")
+local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
+    Title = "Auto Join World",
+    Description = "Pick a world to join",
+    Values = Worlds,
+    Default = joinerConfig.worldJoinerConfig.World,
+    Multi = false
+})
+local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
+    Title = "Auto Join World",
+    Description = "Pick a world to join",
+    Values = joinerConfig.worldJoinerConfig.World,
+    Default = joinerConfig.worldJoinerConfig.Act,
+    Multi = false
+})
+
 
 local RarityMultiDropdown = Tabs.Shop:AddDropdown("RarityMultiDropdown", {
     Title = "Auto Sell Rarities",
@@ -453,6 +597,13 @@ local RarityMultiDropdown = Tabs.Shop:AddDropdown("RarityMultiDropdown", {
     Default = {},
 })
 
+worldSection:OnChanged(function(Value)
+    joinerConfig.worldJoinerConfig.World = Value
+end)
+
+actSection:OnChanged(function(Value)
+    joinerConfig.worldJoinerConfig.Act = Value
+end)
 
 RarityMultiDropdown:OnChanged(function(Value)
     autoSellConfig.Rare = false
@@ -491,16 +642,19 @@ OptimizerToggle:OnChanged(function()
     end
 end)
 
-local FriendJoiner = Tabs.Joiner:AddToggle("FriendJoinerEnabled", { Title = "Enable Friend Joiner", Default = false })
+local FriendJoiner = Tabs.Joiner:AddToggle("FriendJoinerEnabled", { Title = "Enable Friend Joiner", Description = "Must be used by MAIN account",Default = false })
 FriendJoiner:OnChanged(function()
     if Options.FriendJoinerEnabled.Value then
+        if Options.FriendWaiterEnabled.Value then
+            Options.FriendWaiterEnabled.Value = false
+        end
         startFollow()
     else
         stopFollow()
     end
 end)
 
-local FriendName = Tabs.Joiner:AddInput("Name", {
+local FriendJoinName = Tabs.Joiner:AddInput("Name", {
     Title = "Join Who?",
     Default = "",
     Numeric = false,
@@ -510,6 +664,30 @@ local FriendName = Tabs.Joiner:AddInput("Name", {
         friendJoinerConfig.name = Value
     end
 })
+
+local FriendWaiter = Tabs.Joiner:AddToggle("FriendWaiterEnabled", { Title = "Enable Friend Waiter", Description = "Must be used by ALT account", Default = false })
+FriendWaiter:OnChanged(function()
+    if Options.FriendWaiterEnabled.Value then
+        if Options.FriendJoinerEnabled.Value then
+            Options.FriendJoinerEnabled.Value = false
+        end
+        startWait()
+    else
+        stopWait()
+    end
+end)
+
+local FriendWaitName = Tabs.Joiner:AddInput("Name", {
+    Title = "Wait Who?",
+    Default = "",
+    Numeric = false,
+    Finished = false,
+    Placeholder = "",
+    Callback = function(Value)
+        friendWaiterConfig.name = Value
+    end
+})
+
 
 
 AutoSellEnabledToggle:SetValue(autoSellConfig.AutoSellEnabled)
