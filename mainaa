@@ -1,6 +1,40 @@
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+local Fluent
+local maxAttempts = 5
+
+for attempt = 1, maxAttempts do
+    local success, result = pcall(function()
+        Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+    end)
+    if success then break end
+    if attempt == maxAttempts then
+        error("Failed to load Fluent after " .. maxAttempts .. " attempts: " .. tostring(result))
+    end
+    task.wait(1)
+end
+
+local SaveManager
+for attempt = 1, maxAttempts do
+    local success, result = pcall(function()
+        SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+    end)
+    if success then break end
+    if attempt == maxAttempts then
+        error("Failed to load SaveManager after " .. maxAttempts .. " attempts: " .. tostring(result))
+    end
+    task.wait(1)
+end
+
+local InterfaceManager
+for attempt = 1, maxAttempts do
+    local success, result = pcall(function()
+        InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+    end)
+    if success then break end
+    if attempt == maxAttempts then
+        error("Failed to load InterfaceManager after " .. maxAttempts .. " attempts: " .. tostring(result))
+    end
+    task.wait(1)
+end
 local LuciferVer = "v0.0001"
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Loader
