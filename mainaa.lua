@@ -589,8 +589,7 @@ local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
 })
 
 local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
-    Title = "Auto Join World",
-    Description = "Pick a world to join",
+    Description = "Pick an act to join",
     Values = joinerConfig.worldJoinerConfig.World,
     Default = joinerConfig.worldJoinerConfig.Act,
     Multi = false,
