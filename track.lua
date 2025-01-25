@@ -76,9 +76,7 @@ local function followPlayer()
                     local args = {
                         [1] = currentLobby
                     }
-                    pcall(function()
-                        game:GetService("ReplicatedStorage"):WaitForChild("endpoints"):WaitForChild("client_to_server"):WaitForChild("request_leave_lobby"):InvokeServer(unpack(args))
-                    end)
+                    leaveRemote:InvokeServer(unpack(args))
                 end
 
                 -- Join new lobby
@@ -88,21 +86,10 @@ local function followPlayer()
                 local args = {
                     [1] = targetLobby
                 }
-                local success = pcall(function()
-                    game:GetService("ReplicatedStorage"):WaitForChild("endpoints"):WaitForChild("client_to_server"):WaitForChild("request_join_lobby"):InvokeServer(unpack(args))
-                end)
 
-                if success then
-                    currentLobby = targetLobby
-                    lastValidLobby = targetLobby
-                    if DEBUG_MODE then
-                        print("Successfully joined:", targetLobby)
-                    end
-                else
-                    if DEBUG_MODE then
-                        warn("Failed to join:", targetLobby)
-                    end
-                end
+                joinRemote:InvokeServer(unpack(args))
+                currentLobby = targetLobby
+                lastValidLobby = targetLobby
             end
         else
             if DEBUG_MODE then
