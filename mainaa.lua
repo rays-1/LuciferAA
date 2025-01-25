@@ -315,6 +315,7 @@ local function restoreGame()
             if originalState and originalState.enabled then
                 descendant.Enabled = originalState.enabled
             end
+        end
         if descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") or descendant:IsA("FileMesh")then
             if originalState and originalState.MeshId then
                 descendant.MeshId = originalState.MeshId
