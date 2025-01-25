@@ -73,8 +73,11 @@ local function followPlayer()
                     if DEBUG_MODE then
                         print("Leaving current lobby:", currentLobby)
                     end
+                    local args = {
+                        [1] = currentLobby
+                    }
                     pcall(function()
-                        leaveRemote:InvokeServer({[1] = currentLobby})
+                        leaveRemote:InvokeServer(unpack(args))
                     end)
                 end
 
@@ -82,8 +85,11 @@ local function followPlayer()
                 if DEBUG_MODE then
                     print("Attempting to join:", targetLobby)
                 end
+                local args = {
+                    [1] = targetLobby
+                }
                 local success = pcall(function()
-                    joinRemote:InvokeServer({[1] = targetLobby})
+                    joinRemote:InvokeServer(unpack(args))
                 end)
 
                 if success then
