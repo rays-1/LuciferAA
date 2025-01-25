@@ -133,6 +133,11 @@ local joinerSets = Tabs.Joiner:AddSection("Joiner Settings",1)
 local friendSection = Tabs.Joiner:AddSection("Join Friend", 2)
 local autoJoinWorldSection = Tabs.Joiner:AddSection("Auto Join World", 3)
 
+local shopMainSection = Tabs.Shop:AddSection("Auto Sell Configuration", 1)
+
+local miscMainSection = Tabs.Misc:AddSection("Optimization Settings", 1)
+local miscExtraSection = Tabs.Misc:AddSection("Other Utilities", 2)
+
 Tabs["Farm Config"]:AddSection("Combat Settings", 1)
 Tabs["Farm Config"]:AddSection("Target Filters", 2)
 
@@ -164,7 +169,7 @@ local teleportButton = MainActions:AddButton({
     Title = "Teleport to Lobby",
     Description = "Double-click to confirm",
     Callback = function()
-        teleportClickCount += 1
+        teleportClickCount = teleportClickCount + 1
 
         if teleportClickCount == 1 then
             task.delay(teleportCooldown, function()
@@ -594,27 +599,14 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     end
 })
 
-<<<<<<< HEAD
 local AutoSellEnabledToggle = shopMainSection:AddToggle("AutoSellEnabled", {
     Title = "Enable Auto Sell",
     Default = autoSellConfig.AutoSellEnabled
 })
 
-=======
--- -- Initialize acts for default world
--- local initialActs = {}
--- for i = 1, 6 do
---     if Worlds["Planet Greenie"]["Act "..i] then
---         table.insert(initialActs, "Act "..i)
---     end
--- end
--- actSection:SetValues(initialActs)
-
 local AutoSellEnabledToggle = Tabs.Shop:AddToggle("AutoSellEnabled", { Title = "Enable Auto Sell", Default = autoSellConfig.AutoSellEnabled })
-<<<<<<< HEAD
->>>>>>> parent of 5e8d902 (Update mainaa.lua)
-=======
->>>>>>> parent of 5e8d902 (Update mainaa.lua)
+
+
 AutoSellEnabledToggle:OnChanged(function()
     autoSellConfig.AutoSellEnabled = Options.AutoSellEnabled.Value
     if autoSellConfig.AutoSellEnabled then
@@ -650,7 +642,7 @@ RarityMultiDropdown:OnChanged(function(Value)
     end
 end)
 
-local OptimizerToggle = Tabs.Misc:AddToggle("OptimizerEnabled", { Title = "Enable Optimizer", Default = false })
+local OptimizerToggle = miscMainSection:AddToggle("OptimizerEnabled", { Title = "Enable Optimizer", Default = false })
 OptimizerToggle:OnChanged(function()
     if Options.OptimizerEnabled.Value then
         optimizeGame()
