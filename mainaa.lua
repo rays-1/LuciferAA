@@ -611,6 +611,9 @@ local AutoSellEnabledToggle = shopMainSection:AddToggle("AutoSellEnabled", {
 -- actSection:SetValues(initialActs)
 
 local AutoSellEnabledToggle = Tabs.Shop:AddToggle("AutoSellEnabled", { Title = "Enable Auto Sell", Default = autoSellConfig.AutoSellEnabled })
+<<<<<<< HEAD
+>>>>>>> parent of 5e8d902 (Update mainaa.lua)
+=======
 >>>>>>> parent of 5e8d902 (Update mainaa.lua)
 AutoSellEnabledToggle:OnChanged(function()
     autoSellConfig.AutoSellEnabled = Options.AutoSellEnabled.Value
