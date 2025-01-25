@@ -24,7 +24,7 @@ local function findPlayerInLobbies(targetName)
             local playersFolder = lobby:FindFirstChild("Players")
             if playersFolder then
                 for _, objValue in ipairs(playersFolder:GetChildren()) do
-                    if objValue.Name == targetName then
+                    if tostring(objValue.Value) == targetName then
                         return lobbyName
                     end
                 end
@@ -44,7 +44,7 @@ local function findPlayerInLobbies(targetName)
             local playersFolder = lobby:FindFirstChild("Players")
             if playersFolder then
                 for _, objValue in ipairs(playersFolder:GetChildren()) do
-                    if objValue.Name == targetName then
+                    if tostring(objValue.Value) == targetName  then
                         return lobbyName
                     end
                 end
