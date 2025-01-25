@@ -129,10 +129,9 @@ local Tabs = {
 local MainWelcome = Tabs.Main:AddSection("Welcome to Lucifer", 1)
 local MainActions = Tabs.Main:AddSection("Quick Actions", 2)
 
-Tabs.Joiner:AddSection("Joiner Settings",1)
-Tabs.Joiner:AddSection("Join Friend", 2)
+local joinerSets = Tabs.Joiner:AddSection("Joiner Settings",1)
+local friendSection = Tabs.Joiner:AddSection("Join Friend", 2)
 local autoJoinWorldSection = Tabs.Joiner:AddSection("Auto Join World", 3)
-local friendSection = Tabs.Joiner:AddSection("Friend Management", 4)
 
 Tabs["Farm Config"]:AddSection("Combat Settings", 1)
 Tabs["Farm Config"]:AddSection("Target Filters", 2)
@@ -575,13 +574,11 @@ AutoSellEnabledToggle:OnChanged(function()
         stopMonitoring()
     end
 end)
-local friendOnly = Tabs.Joiner:AddToggle("FriendsOnlyEnabled", {Title = "Friends Only?",Default = joinerConfig.friendOnly})
+local friendOnly = joinerSets:AddToggle("FriendsOnlyEnabled", {Title = "Friends Only?",Default = joinerConfig.friendOnly})
 
 friendOnly:OnChanged(function(Value)
     joinerConfig.friendOnly = Value
 end)
-
-local autoJoinWorldSection = Tabs.Joiner:AddSection("AutoJoinWorld")
 -- Fix the world section dropdown
 local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
     Title = "Auto Join World",
