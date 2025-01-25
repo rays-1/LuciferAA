@@ -580,27 +580,49 @@ friendOnly:OnChanged(function(Value)
 end)
 
 local autoJoinWorldSection = Tabs.Joiner:AddSection("AutoJoinWorld")
-
+-- Fix the world section dropdown
 local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
     Title = "Auto Join World",
     Description = "Pick a world to join",
-    Values = worldNames,
-    Default = worldNames["Planet Greenie"],
+    Values = worldNames,  -- This should be the array of world names
+    Default = "Planet Greenie",  -- Directly use the display name
     Multi = false,
     Callback = function(Value)
         joinerConfig.worldJoinerConfig.World = Value
+        -- Update acts when world changes
+        local acts = {}
+        for i = 1, 6 do
+            if Worlds[Value]["Act "..i] then
+                table.insert(acts, "Act "..i)
+            end
+        end
+        actSection:SetValues(acts)
+        if #acts > 0 then
+            actSection:SetValue(acts[1])
+        end
     end
 })
 
+-- Fix the act section dropdown
 local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
+    Title = "Select Act",
     Description = "Pick an act to join",
-    Values = worldNames[joinerConfig.worldJoinerConfig.World],
-    Default = worldNames["Planet Greenie"]["Act 1"],
+    Values = {},  -- Start empty
+    Default = "Act 1",
     Multi = false,
     Callback = function(Value)
         joinerConfig.worldJoinerConfig.Act = Value
     end
 })
+
+-- Initialize acts for default world
+local initialActs = {}
+for i = 1, 6 do
+    if Worlds["Planet Greenie"]["Act "..i] then
+        table.insert(initialActs, "Act "..i)
+    end
+end
+actSection:SetValues(initialActs)
 
 local RarityMultiDropdown = Tabs.Shop:AddDropdown("RarityMultiDropdown", {
     Title = "Auto Sell Rarities",
