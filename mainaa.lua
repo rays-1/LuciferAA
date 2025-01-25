@@ -43,8 +43,8 @@ local friendWaiterConfig = {
 local joinerConfig = {
     friendOnly = false,
     worldJoinerConfig = {
-        World = "",
-        Act = ""
+        World = "Planet Greenie",
+        Act = "Act 1"
     }
 }
 
@@ -101,6 +101,10 @@ for _, moduleScript in ipairs(WorldsSrc:GetChildren()) do
     end
 end
 
+local worldNames = {}
+for name in pairs(Worlds) do
+    table.insert(worldNames, name)
+end
 
 local Window = Fluent:CreateWindow({
     Title = "Lucifer " .. LuciferVer,
@@ -580,23 +584,23 @@ local autoJoinWorldSection = Tabs.Joiner:AddSection("AutoJoinWorld")
 local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
     Title = "Auto Join World",
     Description = "Pick a world to join",
-    Values = Worlds,
-    Default = joinerConfig.worldJoinerConfig.World,
+    Values = worldNames,
+    Default = worldNames["Planet Greenie"],
     Multi = false,
     Callback = function(Value)
         joinerConfig.worldJoinerConfig.World = Value
     end
 })
 
--- local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
---     Description = "Pick an act to join",
---     Values = joinerConfig.worldJoinerConfig.World,
---     Default = joinerConfig.worldJoinerConfig.Act,
---     Multi = false,
---     Callback = function(Value)
---         joinerConfig.worldJoinerConfig.Act = Value
---     end
--- })
+local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
+    Description = "Pick an act to join",
+    Values = worldNames[joinerConfig.worldJoinerConfig.World],
+    Default = worldNames["Planet Greenie"]["Act 1"],
+    Multi = false,
+    Callback = function(Value)
+        joinerConfig.worldJoinerConfig.Act = Value
+    end
+})
 
 local RarityMultiDropdown = Tabs.Shop:AddDropdown("RarityMultiDropdown", {
     Title = "Auto Sell Rarities",
