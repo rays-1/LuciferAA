@@ -272,6 +272,7 @@ local function optimizeGame()
                 descendant.Texture = ""
             end
         end
+        task.wait(.01)
     end
 end
 
@@ -315,6 +316,7 @@ local function restoreGame()
                 end
             end
         end
+        task.wait(.01)
     end
     
     optimized = false
