@@ -29,11 +29,21 @@ local autoSellConfig = {
     Cooldown = 0.5,
     AutoSellEnabled = false
 }
+local currentLobby = nil
+local lastValidLobby = nil
 
+local friendJoinerConfig = {
+    name = "",
+}
+
+DEBUG_MODE = true
 local UnitData = require(ReplicatedStorage.src.Data.Units)
 local processedUnits = {}
 local endpoints = ReplicatedStorage:WaitForChild("endpoints")
-local sellEndpoint = endpoints:WaitForChild("client_to_server"):WaitForChild("sell_units")
+local clientToServer = endpoints:WaitForChild("client_to_server")
+local sellEndpoint = clientToServer:WaitForChild("sell_units")
+local joinRemote = clientToServer:WaitForChild("request_join_lobby")
+local leaveRemote = clientToServer:WaitForChild("request_leave_lobby")
 
 local originalProperties = {}
 local ws = game:GetService("Workspace")
@@ -74,17 +84,12 @@ local Tabs = {
 local MainWelcome = Tabs.Main:AddSection("Welcome to Lucifer", 1)
 local MainActions = Tabs.Main:AddSection("Quick Actions", 2)
 
-Tabs.Farm:AddSection("Auto Farming", 1)
-Tabs.Farm:AddSection("Loot Collection", 2)
-
-Tabs.Joiner:AddSection("Lobby Selection", 1)
-Tabs.Joiner:AddSection("Matchmaking", 2)
+Tabs.Joiner:AddSection("Join Friend", 1)
 
 Tabs["Farm Config"]:AddSection("Combat Settings", 1)
 Tabs["Farm Config"]:AddSection("Target Filters", 2)
 
-Tabs.Misc:AddSection("Character Mods", 1)
-Tabs.Misc:AddSection("Environment", 2)
+Tabs.Misc:AddSection("Environment", 1)
 
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
@@ -93,7 +98,7 @@ InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
 Window:SelectTab(1)
-
+local followingPLayer
 local teleportClickCount = 0
 local teleportCooldown = 2
 local isTeleporting = false
@@ -212,6 +217,46 @@ local function monitorCollection()
     end
 end
 
+local function findPlayerInLobbies(targetName)
+    -- Check story/infinite/legend lobbies (1-9)
+    for i = 1, 9 do
+        local lobbyName = "_lobbytemplategreen" .. i
+        local lobby = workspace._LOBBIES.Story:FindFirstChild(lobbyName)
+        if lobby and lobby:FindFirstChild("World") then
+            local playersFolder = lobby:FindFirstChild("Players")
+            if playersFolder then
+                for _, objValue in ipairs(playersFolder:GetChildren()) do
+                    if tostring(objValue.Value) == targetName then
+                        return lobbyName
+                    end
+                end
+            end
+        end
+    end
+
+    -- Check event lobbies
+    local eventLobbies = {
+        "_lobbytemplate_event3", -- Christmas
+        "_lobbytemplate_event4"  -- Halloween
+    }
+    
+    for _, lobbyName in ipairs(eventLobbies) do
+        local lobby = workspace._EVENT_CHALLENGES.Lobbies:FindFirstChild(lobbyName)
+        if lobby and lobby:FindFirstChild("World") then
+            local playersFolder = lobby:FindFirstChild("Players")
+            if playersFolder then
+                for _, objValue in ipairs(playersFolder:GetChildren()) do
+                    if tostring(objValue.Value) == targetName  then
+                        return lobbyName
+                    end
+                end
+            end
+        end
+    end
+
+    return nil
+end
+
 local function startMonitoring()
     if monitoringTask then
         task.cancel(monitoringTask)
@@ -323,6 +368,71 @@ local function restoreGame()
     table.clear(originalProperties)
 end
 
+local function followPlayer()
+    while true do
+        task.wait(5)
+        
+        -- Find target player's lobby
+        local targetLobby = findPlayerInLobbies(friendJoinerConfig.name)
+        
+        if targetLobby then
+            if currentLobby == targetLobby then
+                if DEBUG_MODE then
+                    print("Already in correct lobby:", targetLobby)
+                end
+            else
+                -- Leave current lobby if needed
+                if currentLobby then
+                    if DEBUG_MODE then
+                        print("Leaving current lobby:", currentLobby)
+                    end
+                    local args = {
+                        [1] = currentLobby
+                    }
+                    leaveRemote:InvokeServer(unpack(args))
+                end
+
+                -- Join new lobby
+                if DEBUG_MODE then
+                    print("Attempting to join:", targetLobby)
+                end
+                local args = {
+                    [1] = targetLobby
+                }
+
+                joinRemote:InvokeServer(unpack(args))
+                currentLobby = targetLobby
+                lastValidLobby = targetLobby
+            end
+        else
+            if DEBUG_MODE then
+                print("Target player not found in any lobby")
+            end
+            -- Optionally return to last valid lobby
+            -- if lastValidLobby then
+            --     joinRemote:InvokeServer({[1] = lastValidLobby})
+            -- end
+        end
+    end
+end
+
+local function startFollow()
+    if followingPLayer then
+        task.cancel(followPlayer)
+        followingPLayer = nil
+    end
+    followingPLayer = task.spawn(followPlayer)
+    print("\n=== AUTO-JOIN SYSTEM ACTIVATED ===")
+end
+
+local function stopFollow()
+    if followingPLayer then
+        task.cancel(followPlayer)
+        followingPLayer = nil
+    end
+    print("\n=== AUTO-JOIN SYSTEM DEACTIVATED ===")
+end
+
 local Options = Fluent.Options
 
 local AutoSellEnabledToggle = Tabs.Shop:AddToggle("AutoSellEnabled", { Title = "Enable Auto Sell", Default = autoSellConfig.AutoSellEnabled })
@@ -342,6 +452,7 @@ local RarityMultiDropdown = Tabs.Shop:AddDropdown("RarityMultiDropdown", {
     Multi = true,
     Default = {},
 })
+
 
 RarityMultiDropdown:OnChanged(function(Value)
     autoSellConfig.Rare = false
@@ -379,6 +490,27 @@ OptimizerToggle:OnChanged(function()
         })
     end
 end)
+
+local FriendJoiner = Tabs.Joiner:AddToggle("FriendJoinerEnabled", { Title = "Enable Friend Joiner", Default = false })
+FriendJoiner:OnChanged(function()
+    if Options.FriendJoinerEnabled.Value then
+        startFollow()
+    else
+        stopFollow()
+    end
+end)
+
+local FriendName = Tabs.Joiner:AddInput("Name", {
+    Title = "Join Who?",
+    Default = "Default",
+    Numeric = false,
+    Finished = false,
+    Placeholder = "",
+    Callback = function(Value)
+        friendJoinerConfig.name = Value
+    end
+})
+
 
 AutoSellEnabledToggle:SetValue(autoSellConfig.AutoSellEnabled)
 
