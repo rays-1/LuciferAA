@@ -594,8 +594,6 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Multi = false,
     Callback = function(Value)
         joinerConfig.worldJoinerConfig.Act = Value
-        print(Worlds .. " | ".. joinerConfig.worldJoinerConfig.World)
-        print(Worlds[joinerConfig.worldJoinerConfig.World])
     end
 })
 
