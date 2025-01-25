@@ -418,7 +418,7 @@ end
 
 local function startFollow()
     if followingPLayer then
-        task.cancel(followPlayer)
+        task.cancel(followingPLayer)
         followingPLayer = nil
     end
     followingPLayer = task.spawn(followPlayer)
@@ -427,7 +427,7 @@ end
 
 local function stopFollow()
     if followingPLayer then
-        task.cancel(followPlayer)
+        task.cancel(followingPLayer)
         followingPLayer = nil
     end
     print("\n=== AUTO-JOIN SYSTEM DEACTIVATED ===")
@@ -502,7 +502,7 @@ end)
 
 local FriendName = Tabs.Joiner:AddInput("Name", {
     Title = "Join Who?",
-    Default = "Default",
+    Default = "",
     Numeric = false,
     Finished = false,
     Placeholder = "",
