@@ -601,15 +601,6 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     end
 })
 
--- Initialize acts for default world
-local initialActs = {}
-for i = 1, 6 do
-    if Worlds["Planet Greenie"]["Act "..i] then
-        table.insert(initialActs, "Act "..i)
-    end
-end
-actSection:SetValues(initialActs)
-
 local AutoSellEnabledToggle = shopMainSection:AddToggle("AutoSellEnabled", {
     Title = "Enable Auto Sell",
     Default = autoSellConfig.AutoSellEnabled
