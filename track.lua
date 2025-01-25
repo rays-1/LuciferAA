@@ -2,7 +2,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Configuration
-local TARGET_PLAYER_NAME = "InsertPlayerNameHere" -- Case-sensitive
+local TARGET_PLAYER_NAME = "nicosoelbatobato" -- Case-sensitive
 local CHECK_INTERVAL = 5 -- Seconds between checks
 local DEBUG_MODE = true -- Set to false to disable print messages
 
