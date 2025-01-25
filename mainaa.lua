@@ -374,7 +374,6 @@ local function optimizeGame()
                 descendant.Texture = ""
             end
         end
-        task.wait(.01)
     end
 end
 
@@ -418,7 +417,6 @@ local function restoreGame()
                 end
             end
         end
-        task.wait(.01)
     end
     
     optimized = false
@@ -593,22 +591,24 @@ print(worldNames[joinerConfig.worldJoinerConfig.World])
 local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Title = "Select Act",
     Description = "Pick an act to join",
-    Values = {worldNames[joinerConfig.worldJoinerConfig.World]},
+    Values = {Worlds[joinerConfig.worldJoinerConfig.World]},
     Default = "Act 1",
     Multi = false,
     Callback = function(Value)
         joinerConfig.worldJoinerConfig.Act = Value
+        print(Worlds .. " | ".. joinerConfig.worldJoinerConfig.World)
+        print(Worlds[joinerConfig.worldJoinerConfig.World])
     end
 })
 
--- -- Initialize acts for default world
--- local initialActs = {}
--- for i = 1, 6 do
---     if Worlds["Planet Greenie"]["Act "..i] then
---         table.insert(initialActs, "Act "..i)
---     end
--- end
--- actSection:SetValues(initialActs)
+-- Initialize acts for default world
+local initialActs = {}
+for i = 1, 6 do
+    if Worlds["Planet Greenie"]["Act "..i] then
+        table.insert(initialActs, "Act "..i)
+    end
+end
+actSection:SetValues(initialActs)
 
 local AutoSellEnabledToggle = shopMainSection:AddToggle("AutoSellEnabled", {
     Title = "Enable Auto Sell",
