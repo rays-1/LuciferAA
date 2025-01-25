@@ -279,12 +279,17 @@ local function optimizeGame()
                     end
                 end
             elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
-                if descendant.MeshId and descendant.TextureId then
+                if descendant.MeshId then
                     local meshId = descendant.MeshId
-                    local textureId = descendant.TextureId
-                    if meshId and textureId then
-                        originalProperties[descendant] = { MeshId = meshId, TextureId = textureId }
+                    if meshId then
+                        originalProperties[descendant]. MeshId = meshId
                         descendant.MeshId = ""
+                    end
+                end
+                if descendant.TextureId then
+                    local textureId = descendant.TextureId
+                    if textureId then
+                        originalProperties[descendant].TextureId = textureId 
                         descendant.TextureId = ""
                     end
                 end
@@ -322,6 +327,8 @@ local function restoreGame()
         elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
             if originalState and originalState.MeshId then
                 descendant.MeshId = originalState.MeshId
+            end
+            if originalState and originalState.TextureId then
                 descendant.TextureId = originalState.TextureId
             end
         elseif descendant:IsA("BillboardGui") then
