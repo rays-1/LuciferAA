@@ -279,6 +279,8 @@ local function optimizeGame()
                     originalProperties[descendant] = {Texture = Texture}
                 end
             end
+        else
+            print("eep")
         end
     end
 end
