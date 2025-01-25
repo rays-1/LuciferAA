@@ -133,6 +133,13 @@ local joinerSets = Tabs.Joiner:AddSection("Joiner Settings",1)
 local friendSection = Tabs.Joiner:AddSection("Join Friend", 2)
 local autoJoinWorldSection = Tabs.Joiner:AddSection("Auto Join World", 3)
 
+-- In Shop Tab
+local shopMainSection = Tabs.Shop:AddSection("Auto Sell Configuration", 1)
+
+-- In Misc Tab
+local miscMainSection = Tabs.Misc:AddSection("Optimization Settings", 1)
+local miscExtraSection = Tabs.Misc:AddSection("Other Utilities", 2)
+
 Tabs["Farm Config"]:AddSection("Combat Settings", 1)
 Tabs["Farm Config"]:AddSection("Target Filters", 2)
 
@@ -603,7 +610,11 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
 -- end
 -- actSection:SetValues(initialActs)
 
-local AutoSellEnabledToggle = Tabs.Shop:AddToggle("AutoSellEnabled", { Title = "Enable Auto Sell", Default = autoSellConfig.AutoSellEnabled })
+local AutoSellEnabledToggle = shopMainSection:AddToggle("AutoSellEnabled", {
+    Title = "Enable Auto Sell",
+    Default = autoSellConfig.AutoSellEnabled
+})
+
 AutoSellEnabledToggle:OnChanged(function()
     autoSellConfig.AutoSellEnabled = Options.AutoSellEnabled.Value
     if autoSellConfig.AutoSellEnabled then
@@ -613,7 +624,7 @@ AutoSellEnabledToggle:OnChanged(function()
     end
 end)
 
-local RarityMultiDropdown = Tabs.Shop:AddDropdown("RarityMultiDropdown", {
+local RarityMultiDropdown = shopMainSection:AddDropdown("RarityMultiDropdown", {
     Title = "Auto Sell Rarities",
     Description = "Select which rarities to auto sell",
     Values = {"Rare", "Epic", "Legendary"},
@@ -639,7 +650,11 @@ RarityMultiDropdown:OnChanged(function(Value)
     end
 end)
 
-local OptimizerToggle = Tabs.Misc:AddToggle("OptimizerEnabled", { Title = "Enable Optimizer", Default = false })
+
+local OptimizerToggle = miscMainSection:AddToggle("OptimizerEnabled", {
+    Title = "Enable Optimizer",
+    Default = false
+})
 OptimizerToggle:OnChanged(function()
     if Options.OptimizerEnabled.Value then
         optimizeGame()
