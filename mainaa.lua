@@ -296,8 +296,15 @@ local function optimizeGame()
                         descendant.Enabled = false
                     end
                 end
+            elseif descendant:IsA("Texture") then
+                local Texture = descendant.Texture;
+                if Texture then
+                    descendant.Texture = ""
+                    originalProperties[descendant] = {Texture = Texture}
+                end
             end
         end
+        task.wait(0.1)
     end
 end
 
@@ -321,7 +328,12 @@ local function restoreGame()
             if originalState and originalState.enabled then
                 descendant.Enabled = originalState.enabled
             end
+        elseif descendant:IsA("Texture")  then
+            if originalState and originalState.Texture then
+                descendant.Texture = originalState.Texture
+            end
         end
+        task.wait(0.1)
     end
     optimized = false
 end
