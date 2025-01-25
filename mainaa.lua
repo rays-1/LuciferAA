@@ -49,15 +49,17 @@ local joinerConfig = {
 }
 
 DEBUG_MODE = true
-local UnitData = require(ReplicatedStorage.src.Data.Units)
 local processedUnits = {}
+local src = ReplicatedStorage:WaitForChild("src")
+local data = src:WaitForChild("Data")
+local UnitData = require(data.Units)
 local endpoints = ReplicatedStorage:WaitForChild("endpoints")
 local clientToServer = endpoints:WaitForChild("client_to_server")
 local sellEndpoint = clientToServer:WaitForChild("sell_units")
 local joinRemote = clientToServer:WaitForChild("request_join_lobby")
 local leaveRemote = clientToServer:WaitForChild("request_leave_lobby")
 local lockRemote = clientToServer:WaitForChild("request_lock_level")
-local WorldsSrc = ReplicatedStorage.src.Data.Worlds:WaitForChild("Worlds")
+local WorldsSrc = data:WaitForChild("Worlds")
 local originalProperties = {}
 local ws = game:GetService("Workspace")
 local optimized = false
@@ -573,19 +575,27 @@ friendOnly:OnChanged(function(Value)
 end)
 
 local autoJoinWorldSection = Tabs.Joiner:AddSection("AutoJoinWorld")
+
 local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
     Title = "Auto Join World",
     Description = "Pick a world to join",
     Values = Worlds,
     Default = joinerConfig.worldJoinerConfig.World,
-    Multi = false
+    Multi = false,
+    Callback = function(Value)
+        joinerConfig.worldJoinerConfig.World = Value
+    end
 })
+
 local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Title = "Auto Join World",
     Description = "Pick a world to join",
     Values = joinerConfig.worldJoinerConfig.World,
     Default = joinerConfig.worldJoinerConfig.Act,
-    Multi = false
+    Multi = false,
+    Callback = function(Value)
+        joinerConfig.worldJoinerConfig.Act = Value
+    end
 })
 
 
@@ -596,14 +606,6 @@ local RarityMultiDropdown = Tabs.Shop:AddDropdown("RarityMultiDropdown", {
     Multi = true,
     Default = {},
 })
-
-worldSection:OnChanged(function(Value)
-    joinerConfig.worldJoinerConfig.World = Value
-end)
-
-actSection:OnChanged(function(Value)
-    joinerConfig.worldJoinerConfig.Act = Value
-end)
 
 RarityMultiDropdown:OnChanged(function(Value)
     autoSellConfig.Rare = false
