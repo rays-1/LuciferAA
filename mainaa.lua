@@ -236,47 +236,49 @@ end)
 local function optimizeGame()
     if optimized then return end
     optimized = true
-    local count = 0;
+    local count = 0
     print("reaching here..")
+    
     for _, descendant in ipairs(game:GetDescendants()) do
-        print("descendant")
-        if descendant then
+        if descendant then  -- Primary nil check
+            print("descendant")
             print("--"..count)
             count = count + 1
-            if descendant and  descendant:IsA("BasePart") then
+
+            -- Initialize entry for this descendant
+            originalProperties[descendant] = originalProperties[descendant] or {}
+
+            -- BasePart modifications
+            if descendant:IsA("BasePart") then
                 descendant.Material = Enum.Material.Plastic
                 descendant.CastShadow = false
             end
-            if descendant and descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") or descendant:IsA("SurfaceGui") or descendant:IsA("BillboardGui") then
+
+            -- Visual effects
+            if descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") or descendant:IsA("SurfaceGui") or descendant:IsA("BillboardGui") then
                 if descendant.Enabled then
-                    local enabled = descendant.Enabled
-                    if enabled then
-                        originalProperties[descendant] = { enabled = enabled }
-                        descendant.Enabled = false
-                    end
+                    originalProperties[descendant].enabled = descendant.Enabled
+                    descendant.Enabled = false
                 end
             end
-            if descendant and descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
-                if descendant.MeshId then
-                    local meshId = descendant.MeshId
-                    if meshId then
-                        originalProperties[descendant].MeshId = meshId
-                        descendant.MeshId = ""
-                    end
+
+            -- Mesh parts
+            if descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
+                if descendant.MeshId ~= "" then
+                    originalProperties[descendant].MeshId = descendant.MeshId
+                    descendant.MeshId = ""
                 end
-                if descendant.TextureId then
-                    local textureId = descendant.TextureId
-                    if textureId then
-                        originalProperties[descendant].TextureId = textureId
-                        descendant.TextureId = ""
-                    end
+                if descendant.TextureId ~= "" then
+                    originalProperties[descendant].TextureId = descendant.TextureId
+                    descendant.TextureId = ""
                 end
             end
-            if  descendant and descendant:IsA("Texture") then
-                local Texture = descendant.Texture;
-                if Texture then
+
+            -- Textures
+            if descendant:IsA("Texture") then
+                if descendant.Texture ~= "" then
+                    originalProperties[descendant].Texture = descendant.Texture
                     descendant.Texture = ""
-                    originalProperties[descendant] = {Texture = Texture}
                 end
             end
         else
