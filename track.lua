@@ -77,7 +77,7 @@ local function followPlayer()
                         [1] = currentLobby
                     }
                     pcall(function()
-                        leaveRemote:InvokeServer(unpack(args))
+                        game:GetService("ReplicatedStorage"):WaitForChild("endpoints"):WaitForChild("client_to_server"):WaitForChild("request_leave_lobby"):InvokeServer(unpack(args))
                     end)
                 end
 
@@ -89,7 +89,7 @@ local function followPlayer()
                     [1] = targetLobby
                 }
                 local success = pcall(function()
-                    joinRemote:InvokeServer(unpack(args))
+                    game:GetService("ReplicatedStorage"):WaitForChild("endpoints"):WaitForChild("client_to_server"):WaitForChild("request_join_lobby"):InvokeServer(unpack(args))
                 end)
 
                 if success then
