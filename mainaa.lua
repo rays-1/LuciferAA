@@ -254,6 +254,10 @@ local function stopMonitoring()
     print("\n=== AUTO-SELL SYSTEM DEACTIVATED ===")
 end
 
+local havprop = pcall(function(ins,prop)
+    local prop = ins.prop
+end)
+
 local function optimizeGame()
     if optimized then return end
     optimized = true
@@ -266,8 +270,9 @@ local function optimizeGame()
             count+=1
             if descendant:IsA("BasePart") then
                 descendant.Material = Enum.Material.Plastic
+                descendant.CastShadow = false
             end
-            if descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
+            if descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") or descendant:IsA("SurfaceGui") or descendant:IsA("BillboardGui") then
                 if descendant.Enabled then
                     local enabled = descendant.Enabled
                     if enabled then
@@ -275,18 +280,12 @@ local function optimizeGame()
                         descendant.Enabled = false
                     end
                 end
-            elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") or descendant:IsA("BasePart") or descendant:IsA("Part")  then
-                if descendant.CastShadow then
-                    local castShadow = descendant.CastShadow
-                    if castShadow then
-                        originalProperties[descendant] = { castShadow = castShadow }
-                        descendant.CastShadow = false
-                    end
-                end
+            end
+            if descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") or descendant:IsA("FileMesh") then
                 if descendant.MeshId then
                     local meshId = descendant.MeshId
                     if meshId then
-                        originalProperties[descendant]. MeshId = meshId
+                        originalProperties[descendant].MeshId = meshId
                         descendant.MeshId = ""
                     end
                 end
@@ -297,15 +296,8 @@ local function optimizeGame()
                         descendant.TextureId = ""
                     end
                 end
-            elseif descendant:IsA("BillboardGui") then
-                if descendant.Enabled then
-                    local enabled = descendant.Enabled
-                    if enabled then
-                        originalProperties[descendant] = { enabled = enabled }
-                        descendant.Enabled = false
-                    end
-                end
-            elseif descendant:IsA("Texture") then
+            end
+            if descendant:IsA("Texture") then
                 local Texture = descendant.Texture;
                 if Texture then
                     descendant.Texture = ""
@@ -319,25 +311,19 @@ end
 local function restoreGame()
     if not optimized then return end
     for descendant, originalState in pairs(originalProperties) do
-        if descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
+        if descendant:IsA("Beam") or descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") or descendant:IsA("SurfaceGui") or descendant:IsA("BillboardGui") then
             if originalState and originalState.enabled then
                 descendant.Enabled = originalState.enabled
             end
-        elseif descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") or descendant:IsA("BasePart") or descendant:IsA("Part") then
-            if originalState and originalState.castShadow then
-                descendant.CastShadow = originalState.castShadow
-            end
+        if descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") or descendant:IsA("FileMesh")then
             if originalState and originalState.MeshId then
                 descendant.MeshId = originalState.MeshId
             end
             if originalState and originalState.TextureId then
                 descendant.TextureId = originalState.TextureId
             end
-        elseif descendant:IsA("BillboardGui") then
-            if originalState and originalState.enabled then
-                descendant.Enabled = originalState.enabled
-            end
-        elseif descendant:IsA("Texture")  then
+        end
+        if descendant:IsA("Texture")  then
             if originalState and originalState.Texture then
                 descendant.Texture = originalState.Texture
             end
