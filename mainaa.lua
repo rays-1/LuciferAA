@@ -588,15 +588,15 @@ local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
     end
 })
 
-local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
-    Description = "Pick an act to join",
-    Values = joinerConfig.worldJoinerConfig.World,
-    Default = joinerConfig.worldJoinerConfig.Act,
-    Multi = false,
-    Callback = function(Value)
-        joinerConfig.worldJoinerConfig.Act = Value
-    end
-})
+-- local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
+--     Description = "Pick an act to join",
+--     Values = joinerConfig.worldJoinerConfig.World,
+--     Default = joinerConfig.worldJoinerConfig.Act,
+--     Multi = false,
+--     Callback = function(Value)
+--         joinerConfig.worldJoinerConfig.Act = Value
+--     end
+-- })
 
 local RarityMultiDropdown = Tabs.Shop:AddDropdown("RarityMultiDropdown", {
     Title = "Auto Sell Rarities",
