@@ -1,6 +1,6 @@
 
-##MAIN
-loadstring(game:HttpGet("https://raw.githubusercontent.com/rays-1/LuciferAA/refs/heads/main/mainaa"))()
+##MAIN\n
+loadstring(game:HttpGet("https://raw.githubusercontent.com/rays-1/LuciferAA/refs/heads/main/mainaa.lua"))()
 
-##TEST
+##TEST\n
 loadstring(game:HttpGet("https://raw.githubusercontent.com/rays-1/LuciferAA/refs/heads/main/test.lua"))()
