@@ -565,6 +565,20 @@ local function stopWait()
     print("\n=== AUTO-JOIN SYSTEM DEACTIVATED ===")
 end
 
+local function getActsForWorld(worldName)
+    local worldData = Worlds[worldName]
+    local acts = {}
+    for key in pairs(worldData) do
+        if key:match("Act %d") then -- Match "Act" followed by a number
+            table.insert(acts, key)
+        end
+    end
+    acts["Infinite"] = worldData.Infinite
+    table.sort(acts)
+    return acts
+end
+
+
 local Options = Fluent.Options
 
 local friendOnly = joinerSets:AddToggle("FriendsOnlyEnabled", {Title = "Friends Only?",Default = joinerConfig.friendOnly})
@@ -573,23 +587,10 @@ friendOnly:OnChanged(function(Value)
     joinerConfig.friendOnly = Value
 end)
 -- Fix the world section dropdown
-local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
-    Title = "Auto Join World",
-    Description = "Pick a world to join",
-    Values = worldNames,  -- This should be the array of world names
-    Default = "Planet Greenie",  -- Directly use the display name
-    Multi = false,
-    Callback = function(Value)
-        joinerConfig.worldJoinerConfig.World = Value
-    end
-})
-
-print(worldNames[joinerConfig.worldJoinerConfig.World])
--- Fix the act section dropdown
 local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Title = "Select Act",
     Description = "Pick an act to join",
-    Values = {Worlds[joinerConfig.worldJoinerConfig.World]},
+    Values = getActsForWorld(joinerConfig.worldJoinerConfig.World),
     Default = "Act 1",
     Multi = false,
     Callback = function(Value)
@@ -597,12 +598,27 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     end
 })
 
+local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
+    Title = "Auto Join World",
+    Description = "Pick a world to join",
+    Values = worldNames,
+    Default = "Planet Greenie",
+    Multi = false,
+    Callback = function(Value)
+        joinerConfig.worldJoinerConfig.World = Value
+        -- Update act dropdown when world changes
+        actSection:SetValues(getActsForWorld(Value))
+        actSection:SetValue("Act 1")
+    end
+})
+
+print(worldNames[joinerConfig.worldJoinerConfig.World])
+-- Fix the act section dropdown
+
 local AutoSellEnabledToggle = shopMainSection:AddToggle("AutoSellEnabled", {
     Title = "Enable Auto Sell",
     Default = autoSellConfig.AutoSellEnabled
 })
-
-local AutoSellEnabledToggle = Tabs.Shop:AddToggle("AutoSellEnabled", { Title = "Enable Auto Sell", Default = autoSellConfig.AutoSellEnabled })
 
 
 AutoSellEnabledToggle:OnChanged(function()
