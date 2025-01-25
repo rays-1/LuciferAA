@@ -125,7 +125,8 @@ local Tabs = {
 local MainWelcome = Tabs.Main:AddSection("Welcome to Lucifer", 1)
 local MainActions = Tabs.Main:AddSection("Quick Actions", 2)
 
-Tabs.Joiner:AddSection("Join Friend", 1)
+Tabs.Joiner:AddSection("Joiner Settings",1)
+Tabs.Joiner:AddSection("Join Friend", 2)
 
 Tabs["Farm Config"]:AddSection("Combat Settings", 1)
 Tabs["Farm Config"]:AddSection("Target Filters", 2)
@@ -597,7 +598,6 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
         joinerConfig.worldJoinerConfig.Act = Value
     end
 })
-
 
 local RarityMultiDropdown = Tabs.Shop:AddDropdown("RarityMultiDropdown", {
     Title = "Auto Sell Rarities",
