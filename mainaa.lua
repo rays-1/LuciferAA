@@ -155,6 +155,7 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 
 Window:SelectTab(1)
 
+local autoJoining
 local followingPLayer
 local waitingPlayer
 local teleportClickCount = 0
@@ -491,35 +492,6 @@ local function lockInLevel()
 end
 
 
-local function waitPlayer()
-    while friendIsIn ~= true do
-        task.wait(1)
-        local currentLobby = findPlayerInLobbies(game.Players.LocalPlayer.Name)
-        if currentLobby then
-            local lobby = workspace._LOBBIES.Story:FindFirstChild(currentLobby)
-            local Timer = lobby:FindFirstChild("Timer")
-            local playersFolder = lobby:FindFirstChild("Players")
-            if playersFolder then
-                for _, objValue in ipairs(playersFolder:GetChildren()) do
-                    if tostring(objValue.Value) == friendWaiterConfig.name then
-                        friendIsIn = true
-                    end
-                end
-            end 
-            if Timer.Value <= 10 then
-                local args = {
-                    [1] = currentLobby
-                }
-                leaveRemote:InvokeServer(unpack(args))
-                joinRemote:InvokeServer(unpack(args))
-            end
-        else
-            print("Player not in lobby yet..")
-        end
-    end
-end
-
-
 local function joinRandomLobby()
 
     local freeLobby
@@ -547,6 +519,39 @@ local function joinRandomLobby()
     joinerConfig.lobby = freeLobby
 end
 
+local function waitPlayer()
+    while friendIsIn ~= true do
+        task.wait(2)
+        local currentLobby = findPlayerInLobbies(game.Players.LocalPlayer.Name)
+        if currentLobby then
+            local lobby = workspace._LOBBIES.Story:FindFirstChild(currentLobby)
+            local Timer = lobby:FindFirstChild("Timer")
+            local playersFolder = lobby:FindFirstChild("Players")
+            if playersFolder then
+                for _, objValue in ipairs(playersFolder:GetChildren()) do
+                    if tostring(objValue.Value) == friendWaiterConfig.name then
+                        friendIsIn = true
+                    end
+                end
+            end 
+            if Timer.Value <= 10 then
+                local args = {
+                    [1] = currentLobby
+                }
+                leaveRemote:InvokeServer(unpack(args))
+                joinRemote:InvokeServer(unpack(args))
+            end
+        else
+            if joinerConfig.enabled then
+                joinRandomLobby()
+                lockInLevel()
+            end
+        end
+    end
+end
+
+
+
 local function autoJoinWorld()
     joinRandomLobby()
     if joinerConfig.waitForFriend then
@@ -557,13 +562,30 @@ local function autoJoinWorld()
     end
 end
 
+local function startJoin()
+    if autoJoining then
+        task.cancel(autoJoining)
+        autoJoining = nil
+    end
+    autoJoining = task.spawn(autoJoinWorld)
+    print("\n=== AUTO-JOIN SYSTEM ACTIVATED ===")
+end
+
+local function stopJoin()
+    if autoJoining then
+        task.cancel(autoJoining)
+        autoJoining = nil
+    end
+    print("\n=== AUTO-JOIN SYSTEM DEACTIVATED ===")
+end
+
 local function startFollow()
     if followingPLayer then
         task.cancel(followingPLayer)
         followingPLayer = nil
     end
     followingPLayer = task.spawn(followPlayer)
-    print("\n=== AUTO-JOIN SYSTEM ACTIVATED ===")
+    print("\n=== AUTO-FOLLOW SYSTEM ACTIVATED ===")
 end
 
 local function stopFollow()
@@ -571,7 +593,7 @@ local function stopFollow()
         task.cancel(followingPLayer)
         followingPLayer = nil
     end
-    print("\n=== AUTO-JOIN SYSTEM DEACTIVATED ===")
+    print("\n=== AUTO-FOLLOW SYSTEM DEACTIVATED ===")
 end
 
 local function startWait()
@@ -620,7 +642,9 @@ local autoJoinEnable = autoJoinWorldSection:AddToggle("autoJoinEnable", {
     Callback = function(Value)
         joinerConfig.enabled = Value
         if joinerConfig.enabled then
-            autoJoinWorld()
+            startJoin()
+        else
+            stopJoin()
         end
     end
 })
@@ -723,8 +747,30 @@ OptimizerToggle:OnChanged(function()
     end
 end)
 
+
+--FRIEND JOIN AND WAIT
 local FriendJoiner = friendSection:AddToggle("FriendJoinerEnabled", { Title = "Enable Friend Joiner", Description = "Must be used by MAIN account",Default = false })
 local FriendWaiter = friendSection:AddToggle("FriendWaiterEnabled", { Title = "Enable Friend Waiter", Description = "Must be used by ALT account", Default = false })
+local FriendJoinName = friendSection:AddInput("Name", {
+    Title = "Join Who?",
+    Default = "",
+    Numeric = false,
+    Finished = false,
+    Placeholder = "",
+    Callback = function(Value)
+        friendJoinerConfig.name = Value
+    end
+})
+local FriendWaitName = friendSection:AddInput("Name", {
+    Title = "Wait Who?",
+    Default = "",
+    Numeric = false,
+    Finished = false,
+    Placeholder = "",
+    Callback = function(Value)
+        friendWaiterConfig.name = Value
+    end
+})
 
 FriendJoiner:OnChanged(function()
     if Options.FriendJoinerEnabled.Value then
@@ -737,17 +783,6 @@ FriendJoiner:OnChanged(function()
         stopFollow()
     end
 end)
-
-local FriendJoinName = friendSection:AddInput("Name", {
-    Title = "Join Who?",
-    Default = "",
-    Numeric = false,
-    Finished = false,
-    Placeholder = "",
-    Callback = function(Value)
-        friendJoinerConfig.name = Value
-    end
-})
 
 
 FriendWaiter:OnChanged(function()
@@ -763,17 +798,6 @@ FriendWaiter:OnChanged(function()
         stopWait()
     end
 end)
-
-local FriendWaitName = friendSection:AddInput("Name", {
-    Title = "Wait Who?",
-    Default = "",
-    Numeric = false,
-    Finished = false,
-    Placeholder = "",
-    Callback = function(Value)
-        friendWaiterConfig.name = Value
-    end
-})
 
 
 
