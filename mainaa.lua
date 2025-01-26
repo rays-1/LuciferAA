@@ -540,7 +540,7 @@ local function waitPlayer()
                         -- START CONFIG HERE
                     end
                 end
-                if Timer.Value <= 10 and Timer.Value ~= -1 then
+                if Timer.Value <= 20 and Timer.Value ~= -1 then
                     local args = {
                         [1] = currentLobby
                     }
