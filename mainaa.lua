@@ -532,14 +532,15 @@ local function waitPlayer()
             local lobby = workspace._LOBBIES.Story:FindFirstChild(currentLobby)
             local Timer = lobby:FindFirstChild("Timer")
             local playersFolder = lobby:FindFirstChild("Players")
-            if playersFolder then
+            local locked = lobby:FindFirstChild("Locked").Value
+            if playersFolder and locked then
                 for _, objValue in ipairs(playersFolder:GetChildren()) do
                     if tostring(objValue.Value) == friendWaiterConfig.name then
                         friendIsIn = true
                     end
                 end
             end 
-            if Timer.Value <= 10 then
+            if Timer.Value <= 10 and locked then
                 local args = {
                     [1] = currentLobby
                 }
