@@ -546,22 +546,12 @@ local function waitPlayer()
                     }
                     joinerConfig.lobby = currentLobby
                     leaveRemote:InvokeServer(unpack(args))
-                    task.wait()
-                    joinRemote:InvokeServer(unpack(args))
-                    task.wait()
-                    lockInLevel()
+                    task.wait(3)
                 end
-            end
-        else
-            if joinerConfig.enabled then
-                joinRandomLobby()
-                lockInLevel()
             end
         end
     end
 end
-
-
 
 local function autoJoinWorld()
     while true do
@@ -628,7 +618,7 @@ local function stopWait()
 end
 
 local function leaveLobbyy()
-    local currlob = findPlayerInLobbies(game.Player.LocalPlayer.Name)
+    local currlob = findPlayerInLobbies(game.Players.LocalPlayer.Name)
     if currlob then
         leaveRemote:InvokeServer(unpack({[1] = currlob})) 
     end
@@ -775,7 +765,7 @@ end)
 
 
 --FRIEND JOIN AND WAIT
-local FriendJoiner = friendSection:AddToggle("FriendJoinerEnabled", { Title = "Enable Friend Joiner", Description = "Must be used by MAIN account",Default = false })
+local FriendJoiner = friendSection:AddToggle("FriendJoinerEnabled", { Title = "Enable Friend Joiner", Description = "Must be used by ALT account",Default = false })
 local FriendJoinName = friendSection:AddInput("Name", {
     Title = "Join Who?",
     Default = "",
@@ -786,7 +776,7 @@ local FriendJoinName = friendSection:AddInput("Name", {
         friendJoinerConfig.name = Value
     end
 })
-local FriendWaiter = friendSection:AddToggle("FriendWaiterEnabled", { Title = "Enable Friend Waiter", Description = "Must be used by ALT account", Default = false })
+local FriendWaiter = friendSection:AddToggle("FriendWaiterEnabled", { Title = "Enable Friend Waiter", Description = "Must be used by MAIN account", Default = false })
 local FriendWaitName = friendSection:AddInput("Name", {
     Title = "Wait Who?",
     Default = "",
