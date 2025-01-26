@@ -502,11 +502,10 @@ local function waitPlayer()
             if playersFolder then
                 for _, objValue in ipairs(playersFolder:GetChildren()) do
                     if tostring(objValue.Value) == friendWaiterConfig.name then
-                        lockInLevel()
                         friendIsIn = true
                     end
                 end
-            end
+            end 
             if Timer.Value <= 10 then
                 local args = {
                     [1] = currentLobby
@@ -551,6 +550,7 @@ end
 local function autoJoinWorld()
     joinRandomLobby()
     if joinerConfig.waitForFriend then
+        lockInLevel()
         waitPlayer()
     else
         lockInLevel()
