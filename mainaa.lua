@@ -525,26 +525,32 @@ local function joinRandomLobby()
 end
 
 local function waitPlayer()
-    while friendIsIn ~= true do
-        task.wait(2)
+    while true do
+        task.wait(3)
         local currentLobby = findPlayerInLobbies(game.Players.LocalPlayer.Name)
         if currentLobby then
             local lobby = workspace._LOBBIES.Story:FindFirstChild(currentLobby)
             local Timer = lobby:FindFirstChild("Timer")
             local playersFolder = lobby:FindFirstChild("Players")
-            if playersFolder then
+            if #playersFolder:GetChildren() ~= 0 then
                 for _, objValue in ipairs(playersFolder:GetChildren()) do
                     if tostring(objValue.Value) == friendWaiterConfig.name then
                         friendIsIn = true
+                        print(friendWaiterConfig.name .. " is in room!")
+                        -- START CONFIG HERE
                     end
                 end
-            end 
-            if Timer.Value <= 10 then
-                local args = {
-                    [1] = currentLobby
-                }
-                leaveRemote:InvokeServer(unpack(args))
-                joinRemote:InvokeServer(unpack(args))
+                if Timer.Value <= 10 then
+                    local args = {
+                        [1] = currentLobby
+                    }
+                    joinerConfig.lobby = currentLobby
+                    leaveRemote:InvokeServer(unpack(args))
+                    task.wait()
+                    joinRemote:InvokeServer(unpack(args))
+                    task.wait()
+                    lockInLevel()
+                end
             end
         else
             if joinerConfig.enabled then
@@ -558,12 +564,15 @@ end
 
 
 local function autoJoinWorld()
-    joinRandomLobby()
-    if joinerConfig.waitForFriend then
-        lockInLevel()
-        waitPlayer()
-    else
-        lockInLevel()
+    while true do
+        task.wait(3)
+        local currlob = findPlayerInLobbies(game.Players.LocalPlayer.Name)
+        if currlob then
+            lockInLevel()
+        else
+            print("Player Not In Lobby")
+            joinRandomLobby()
+        end
     end
 end
 
