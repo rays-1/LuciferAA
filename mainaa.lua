@@ -41,7 +41,11 @@ local friendWaiterConfig = {
 }
 
 local joinerConfig = {
+    waitForFriend = false,
+    enabled = false,
     friendOnly = false,
+    lobby = "",
+    hardMode = "Normal",
     worldJoinerConfig = {
         World = "Planet Greenie",
         Act = "Act 1"
@@ -471,6 +475,52 @@ end
 
 local Timer = 60
 
+local function lockInLevel()
+    local args = {
+        [1] = joinerConfig.lobby,
+        [2] = joinerConfig.worldJoinerConfig.Act,
+        [3] = joinerConfig.friendOnly,
+        [4] = joinerConfig.hardMode
+    }
+    if joinerConfig.worldJoinerConfig.Act == "Infinite" then
+        args[4] = "Hard"
+    end
+
+    game:GetService("ReplicatedStorage").endpoints.client_to_server.request_lock_level:InvokeServer(unpack(args))
+
+end
+
+
+local function waitPlayer()
+    while friendIsIn ~= true do
+        task.wait(1)
+        local currentLobby = findPlayerInLobbies(game.Players.LocalPlayer.Name)
+        if currentLobby then
+            local lobby = workspace._LOBBIES.Story:FindFirstChild(currentLobby)
+            local Timer = lobby:FindFirstChild("Timer")
+            local playersFolder = lobby:FindFirstChild("Players")
+            if playersFolder then
+                for _, objValue in ipairs(playersFolder:GetChildren()) do
+                    if tostring(objValue.Value) == friendWaiterConfig.name then
+                        lockInLevel()
+                        friendIsIn = true
+                    end
+                end
+            end
+            if Timer.Value <= 10 then
+                local args = {
+                    [1] = currentLobby
+                }
+                leaveRemote:InvokeServer(unpack(args))
+                joinRemote:InvokeServer(unpack(args))
+            end
+        else
+            print("Player not in lobby yet..")
+        end
+    end
+end
+
+
 local function joinRandomLobby()
 
     local freeLobby
@@ -494,38 +544,16 @@ local function joinRandomLobby()
         }
         joinRemote:InvokeServer(unpack(args))
     end
-    
-    return freeLobby
+    task.wait()
+    joinerConfig.lobby = freeLobby
 end
 
-local function waitPlayer()
-
-    while friendIsIn ~= true do
-        task.wait(5)
-
-        local currentLobby = findPlayerInLobbies(game.Players.LocalPlayer.Name)
-
-        if currentLobby then
-            local lobby = workspace._LOBBIES.Story:FindFirstChild(currentLobby)
-            local playersFolder = lobby:FindFirstChild("Players")
-            if playersFolder then
-                for _, objValue in ipairs(playersFolder:GetChildren()) do
-                    if tostring(objValue.Value) == friendJoinerConfig.name then
-                        friendIsIn = true
-                    end
-                end
-            end
-        else
-            print("Player not in lobby yet..")
-            local Timer = workspace._LOBBIES.Story:FindFirstChild(currentLobby):FindFirstChild("Timer")
-            if Timer.Value <= 10 then
-                local args = {
-                    [1] = currentLobby
-                }
-                leaveRemote:InvokeServer(unpack(args))
-                joinRemote:InvokeServer(unpack(args))
-            end
-        end
+local function autoJoinWorld()
+    joinRandomLobby()
+    if joinerConfig.waitForFriend then
+        waitPlayer()
+    else
+        lockInLevel()
     end
 end
 
@@ -552,7 +580,7 @@ local function startWait()
         waitingPlayer = nil
     end
     waitingPlayer = task.spawn(waitPlayer)
-    print("\n=== AUTO-JOIN SYSTEM ACTIVATED ===")
+    print("\n=== AUTO-WAIT SYSTEM ACTIVATED ===")
 end
 
 local function stopWait()
@@ -560,7 +588,7 @@ local function stopWait()
         task.cancel(waitingPlayer)
         waitingPlayer = nil
     end
-    print("\n=== AUTO-JOIN SYSTEM DEACTIVATED ===")
+    print("\n=== AUTO-WAIT SYSTEM DEACTIVATED ===")
 end
 
 local function getActsForWorld(worldName)
@@ -584,6 +612,30 @@ local friendOnly = joinerSets:AddToggle("FriendsOnlyEnabled", {Title = "Friends 
 friendOnly:OnChanged(function(Value)
     joinerConfig.friendOnly = Value
 end)
+
+
+local autoJoinEnable = autoJoinWorldSection:AddToggle("autoJoinEnable", {
+    Title = "Enable Auto Join",
+    Default = joinerConfig.enabled,
+    Callback = function(Value)
+        joinerConfig.enabled = Value
+        if joinerConfig.enabled then
+            autoJoinWorld()
+        end
+    end
+})
+
+local HardMode = autoJoinWorldSection:AddToggle("hardModeToggle", {
+    Title = "Enable Hard Mode",
+    Default = false,
+    Callback = function(Value)
+        if Value then
+           joinerConfig.hardMode = "Hard" 
+        else
+            joinerConfig.hardMode = "Normal"
+        end
+    end
+})
 -- Fix the world section dropdown
 local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Title = "Select Act",
@@ -609,8 +661,6 @@ local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
         actSection:SetValue("Act 1")
     end
 })
-
-print(worldNames[joinerConfig.worldJoinerConfig.World])
 -- Fix the act section dropdown
 
 local AutoSellEnabledToggle = shopMainSection:AddToggle("AutoSellEnabled", {
@@ -674,10 +724,13 @@ OptimizerToggle:OnChanged(function()
 end)
 
 local FriendJoiner = friendSection:AddToggle("FriendJoinerEnabled", { Title = "Enable Friend Joiner", Description = "Must be used by MAIN account",Default = false })
+local FriendWaiter = friendSection:AddToggle("FriendWaiterEnabled", { Title = "Enable Friend Waiter", Description = "Must be used by ALT account", Default = false })
+
 FriendJoiner:OnChanged(function()
     if Options.FriendJoinerEnabled.Value then
         if Options.FriendWaiterEnabled.Value then
             Options.FriendWaiterEnabled.Value = false
+            FriendWaiter:SetValue(false)
         end
         startFollow()
     else
@@ -696,14 +749,17 @@ local FriendJoinName = friendSection:AddInput("Name", {
     end
 })
 
-local FriendWaiter = friendSection:AddToggle("FriendWaiterEnabled", { Title = "Enable Friend Waiter", Description = "Must be used by ALT account", Default = false })
+
 FriendWaiter:OnChanged(function()
     if Options.FriendWaiterEnabled.Value then
         if Options.FriendJoinerEnabled.Value then
             Options.FriendJoinerEnabled.Value = false
+            FriendJoiner:SetValue(false)
         end
+        joinerConfig.waitForFriend = true
         startWait()
     else
+        joinerConfig.waitForFriend = false
         stopWait()
     end
 end)
