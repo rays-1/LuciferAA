@@ -310,7 +310,7 @@ local function findPlayerInLobbies(targetName)
     for i, lobby in ipairs(allLobbies) do
         local lob = lobby:GetFullName()
         local lobName = lobby.Name
-        if lob and lobby:FindFirstChild("World") then
+        if lob then
             local playersFolder = lobby:FindFirstChild("Players")
             if playersFolder then
                 for _, objValue in ipairs(playersFolder:GetChildren()) do
