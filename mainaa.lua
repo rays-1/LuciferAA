@@ -77,9 +77,12 @@ for _, moduleScript in ipairs(WorldsSrc:GetChildren()) do
         
         for _, worldEntry in pairs(worldData) do
             local formatted = {
-                Infinite = worldEntry.infinite and worldEntry.infinite.id or nil
             }
             
+
+            if worldEntry.infinite then
+                formatted["Infinite"] = worldEntry.infinite.id or nil
+            end
             -- Parse levels
             for i = 1, 6 do
                 local levelKey = tostring(i)
@@ -669,7 +672,7 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Values = getActsForWorld(joinerConfig.worldJoinerConfig.World),
     Default = Worlds[joinerConfig.worldJoinerConfig.World]["Act 1"],
     Multi = false,
-    Callback = function(Value)
+    Callback = function(Value)  
         joinerConfig.worldJoinerConfig.Act = Worlds[joinerConfig.worldJoinerConfig.World][Value]
     end
 })
@@ -684,7 +687,6 @@ local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
         joinerConfig.worldJoinerConfig.World = Value
         -- Update act dropdown when world changes
         actSection:SetValues(getActsForWorld(Value))
-        actSection:SetValue("Act 1")
     end
 })
 -- Fix the act section dropdown
