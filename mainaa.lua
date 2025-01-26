@@ -686,7 +686,6 @@ local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
     Callback = function(Value)
         joinerConfig.worldJoinerConfig.World = Value
         -- Update act dropdown when world changes
-        actSection:SetValues(getActsForWorld(Value))
     end
 })
 -- Fix the act section dropdown
