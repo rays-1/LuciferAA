@@ -618,6 +618,13 @@ local function stopWait()
     print("\n=== AUTO-WAIT SYSTEM DEACTIVATED ===")
 end
 
+local function leaveLobbyy()
+    local currlob = findPlayerInLobbies(game.Player.LocalPlayer.Name)
+    if currlob then
+        leaveRemote:InvokeServer(unpack({[1] = currlob})) 
+    end
+end
+
 local function getActsForWorld(worldName)
     local worldData = Worlds[worldName]
     local acts = {}
@@ -643,10 +650,7 @@ end)
 local leaveLobby = autoJoinWorldSection:AddButton("leaveLobbyButton", {
     Title = "Leave Current Lobby",
     Callback = function()
-        local currlob = findPlayerInLobbies(game.Player.LocalPlayer.Name)
-        if currlob then
-            leaveRemote:InvokeServer({[1] = currlob}) 
-        end
+        leaveLobbyy()
     end
 })
 
