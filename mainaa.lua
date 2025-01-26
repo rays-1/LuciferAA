@@ -647,8 +647,9 @@ friendOnly:OnChanged(function(Value)
     joinerConfig.friendOnly = Value
 end)
 
-local leaveLobbyButton = autoJoinWorldSection:AddButton("leaveLobbyButton", {
+local leaveLobbyButton = autoJoinWorldSection:AddButton({
     Title = "Leave Current Lobby",
+    Description = "Leave lobby",
     Callback = function()
         leaveLobbyy()
     end
