@@ -114,6 +114,15 @@ local joinerConfig = {
     }
 }
 
+local joinerChallConfig = {
+    lobby = "",
+    ignoreChall = {
+        
+    }
+    rewardSel = {
+
+    }
+}
 
 local Window = Fluent:CreateWindow({
     Title = "Lucifer " .. LuciferVer,
@@ -141,6 +150,7 @@ local MainActions = Tabs.Main:AddSection("Quick Actions", 2)
 local joinerSets = Tabs.Joiner:AddSection("Joiner Settings",1)
 local friendSection = Tabs.Joiner:AddSection("Join Friend", 2)
 local autoJoinWorldSection = Tabs.Joiner:AddSection("Auto Join World", 3)
+local autoJoinChallSection = Tabs.Joiner:AddSection("Auto Join Challenge",4)
 
 local shopMainSection = Tabs.Shop:AddSection("Auto Sell Configuration", 1)
 
@@ -684,7 +694,7 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Title = "Select Act",
     Description = "Pick an act to join",
     Values = getActsForWorld(joinerConfig.worldJoinerConfig.World),
-    Default = Worlds[joinerConfig.worldJoinerConfig.World]["Act 1"],
+    Default = nil,
     Multi = false,
     Callback = function(Value)  
         joinerConfig.worldJoinerConfig.Act = Worlds[joinerConfig.worldJoinerConfig.World][Value]
@@ -816,6 +826,11 @@ FriendWaiter:OnChanged(function()
     end
 end)
 
+local ChallJoiner = autoJoinChallSection:AddToggle("JoinChallEnabled", {
+    Title = "Enable Challenge Joiner",
+    Description = "Auto Join Challenge",
+    Default = false
+})
 
 
 AutoSellEnabledToggle:SetValue(autoSellConfig.AutoSellEnabled)
