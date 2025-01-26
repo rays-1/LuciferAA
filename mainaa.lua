@@ -640,6 +640,15 @@ friendOnly:OnChanged(function(Value)
     joinerConfig.friendOnly = Value
 end)
 
+local leaveLobby = autoJoinWorldSection:AddButton("leaveLobbyButton", {
+    Title = "Leave Current Lobby",
+    Callback = function()
+        local currlob = findPlayerInLobbies(game.Player.LocalPlayer.Name)
+        if currlob then
+            leaveRemote:InvokeServer({[1] = currlob}) 
+        end
+    end
+})
 
 local autoJoinEnable = autoJoinWorldSection:AddToggle("autoJoinEnable", {
     Title = "Enable Auto Join",
@@ -753,7 +762,6 @@ end)
 
 --FRIEND JOIN AND WAIT
 local FriendJoiner = friendSection:AddToggle("FriendJoinerEnabled", { Title = "Enable Friend Joiner", Description = "Must be used by MAIN account",Default = false })
-local FriendWaiter = friendSection:AddToggle("FriendWaiterEnabled", { Title = "Enable Friend Waiter", Description = "Must be used by ALT account", Default = false })
 local FriendJoinName = friendSection:AddInput("Name", {
     Title = "Join Who?",
     Default = "",
@@ -764,6 +772,7 @@ local FriendJoinName = friendSection:AddInput("Name", {
         friendJoinerConfig.name = Value
     end
 })
+local FriendWaiter = friendSection:AddToggle("FriendWaiterEnabled", { Title = "Enable Friend Waiter", Description = "Must be used by ALT account", Default = false })
 local FriendWaitName = friendSection:AddInput("Name", {
     Title = "Wait Who?",
     Default = "",
