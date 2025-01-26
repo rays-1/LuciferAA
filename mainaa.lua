@@ -481,10 +481,8 @@ local function joinRandomLobby()
         if lobby and lobby:FindFirstChild("World") then
             local playersFolder = lobby:FindFirstChild("Players")
             if playersFolder then
-                for _, objValue in ipairs(playersFolder:GetChildren()) do
-                    if tostring(objValue.Value) == targetName then
-                        freeLobby = lobbyName
-                    end
+                if #playersFolder:GetChildren() == 0 then
+                    freeLobby = lobbyName
                 end
             end
         end
@@ -525,7 +523,7 @@ local function waitPlayer()
                     [1] = currentLobby
                 }
                 leaveRemote:InvokeServer(unpack(args))
-                currentLobby = joinRandomLobby()
+                joinRemote:InvokeServer(unpack(args))
             end
         end
     end
