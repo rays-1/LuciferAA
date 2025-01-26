@@ -281,43 +281,46 @@ local function monitorCollection()
     end
 end
 
+local function GetLobbies()
+    local lobbies = {}
+    
+    -- Iterate through all descendants in the workspace
+    for _, instance in ipairs(workspace:GetDescendants()) do
+        -- Check if the instance is a Model and starts with "_lobbytemplate"
+        if instance:IsA("Model") and instance.Name:match("^_lobbytemplate") then
+            -- Check for required children: Players (Folder) and Timer (IntValue)
+            local playersFolder = instance:FindFirstChild("Players")
+            local timerValue = instance:FindFirstChild("Timer")
+            
+            if playersFolder and playersFolder:IsA("Folder") and timerValue and timerValue:IsA("IntValue") then
+                table.insert(lobbies, instance)
+            end
+        end
+    end
+    
+    return lobbies
+end
+
+-- Example usage
+
+
+
 local function findPlayerInLobbies(targetName)
-    -- Check story/infinite/legend lobbies (1-9)
-    for i = 1, 9 do
-        local lobbyName = "_lobbytemplategreen" .. i
-        local lobby = workspace._LOBBIES.Story:FindFirstChild(lobbyName)
-        if lobby and lobby:FindFirstChild("World") then
+    local allLobbies = GetLobbies()
+    for i, lobby in ipairs(allLobbies) do
+        local lob = lobby:GetFullName()
+        local lobName = lob.Name
+        if lob and lob:FindFirstChild("World") then
             local playersFolder = lobby:FindFirstChild("Players")
             if playersFolder then
                 for _, objValue in ipairs(playersFolder:GetChildren()) do
                     if tostring(objValue.Value) == targetName then
-                        return lobbyName
+                        return lobName
                     end
                 end
             end
         end
     end
-
-    -- Check event lobbies
-    local eventLobbies = {
-        "_lobbytemplate_event3", -- Christmas
-        "_lobbytemplate_event4"  -- Halloween
-    }
-    
-    for _, lobbyName in ipairs(eventLobbies) do
-        local lobby = workspace._EVENT_CHALLENGES.Lobbies:FindFirstChild(lobbyName)
-        if lobby and lobby:FindFirstChild("World") then
-            local playersFolder = lobby:FindFirstChild("Players")
-            if playersFolder then
-                for _, objValue in ipairs(playersFolder:GetChildren()) do
-                    if tostring(objValue.Value) == targetName  then
-                        return lobbyName
-                    end
-                end
-            end
-        end
-    end
-
     return nil
 end
 
@@ -479,8 +482,6 @@ local function followPlayer()
     end
 end
 
-local Timer = 60
-
 local function lockInLevel()
     local args = {
         [1] = joinerConfig.lobby,
@@ -555,7 +556,6 @@ end
 
 local function autoJoinWorld()
     while true do
-        task.wait(3)
         local currlob = findPlayerInLobbies(game.Players.LocalPlayer.Name)
         if currlob then
             lockInLevel()
@@ -563,6 +563,7 @@ local function autoJoinWorld()
             print("Player Not In Lobby")
             joinRandomLobby()
         end
+        task.wait(5)
     end
 end
 
