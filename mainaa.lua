@@ -40,17 +40,6 @@ local friendWaiterConfig = {
     name = ""
 }
 
-local joinerConfig = {
-    waitForFriend = false,
-    enabled = false,
-    friendOnly = false,
-    lobby = "",
-    hardMode = "Normal",
-    worldJoinerConfig = {
-        World = "Planet Greenie",
-        Act = "Act 1"
-    }
-}
 
 DEBUG_MODE = true
 local processedUnits = {}
@@ -109,6 +98,19 @@ local worldNames = {}
 for name in pairs(Worlds) do
     table.insert(worldNames, name)
 end
+
+local joinerConfig = {
+    waitForFriend = false,
+    enabled = false,
+    friendOnly = false,
+    lobby = "",
+    hardMode = "Normal",
+    worldJoinerConfig = {
+        World = "Planet Greenie",
+        Act = Worlds["Act 1"]
+    }
+}
+
 
 local Window = Fluent:CreateWindow({
     Title = "Lucifer " .. LuciferVer,
@@ -668,7 +670,7 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Default = "Act 1",
     Multi = false,
     Callback = function(Value)
-        joinerConfig.worldJoinerConfig.Act = Value
+        joinerConfig.worldJoinerConfig.Act = Worlds[Value]
     end
 })
 
