@@ -107,7 +107,7 @@ local joinerConfig = {
     hardMode = "Normal",
     worldJoinerConfig = {
         World = "Planet Greenie",
-        Act = Worlds["Act 1"]
+        Act = Worlds["Planet Greenie"]["Act 1"]
     }
 }
 
@@ -667,10 +667,10 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Title = "Select Act",
     Description = "Pick an act to join",
     Values = getActsForWorld(joinerConfig.worldJoinerConfig.World),
-    Default = joinerConfig.worldJoinerConfig["Act 1"],
+    Default = Worlds[joinerConfig.worldJoinerConfig.World]["Act 1"],
     Multi = false,
     Callback = function(Value)
-        joinerConfig.worldJoinerConfig.Act = Worlds[Value]
+        joinerConfig.worldJoinerConfig.Act = Worlds[joinerConfig.worldJoinerConfig.World][Value]
     end
 })
 
