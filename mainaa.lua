@@ -97,10 +97,13 @@ for _, moduleScript in ipairs(WorldsSrc:GetChildren()) do
     end
 end
 
+
 local worldNames = {}
 for name in pairs(Worlds) do
     table.insert(worldNames, name)
 end
+
+--joiner CONFIG!
 
 local joinerConfig = {
     waitForFriend = false,
