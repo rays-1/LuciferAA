@@ -512,9 +512,7 @@ end
 
 
 local function joinRandomLobby()
-
     local freeLobby
-
     for i = 1, 9 do
         local lobbyName = "_lobbytemplategreen" .. i
         local lobby = workspace._LOBBIES.Story:FindFirstChild(lobbyName)

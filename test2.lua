@@ -1,7 +1,7 @@
 -- Constants and Configurations
 local CONSTANTS = {
     MAX_ATTEMPTS = 5,
-    TELEPORT_ID = 8304191830,
+    TELEPORT_ID =  8304191830,
     TELEPORT_COOLDOWN = 2,
     ALLOWED_DOMAINS = { "github.com", "raw.githubusercontent.com" },
 }
@@ -33,10 +33,13 @@ local CONFIG = {
     },
      joinerChallConfig = {
         lobby = "",
+        ignoreWorld = {
+
+        },
         ignoreChall = {
             
         },
-        rewardSel = {
+        ignoreRew = {
 
         }
     },
@@ -652,6 +655,38 @@ local function getActsForWorld(worldName)
     table.sort(acts)
     return acts
 end
+
+local function getRewards()
+    return {"StarFruit","StarFruitGreen","StarFruitRed","StarFruitPink","StarFruitBlue","StarFruitEpic"}
+end
+
+local function getChallenges()
+    return {"double_cost","short_range","fast_enemies","regen_enemies","tank_enemies","shield_enemies"}
+end
+
+local function getCurrentChallenge()
+    local currChal
+    local currRew = {}
+    local currWorld
+    local deets = clientToServer:WaitForChild("get_normal_challenge"):InvokeServer()
+
+    for key,val in pairs(deets) do
+        if key:match("current_reward") then
+            for i = 1, #val["local_rewards"][1]["item"] do
+                currRew[i] = val["local_rewards"][1]["item"][i]["item_id"]
+            end
+        elseif key:match("current_level_id")then
+            currWorld = val
+        elseif key:match("current_challenge") then
+            currChal = val
+        end
+    end
+
+    return {currChal,currRew,currWorld}
+end
+
+
+
 local Options = Fluent.Options
 
 -- UI Elements
@@ -818,6 +853,50 @@ local ChallJoiner = autoJoinChallSection:AddToggle("JoinChallEnabled", {
     Description = "Auto Join Challenge",
     Default = false
 })
+local challIgnoreChall = autoJoinChallSection:AddDropdown("IgnoreChallenge", {
+    Title = "Ignore Challenge",
+    Description = "Select which challenges to ignore",
+    Values = getChallenges(),
+    Multi = true,
+    Default = {},
+})
+
+challIgnoreChall:OnChanged(function(Value)
+    print(Value)
+    CONFIG.joinerChallConfig.ignoreChall = {
+        Value
+    }
+end)
+
+local challIgnoreRew = autoJoinChallSection:AddDropdown("IgnoreReward", {
+    Title = "Ignore Reward",
+    Description = "Select which rewards to ignore",
+    Values = getRewards(),
+    Multi = true,
+    Default = {},
+})
+
+challIgnoreRew:OnChanged(function(Value)
+    print(Value)
+    CONFIG.joinerChallConfig.ignoreRew = {
+        Value
+    }
+end)
+
+local challIgnoreWorld = autoJoinChallSection:AddDropdown("IgnoreWorld", {
+    Title = "Ignore World",
+    Description = "Select which worlds to ignore",
+    Values = worldNames,
+    Multi = true,
+    Default = {},
+})
+
+challIgnoreWorld:OnChanged(function(Value)
+    print(Value)
+    CONFIG.joinerChallConfig.ignoreWorld = {
+        Value
+    }
+end)
 
 -- Initialization Logic
 AutoSellEnabledToggle:SetValue(CONFIG.autoSellConfig.AutoSellEnabled)
