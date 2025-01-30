@@ -266,16 +266,11 @@ local function processUnit(uniqueId, unitEntry)
 
     if CONFIG.autoSellConfig[rarity] and CONFIG.autoSellConfig.AutoSellEnabled then
         if processedUnits[uniqueId] then return end
-        local success, result = pcall(function()
-            sellEndpoint:InvokeServer(args)
+           sellEndpoint:InvokeServer(args)
             processedUnits[uniqueId] = true
-        end)
-        if success then
-            printUnitInfo(unitName, rarity, uniqueId, unitInfo.upgrade)
+          printUnitInfo(unitName, rarity, uniqueId, unitInfo.upgrade)
             print(string.format("Sold %s (Rarity: %s)", unitName, rarity))
-        else
-            warn(string.format("Failed to sell %s: %s", unitName, tostring(result)))
-        end
+
     else
         printUnitInfo(unitName, rarity, uniqueId, unitInfo.upgrade)
         print(string.format("Keeping %s (Rarity: %s)", unitName, rarity))
@@ -330,7 +325,7 @@ local function attemptTeleport()
     if isTeleporting then return end
     isTeleporting = true
     notify("Attempt Teleport", "Attempting to Teleport")
-    local success, err = pcall(function()
+   local success, err = pcall(function()
         TeleportService:Teleport(CONSTANTS.TELEPORT_ID, game.Players.LocalPlayer)
     end)
     if not success then
@@ -392,12 +387,7 @@ end
 
 -- Lobby Joining Logic
 local function safeJoinLobby(lobbyName)
-    local success, err = pcall(function()
-        joinRemote:InvokeServer({[1] = lobbyName})
-    end)
-    if not success then
-        notify("Join Failed", tostring(err))
-    end
+     joinRemote:InvokeServer({[1] = lobbyName})
 end
 local function joinRandomLobby()
     local freeLobby
@@ -461,7 +451,7 @@ local function optimizeGame()
                 print(string.format("Optimized Texture: %s", descendant:GetFullName()))
             end
         end
-        task.wait()
+           task.wait()
     end
 end
 
@@ -536,7 +526,7 @@ local function followPlayer()
                  local args = {
                         [1] = targetLobby
                     }
-                joinRemote:InvokeServer(unpack(args))
+                 joinRemote:InvokeServer(unpack(args))
                 currentLobby = targetLobby
                 lastValidLobby = targetLobby
             end
@@ -610,6 +600,7 @@ local function stopJoin()
     end
     print("\n=== AUTO-JOIN SYSTEM DEACTIVATED ===")
 end
+
 local function startFollow()
     followingPLayer = manageSystem(followingPLayer,followPlayer, stopFollow, "AUTO-FOLLOW")
 end
