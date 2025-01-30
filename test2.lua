@@ -542,6 +542,15 @@ local function restoreGame()
     table.clear(originalProperties)
 end
 
+local function tableContains(tbl, value)
+    for _, v in ipairs(tbl) do
+        if v == value then
+            return true
+        end
+    end
+    return false
+end
+
 --  Auto Join Systems Logic
 local function followPlayer()
     while true do
@@ -702,27 +711,66 @@ local function getCurrentChallenge()
     local currWorld
     local deets = clientToServer:WaitForChild("get_normal_challenge"):InvokeServer()
 
-    for key,val in pairs(deets) do
+    for key, val in pairs(deets) do
         if key:match("current_reward") then
-            for i = 1, #val["local_rewards"][1]["item"] do
-                currRew[i] = val["local_rewards"][1]["item"][i]["item_id"]
+            -- Handle rewards array
+            if val.local_rewards and #val.local_rewards > 0 then
+                local rewards = val.local_rewards[1].item
+                for i, item in ipairs(rewards) do
+                    currRew[i] = item.item_id
+                end
             end
-        elseif key:match("current_level_id")then
+        elseif key:match("current_level_id") then
             currWorld = val
         elseif key:match("current_challenge") then
             currChal = val
         end
     end
 
-    return {currChal,currRew,currWorld}
+    return {currChal, currRew, currWorld}
+end
+
+local function checkChallengeCompletion()
+    local p = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+    local cleared = false
+    for i,v in pairs(p:GetChildren()) do
+        if v.Name == "SurfaceGui" then
+            local sfg = v:FindFirstChild("ChallengeCleared")
+            if sfg and sfg:IsA("Frame") then
+                if sfg.Visible then
+                    cleared = true
+                end
+            end
+        end
+    end
+
+    return cleared
 end
 
 local function autoChall()
     local info = getCurrentChallenge()
     local info2 = CONFIG.joinerChallConfig
-
-
     
+    -- Check if ANY reward matches config
+    local rewardCheck = false
+    for _, rewardId in ipairs(info[2]) do
+        if tableContains(info2.selectRew, rewardId) then
+            rewardCheck = true
+            break
+        end
+    end
+
+    local startJoin = tableContains(info2.selectChall, info[1]) 
+                   and rewardCheck 
+                   and tableContains(info2.selectWorld, info[3])
+
+    if startJoin then
+        if checkChallengeCompletion() == false then
+            --implement logic
+        else
+            print("Challenge is Completed!!!")
+        end
+    end
 end
 
 local function stopAutoChallenge()
