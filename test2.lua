@@ -33,13 +33,13 @@ local CONFIG = {
     },
      joinerChallConfig = {
         lobby = "",
-        ignoreWorld = {
+        selectWorld = {
 
         },
-        ignoreChall = {
+        selectChall = {
             
         },
-        ignoreRew = {
+        selectRew = {
 
         }
     },
@@ -152,13 +152,40 @@ end
 
 -- Get World Data
 local Worlds = {}
+local WorldsLegend = {}
+local WorldsRaid = {}
 for _, moduleScript in ipairs(WorldsSrc:GetChildren()) do
-    if moduleScript:IsA("ModuleScript") and moduleScript.Name ~= "Worlds_raids" and moduleScript.Name ~= "UnitPresets" then
+    if moduleScript:IsA("ModuleScript") and moduleScript.Name ~= "UnitPresets" then
         local worldData = require(moduleScript)
 
         for _, worldEntry in pairs(worldData) do
-            if worldEntry["legend_stage"] == true or worldEntry["raid_world"] == true then
-
+            if worldEntry["legend_stage"] == true then
+                local formatted = {
+                }
+    
+                -- Parse levels
+                for i = 1, 6 do
+                    local levelKey = tostring(i)
+                    if worldEntry.levels[levelKey] then
+                        formatted["Act "..i] = worldEntry.levels[levelKey].id
+                    end
+                end
+    
+                -- Use display name as key
+                WorldsLegend[worldEntry.name] = formatted
+            elseif worldEntry["raid_world"] == true then
+                local formatted = {
+                }
+                -- Parse levels
+                for i = 1, 6 do
+                    local levelKey = tostring(i)
+                    if worldEntry.levels[levelKey] then
+                        formatted["Act "..i] = worldEntry.levels[levelKey].id
+                    end
+                end
+    
+                -- Use display name as key
+                WorldsRaid[worldEntry.name] = formatted
             else
                 local formatted = {
                 }
@@ -236,6 +263,7 @@ Window:SelectTab(1)
 local autoJoining
 local followingPLayer
 local waitingPlayer
+local autoChallenge
 local teleportClickCount = 0
 local isTeleporting = false
 local friendIsIn = false
@@ -628,7 +656,7 @@ local function stopFollow()
 end
 
 local function startWait()
-     waitingPlayer = manageSystem(waitingPlayer, waitPlayer, stopWait, "AUTO-WAIT")
+    waitingPlayer = manageSystem(waitingPlayer, waitPlayer, stopWait, "AUTO-WAIT")
 end
 
 local function stopWait()
@@ -689,7 +717,25 @@ local function getCurrentChallenge()
     return {currChal,currRew,currWorld}
 end
 
+local function autoChall()
+    local info = getCurrentChallenge()
+    local info2 = CONFIG.joinerChallConfig
 
+
+    
+end
+
+local function stopAutoChallenge()
+    if autoChallenge then
+        task.cancel(autoChallenge)
+        autoChallenge = nil
+    end
+    print("\n=== AUTO-CHALLENGE SYSTEM DEACTIVATED ===")
+end
+
+local function startAutoChallenge()
+    autoChallenge = manageSystem(autoChallenge, autoChall, stopAutoChallenge, "AUTO-CHALLENGE")
+end
 
 local Options = Fluent.Options
 
@@ -857,47 +903,47 @@ local ChallJoiner = autoJoinChallSection:AddToggle("JoinChallEnabled", {
     Description = "Auto Join Challenge",
     Default = false
 })
-local challIgnoreChall = autoJoinChallSection:AddDropdown("IgnoreChallenge", {
-    Title = "Ignore Challenge",
-    Description = "Select which challenges to ignore",
+local challSelectChall = autoJoinChallSection:AddDropdown("SelectChallenge", {
+    Title = "Select Challenge",
+    Description = "Select which challenges to do",
     Values = getChallenges(),
     Multi = true,
     Default = {},
 })
 
-challIgnoreChall:OnChanged(function(Value)
+challSelectChall:OnChanged(function(Value)
     print(Value)
-    CONFIG.joinerChallConfig.ignoreChall = {
+    CONFIG.joinerChallConfig.selectChall = {
         Value
     }
 end)
 
-local challIgnoreRew = autoJoinChallSection:AddDropdown("IgnoreReward", {
-    Title = "Ignore Reward",
-    Description = "Select which rewards to ignore",
+local challSelectRew = autoJoinChallSection:AddDropdown("SelectReward", {
+    Title = "Select Reward",
+    Description = "Select which rewards to get",
     Values = getRewards(),
     Multi = true,
     Default = {},
 })
 
-challIgnoreRew:OnChanged(function(Value)
+challSelectRew:OnChanged(function(Value)
     print(Value)
-    CONFIG.joinerChallConfig.ignoreRew = {
+    CONFIG.joinerChallConfig.selectRew = {
         Value
     }
 end)
 
-local challIgnoreWorld = autoJoinChallSection:AddDropdown("IgnoreWorld", {
-    Title = "Ignore World",
-    Description = "Select which worlds to ignore",
+local challSelectWorld = autoJoinChallSection:AddDropdown("SelectWorld", {
+    Title = "Select World",
+    Description = "Select which worlds to do",
     Values = worldNames,
     Multi = true,
     Default = {},
 })
 
-challIgnoreWorld:OnChanged(function(Value)
+challSelectWorld:OnChanged(function(Value)
     print(Value)
-    CONFIG.joinerChallConfig.ignoreWorld = {
+    CONFIG.joinerChallConfig.selectWorld = {
         Value
     }
 end)
