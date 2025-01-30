@@ -387,7 +387,13 @@ end
 
 -- Lobby Joining Logic
 local function safeJoinLobby(lobbyName)
-     joinRemote:InvokeServer(unpack({[1] = lobbyName}))
+
+    print("Joining lobby: "..lobbyName)
+    local args = {
+        [1] = tostring(lobbyName)
+    }
+
+    joinRemote:InvokeServer(unpack(args))
 end
 local function joinRandomLobby()
     local freeLobby
