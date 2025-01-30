@@ -461,6 +461,7 @@ local function optimizeGame()
                 print(string.format("Optimized Texture: %s", descendant:GetFullName()))
             end
         end
+        task.wait()
     end
 end
 
