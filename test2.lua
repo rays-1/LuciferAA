@@ -157,22 +157,26 @@ for _, moduleScript in ipairs(WorldsSrc:GetChildren()) do
         local worldData = require(moduleScript)
 
         for _, worldEntry in pairs(worldData) do
-            local formatted = {
-            }
+            if worldEntry["legend_stage"] or worldEntry["raid_world"]then
 
-            if worldEntry.infinite then
-                formatted["Infinite"] = worldEntry.infinite.id or nil
-            end
-            -- Parse levels
-            for i = 1, 6 do
-                local levelKey = tostring(i)
-                if worldEntry.levels[levelKey] then
-                    formatted["Act "..i] = worldEntry.levels[levelKey].id
+            else
+                local formatted = {
+                }
+    
+                if worldEntry.infinite then
+                    formatted["Infinite"] = worldEntry.infinite.id or nil
                 end
+                -- Parse levels
+                for i = 1, 6 do
+                    local levelKey = tostring(i)
+                    if worldEntry.levels[levelKey] then
+                        formatted["Act "..i] = worldEntry.levels[levelKey].id
+                    end
+                end
+    
+                -- Use display name as key
+                Worlds[worldEntry.name] = formatted
             end
-
-            -- Use display name as key
-            Worlds[worldEntry.name] = formatted
         end
     end
 end
