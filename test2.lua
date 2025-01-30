@@ -251,7 +251,6 @@ local function processUnit(uniqueId, unitEntry)
         return
     end
 
-     if unitEntry.timestamp <= lastScan then return end
     local unitId = unitEntry.unit_id
     local unitInfo = UnitData[unitId]
 
@@ -693,6 +692,17 @@ local HardMode = autoJoinWorldSection:AddToggle("hardModeToggle", {
         end
     end
 })
+local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
+    Title = "Select Act",
+    Description = "Pick an act to join",
+    Values = getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World),
+    Default = "Act 1",
+    Multi = false,
+    Callback = function(Value)
+        CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Value]
+    end
+})
+
 local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
     Title = "Auto Join World",
     Description = "Pick a world to join",
@@ -704,16 +714,6 @@ local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
         actSection:SetValues(getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World))
         CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World]["Act 1"]
         actSection:SetValue("Act 1")
-    end
-})
-local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
-    Title = "Select Act",
-    Description = "Pick an act to join",
-    Values = getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World),
-    Default = "Act 1",
-    Multi = false,
-    Callback = function(Value)
-        CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Value]
     end
 })
 
