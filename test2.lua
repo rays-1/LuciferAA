@@ -215,6 +215,23 @@ for name in pairs(Worlds) do
     table.insert(worldNames, name)
 end
 
+local function isLevelIdInSelectedWorlds(level_id, selectedWorlds)
+    -- Iterate over the selected worlds
+    for _, worldName in ipairs(selectedWorlds) do
+        -- Get the acts and level IDs for the current world
+        local worldData = Worlds[worldName]
+        if worldData then
+            -- Check each act's level ID
+            for _, actLevelId in pairs(worldData) do
+                if actLevelId == level_id then
+                    return true -- Found a match
+                end
+            end
+        end
+    end
+    return false -- No match found
+end
+
 -- UI Setup
 local Window = Fluent:CreateWindow({
     Title = "Lucifer " .. CONFIG.LuciferVer,
@@ -750,7 +767,10 @@ end
 local function autoChall()
     local info = getCurrentChallenge()
     local info2 = CONFIG.joinerChallConfig
-    
+
+    -- Check if the level_id is in the selected worlds
+    local isValidWorld = isLevelIdInSelectedWorlds(info[3], info2.selectWorld)
+
     -- Check if ANY reward matches config
     local rewardCheck = false
     for _, rewardId in ipairs(info[2]) do
@@ -760,13 +780,15 @@ local function autoChall()
         end
     end
 
+    -- Determine if we should start the challenge
     local startJoin = tableContains(info2.selectChall, info[1]) 
-                   and rewardCheck 
-                   and tableContains(info2.selectWorld, info[3])
+        and rewardCheck 
+        and isValidWorld
 
     if startJoin then
         if checkChallengeCompletion() == false then
-            --implement logic
+            -- Implement logic to join the challenge
+            print("Starting challenge...")
         else
             print("Challenge is Completed!!!")
         end
