@@ -157,7 +157,7 @@ for _, moduleScript in ipairs(WorldsSrc:GetChildren()) do
         local worldData = require(moduleScript)
 
         for _, worldEntry in pairs(worldData) do
-            if worldEntry["legend_stage"] or worldEntry["raid_world"]then
+            if worldEntry["legend_stage"] == true or worldEntry["raid_world"] == true then
 
             else
                 local formatted = {
