@@ -21,7 +21,7 @@ local CONFIG = {
         name = ""
     },
     joinerConfig = {
-         waitForFriend = false,
+        waitForFriend = false,
         enabled = false,
         friendOnly = false,
         lobby = "",
@@ -387,7 +387,7 @@ end
 
 -- Lobby Joining Logic
 local function safeJoinLobby(lobbyName)
-     joinRemote:InvokeServer({[1] = lobbyName})
+     joinRemote:InvokeServer(unpack({[1] = lobbyName}))
 end
 local function joinRandomLobby()
     local freeLobby
@@ -399,15 +399,16 @@ local function joinRandomLobby()
             if playersFolder then
                 if #playersFolder:GetChildren() == 0 then
                     freeLobby = lobbyName
+                    
                 end
             end
         end
     end
-     if freeLobby then
+    CONFIG.joinerConfig.lobby = freeLobby
+    if freeLobby then
         safeJoinLobby(freeLobby)
     end
     task.wait()
-    CONFIG.joinerConfig.lobby = freeLobby
 end
 -- Game Optimization
 local function optimizeGame()
