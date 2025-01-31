@@ -760,13 +760,13 @@ local function getCurrentChallenge()
                     print(x .. " : " .. y .. " | " .. j .. " : " .. k)
                 end
             end
-            -- print("DEE REWARDS: " .. val.local_rewards)
-            -- if val.local_rewards and #val.local_rewards > 0 then
-            --     local rewards = val.local_rewards[1].item
-            --     for i, item in ipairs(rewards) do
-            --         currRew[i] = item.item_id
-            --     end
-            -- end
+            print("DEE REWARDS: " .. val.local_rewards)
+            if val.local_rewards and #val.local_rewards > 0 then
+                local rewards = val.local_rewards[1].item
+                for i, item in ipairs(rewards) do
+                    currRew[i] = item.item_id
+                end
+            end
         elseif key:match("current_level_id") then
             currWorld = val
         elseif key:match("current_challenge") then
