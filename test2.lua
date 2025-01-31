@@ -754,7 +754,7 @@ local function getCurrentChallenge()
     for key, val in pairs(deets) do
         if key:match("current_reward") then
             -- Handle rewards array
-            print("DEE REWARDS: " + val.local_rewards)
+            print("DEE REWARDS: " .. val.local_rewards)
             if val.local_rewards and #val.local_rewards > 0 then
                 local rewards = val.local_rewards[1].item
                 for i, item in ipairs(rewards) do
