@@ -747,13 +747,14 @@ end
 
 local function getCurrentChallenge()
     local currChal
-    local currRew = {}
+    local currRew
     local currWorld
     local deets = clientToServer:WaitForChild("get_normal_challenge"):InvokeServer()
 
     for key, val in pairs(deets) do
         if key:match("current_reward") then
             -- Handle rewards array
+            print("DEE REWARDS: " + val.local_rewards)
             if val.local_rewards and #val.local_rewards > 0 then
                 local rewards = val.local_rewards[1].item
                 for i, item in ipairs(rewards) do
@@ -826,6 +827,8 @@ local function autoChall()
             local startJoin = tableContains(info2.selectChall, info[1]) 
                 and rewardCheck 
                 and isValidWorld
+
+            print("Chall " .. startJoin)
 
             if startJoin then
                 leaveLobbyy()
