@@ -755,7 +755,10 @@ local function getCurrentChallenge()
         if key:match("current_reward") then
             -- Handle rewards array
             for x, y in pairs(val) do
-                print(y)
+                print(x .. " : ".. y)
+                for j, k in pairs(y) do
+                    print(x .. " : " .. y .. " | " .. j .. " : " .. k)
+                end
             end
             -- print("DEE REWARDS: " .. val.local_rewards)
             -- if val.local_rewards and #val.local_rewards > 0 then
