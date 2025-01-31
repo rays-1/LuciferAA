@@ -219,8 +219,8 @@ end
 local Window = Fluent:CreateWindow({
     Title = "Lucifer " .. CONFIG.LuciferVer,
     SubTitle = "Made by Haro",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
+    TabWidth = 120,
+    Size = UDim2.fromOffset(380, 260),
     Acrylic = true,
     Theme = "Dark",
     MinimizeKey = Enum.KeyCode.LeftControl
