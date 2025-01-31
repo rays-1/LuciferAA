@@ -777,7 +777,6 @@ local function checkChallengeCompletion()
         print(v.Name)
         if v.Name == "SurfaceGui" then
             local sfg = v:FindFirstChild("ChallengeCleared")
-            print(sfg.Visible)
             if sfg and sfg:IsA("Frame") then
                 if sfg.Visible then
                     cleared = true
@@ -796,9 +795,8 @@ local function autoChall()
             local info = getCurrentChallenge()
             local info2 = CONFIG.joinerChallConfig
 
-
-            print(info)
-            print(info2)
+            SimpleSpy:ValueToString(info)
+            SimpleSpy:ValueToString(info2)
             -- Check if the level_id is in the selected worlds
             local isValidWorld = isLevelIdInSelectedWorlds(info[3], info2.selectWorld)
 
