@@ -32,6 +32,7 @@ local CONFIG = {
         }
     },
      joinerChallConfig = {
+        enabled =  false,
         lobby = "",
         selectWorld = {
 
@@ -468,6 +469,28 @@ local function joinRandomLobby()
     end
     task.wait()
 end
+
+local function joinRandomChall()
+    local freeLobby
+    for i = 5, 8 do
+        local lobbyName = "_lobbytemplate" .. i
+        local lobby = workspace._CHALLENGES.Challenges:FindFirstChild(lobbyName)
+        if lobby and lobby:FindFirstChild("World") then
+            local playersFolder = lobby:FindFirstChild("Players")
+            if playersFolder then
+                if #playersFolder:GetChildren() == 0 then
+                    freeLobby = lobbyName
+                    
+                end
+            end
+        end
+    end
+    CONFIG.joinerChallConfig.lobby = freeLobby
+    if freeLobby then
+        safeJoinLobby(freeLobby)
+    end
+    task.wait()
+end
 -- Game Optimization
 local function optimizeGame()
     if optimized then return end
@@ -765,33 +788,35 @@ local function checkChallengeCompletion()
 end
 
 local function autoChall()
-    local info = getCurrentChallenge()
-    local info2 = CONFIG.joinerChallConfig
-
-    -- Check if the level_id is in the selected worlds
-    local isValidWorld = isLevelIdInSelectedWorlds(info[3], info2.selectWorld)
-
-    -- Check if ANY reward matches config
-    local rewardCheck = false
-    for _, rewardId in ipairs(info[2]) do
-        if tableContains(info2.selectRew, rewardId) then
-            rewardCheck = true
-            break
-        end
-    end
-
-    -- Determine if we should start the challenge
-    local startJoin = tableContains(info2.selectChall, info[1]) 
-        and rewardCheck 
-        and isValidWorld
-
-    if startJoin then
+    while true do
         if checkChallengeCompletion() == false then
-            -- Implement logic to join the challenge
-            print("Starting challenge...")
-        else
-            print("Challenge is Completed!!!")
+            local info = getCurrentChallenge()
+            local info2 = CONFIG.joinerChallConfig
+
+            -- Check if the level_id is in the selected worlds
+            local isValidWorld = isLevelIdInSelectedWorlds(info[3], info2.selectWorld)
+
+            -- Check if ANY reward matches config
+            local rewardCheck = false
+            for _, rewardId in ipairs(info[2]) do
+                if tableContains(info2.selectRew, rewardId) then
+                    rewardCheck = true
+                    break
+                end
+            end
+
+            -- Determine if we should start the challenge
+            local startJoin = tableContains(info2.selectChall, info[1]) 
+                and rewardCheck 
+                and isValidWorld
+
+            if startJoin then
+                leaveLobbyy()
+                task.wait(1)
+                joinRandomChall()
+            end
         end
+        task.wait(5)
     end
 end
 
@@ -971,8 +996,18 @@ end)
 local ChallJoiner = autoJoinChallSection:AddToggle("JoinChallEnabled", {
     Title = "Enable Challenge Joiner",
     Description = "Auto Join Challenge",
-    Default = false
+    Default = false,
+    Callback = function(Value)
+        CONFIG.joinerChallConfig.enabled = Value
+        if CONFIG.joinerChallConfig.enabled then
+            startAutoChallenge()
+        else
+            stopAutoChallenge()
+        end
+    end
 })
+
+
 local challSelectChall = autoJoinChallSection:AddDropdown("SelectChallenge", {
     Title = "Select Challenge",
     Description = "Select which challenges to do",
