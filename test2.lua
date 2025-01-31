@@ -771,9 +771,10 @@ local function getCurrentChallenge()
 end
 
 local function checkChallengeCompletion()
-    local p = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+    local p = game.Players.LocalPlayer:WaitForChild("PlayerGui")
     local cleared = false
     for i,v in pairs(p:GetChildren()) do
+        print(v.Name)
         if v.Name == "SurfaceGui" then
             local sfg = v:FindFirstChild("ChallengeCleared")
             print(sfg.Visible)
@@ -790,7 +791,8 @@ end
 
 local function autoChall()
     while true do
-        if checkChallengeCompletion() == false then
+        local completed = checkChallengeCompletion()
+        if completed == false then
             local info = getCurrentChallenge()
             local info2 = CONFIG.joinerChallConfig
 
