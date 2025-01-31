@@ -32,7 +32,6 @@ local CONFIG = {
         }
     },
      joinerChallConfig = {
-        enabled =  false,
         lobby = "",
         selectWorld = {
 
@@ -214,23 +213,6 @@ CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoin
 local worldNames = {}
 for name in pairs(Worlds) do
     table.insert(worldNames, name)
-end
-
-local function isLevelIdInSelectedWorlds(level_id, selectedWorlds)
-    -- Iterate over the selected worlds
-    for _, worldName in ipairs(selectedWorlds) do
-        -- Get the acts and level IDs for the current world
-        local worldData = Worlds[worldName]
-        if worldData then
-            -- Check each act's level ID
-            for _, actLevelId in pairs(worldData) do
-                if actLevelId == level_id then
-                    return true -- Found a match
-                end
-            end
-        end
-    end
-    return false -- No match found
 end
 
 -- UI Setup
@@ -464,28 +446,6 @@ local function joinRandomLobby()
         end
     end
     CONFIG.joinerConfig.lobby = freeLobby
-    if freeLobby then
-        safeJoinLobby(freeLobby)
-    end
-    task.wait()
-end
-
-local function joinRandomChall()
-    local freeLobby
-    for i = 5, 8 do
-        local lobbyName = "_lobbytemplate" .. i
-        local lobby = workspace._CHALLENGES.Challenges:FindFirstChild(lobbyName)
-        if lobby and lobby:FindFirstChild("World") then
-            local playersFolder = lobby:FindFirstChild("Players")
-            if playersFolder then
-                if #playersFolder:GetChildren() == 0 then
-                    freeLobby = lobbyName
-                    
-                end
-            end
-        end
-    end
-    CONFIG.joinerChallConfig.lobby = freeLobby
     if freeLobby then
         safeJoinLobby(freeLobby)
     end
@@ -747,25 +707,14 @@ end
 
 local function getCurrentChallenge()
     local currChal
-    local currRew
+    local currRew = {}
     local currWorld
     local deets = clientToServer:WaitForChild("get_normal_challenge"):InvokeServer()
 
     for key, val in pairs(deets) do
         if key:match("current_reward") then
-            -- Handle rewards array
-            for x, y in pairs(val) do
-                print(x .. " : ".. y)
-                for j, k in pairs(y) do
-                    print(x .. " : " .. y .. " | " .. j .. " : " .. k)
-                end
-            end
-            print("DEE REWARDS: " .. val.local_rewards)
-            if val.local_rewards and #val.local_rewards > 0 then
-                local rewards = val.local_rewards[1].item
-                for i, item in ipairs(rewards) do
-                    currRew[i] = item.item_id
-                end
+            for i,v in ipairs(deets[key]["_rewards"][1]["item"]) do
+                currRew[i] = v["item_id"]
             end
         elseif key:match("current_level_id") then
             currWorld = val
@@ -778,10 +727,9 @@ local function getCurrentChallenge()
 end
 
 local function checkChallengeCompletion()
-    local p = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    local p = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
     local cleared = false
     for i,v in pairs(p:GetChildren()) do
-        print(v.Name)
         if v.Name == "SurfaceGui" then
             local sfg = v:FindFirstChild("ChallengeCleared")
             if sfg and sfg:IsA("Frame") then
@@ -795,54 +743,33 @@ local function checkChallengeCompletion()
     return cleared
 end
 
-function printTable(tbl, indent)
-    indent = indent or 0
-    for key, value in pairs(tbl) do
-        local formatting = string.rep("  ", indent) .. tostring(key) .. ": "
-        if type(value) == "table" then
-            print(formatting)
-            printTable(value, indent + 1)
-        else
-            print(formatting .. tostring(value))
-        end
-    end
+local function getChallengeLobby()
+    local rooms = workspace._CHALLENGES.Challenges:GetChildren()
 end
 
 local function autoChall()
-    while true do
-        local completed = checkChallengeCompletion()
-        if completed == false then
-            local info = getCurrentChallenge()
-            local info2 = CONFIG.joinerChallConfig
-
-            printTable(info)
-            printTable(info2)
-            -- Check if the level_id is in the selected worlds
-            local isValidWorld = isLevelIdInSelectedWorlds(info[3], info2.selectWorld)
-
-            -- Check if ANY reward matches config
-            local rewardCheck = false
-            for _, rewardId in ipairs(info[2]) do
-                if tableContains(info2.selectRew, rewardId) then
-                    rewardCheck = true
-                    break
-                end
-            end
-
-            -- Determine if we should start the challenge
-            local startJoin = tableContains(info2.selectChall, info[1]) 
-                and rewardCheck 
-                and isValidWorld
-
-            print("Chall " .. startJoin)
-
-            if startJoin then
-                leaveLobbyy()
-                task.wait(1)
-                joinRandomChall()
-            end
+    local info = getCurrentChallenge()
+    local info2 = CONFIG.joinerChallConfig
+    
+    -- Check if ANY reward matches config
+    local rewardCheck = false
+    for _, rewardId in ipairs(info[2]) do
+        if tableContains(info2.selectRew, rewardId) then
+            rewardCheck = true
+            break
         end
-        task.wait(5)
+    end
+
+    local startJoin = tableContains(info2.selectChall, info[1]) 
+                   and rewardCheck 
+                   and tableContains(info2.selectWorld, info[3])
+
+    if startJoin then
+        if checkChallengeCompletion() == false then
+            --implement logic
+        else
+            print("Challenge is Completed!!!")
+        end
     end
 end
 
@@ -1022,32 +949,21 @@ end)
 local ChallJoiner = autoJoinChallSection:AddToggle("JoinChallEnabled", {
     Title = "Enable Challenge Joiner",
     Description = "Auto Join Challenge",
-    Default = false,
-    Callback = function(Value)
-        CONFIG.joinerChallConfig.enabled = Value
-        if CONFIG.joinerChallConfig.enabled then
-            startAutoChallenge()
-        else
-            stopAutoChallenge()
-        end
-    end
+    Default = false
 })
-
-
 local challSelectChall = autoJoinChallSection:AddDropdown("SelectChallenge", {
     Title = "Select Challenge",
     Description = "Select which challenges to do",
     Values = getChallenges(),
     Multi = true,
     Default = {},
+    Callback = function (Value)
+        print(Value)
+        CONFIG.joinerChallConfig.selectChall = {
+            Value
+        }
+    end
 })
-
-challSelectChall:OnChanged(function(Value)
-    print(Value)
-    CONFIG.joinerChallConfig.selectChall = {
-        Value
-    }
-end)
 
 local challSelectRew = autoJoinChallSection:AddDropdown("SelectReward", {
     Title = "Select Reward",
@@ -1055,14 +971,13 @@ local challSelectRew = autoJoinChallSection:AddDropdown("SelectReward", {
     Values = getRewards(),
     Multi = true,
     Default = {},
+    Callback = function (Value)
+        print(Value)
+        CONFIG.joinerChallConfig.selectRew = {
+            Value
+        }
+    end
 })
-
-challSelectRew:OnChanged(function(Value)
-    print(Value)
-    CONFIG.joinerChallConfig.selectRew = {
-        Value
-    }
-end)
 
 local challSelectWorld = autoJoinChallSection:AddDropdown("SelectWorld", {
     Title = "Select World",
@@ -1070,14 +985,14 @@ local challSelectWorld = autoJoinChallSection:AddDropdown("SelectWorld", {
     Values = worldNames,
     Multi = true,
     Default = {},
+    Callback = function (Value)
+        print(Value)
+        CONFIG.joinerChallConfig.selectWorld = {
+            Value
+        }
+    end
 })
 
-challSelectWorld:OnChanged(function(Value)
-    print(Value)
-    CONFIG.joinerChallConfig.selectWorld = {
-        Value
-    }
-end)
 
 -- Initialization Logic
 AutoSellEnabledToggle:SetValue(CONFIG.autoSellConfig.AutoSellEnabled)
