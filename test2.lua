@@ -219,13 +219,8 @@ end
 local Window = Fluent:CreateWindow({
     Title = "Lucifer " .. CONFIG.LuciferVer,
     SubTitle = "Made by Haro",
-<<<<<<< HEAD
-    TabWidth = 150,
-    Size = UDim2.fromOffset(150, 150),
-=======
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
->>>>>>> parent of a5b32ec (Update test2.lua)
     Acrylic = true,
     Theme = "Dark",
     MinimizeKey = Enum.KeyCode.LeftControl
