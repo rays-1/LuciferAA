@@ -788,6 +788,19 @@ local function checkChallengeCompletion()
     return cleared
 end
 
+function printTable(tbl, indent)
+    indent = indent or 0
+    for key, value in pairs(tbl) do
+        local formatting = string.rep("  ", indent) .. tostring(key) .. ": "
+        if type(value) == "table" then
+            print(formatting)
+            printTable(value, indent + 1)
+        else
+            print(formatting .. tostring(value))
+        end
+    end
+end
+
 local function autoChall()
     while true do
         local completed = checkChallengeCompletion()
@@ -795,8 +808,8 @@ local function autoChall()
             local info = getCurrentChallenge()
             local info2 = CONFIG.joinerChallConfig
 
-            SimpleSpy:ValueToString(info)
-            SimpleSpy:ValueToString(info2)
+            printTable(info)
+            printTable(info2)
             -- Check if the level_id is in the selected worlds
             local isValidWorld = isLevelIdInSelectedWorlds(info[3], info2.selectWorld)
 
