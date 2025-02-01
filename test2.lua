@@ -589,7 +589,6 @@ end
 local function tableContains(tbl, value)
     for x, v in pairs(tbl) do
         -- If the current element is a table, recurse into it
-        print(tostring(x) .. " == ".. tostring(value))
         if type(x) == "table" then
             if tableContains(x, value) then
                 return true
@@ -814,37 +813,32 @@ local function checkChallengeCompletion()
 end
 
 local function autoChall()
-    local info = getCurrentChallenge()
-    local info2 = CONFIG.joinerChallConfig
-    
-    -- Check if ANY reward matches config
-    local rewardCheck = false
-    for _, rewardId in ipairs(info[2]) do
-        if tableContains(info2.selectRew[1], rewardId) then
-            rewardCheck = true
-        end
-    end
-
-    printTable(info2.selectChall[1])
-    printTable(info2.selectRew[1])
-    printTable(info2.selectWorld[1])
-
-    local chalCheck = tableContains(info2.selectChall[1], info[1])
-    local worlCheck = tableContains(info2.selectWorld[1], info[3])
-
-
-    local startJoin = (chalCheck and rewardCheck and worlCheck)
-
-
-    print("CAN YOU START THE CHALLENGE?? :".. tostring(startJoin))
-    if startJoin then
+    while true do
         if checkChallengeCompletion() == false then
-            print("Player has not completed challenge. proceed to complete")
-            joinRandomLobbyChallenge()
+            local info = getCurrentChallenge()
+            local info2 = CONFIG.joinerChallConfig
             
-        else
-            print("Challenge is Completed!!!")
+            -- Check if ANY reward matches config
+            local rewardCheck = false
+            for _, rewardId in ipairs(info[2]) do
+                if tableContains(info2.selectRew[1], rewardId) then
+                    rewardCheck = true
+                end
+            end
+    
+            local chalCheck = tableContains(info2.selectChall[1], info[1])
+            local worlCheck = tableContains(info2.selectWorld[1], info[3])
+    
+    
+            local startJoin = (chalCheck and rewardCheck and worlCheck)
+    
+    
+            print("CAN YOU START THE CHALLENGE?? :".. tostring(startJoin))
+            if startJoin then
+                joinRandomLobbyChallenge()
+            end
         end
+        task.wait(5)
     end
 end
 
