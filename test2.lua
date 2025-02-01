@@ -566,6 +566,9 @@ end
 
 local function tableContains(tbl, value)
     for _, v in ipairs(tbl) do
+        print("CHECK: ")
+        print(v)
+        print(value)
         if v == value then
             return true
         end
@@ -786,8 +789,6 @@ local function autoChall()
     local info = getCurrentChallenge()
     local info2 = CONFIG.joinerChallConfig
     
-
-    print("HELLO!")
     -- Check if ANY reward matches config
     local rewardCheck = false
     for _, rewardId in ipairs(info[2]) do
@@ -795,20 +796,6 @@ local function autoChall()
             rewardCheck = true
         end
     end
-
-        -- Load SimpleSpy
-    local success, err = pcall(function()
-        getgenv().SimpleSpy = loadstring(game:HttpGet("https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua"))()
-    end)
-
-    -- Check if SimpleSpy loaded
-    if not SimpleSpy or err then
-        warn("SimpleSpy failed to load:", err)
-        return
-    end
-
-    print(SimpleSpy:ValueToString(info))
-    print(SimpleSpy:ValueToString(info2))
 
     local startJoin = tableContains(info2.selectChall, info[1]) 
                    and rewardCheck 
