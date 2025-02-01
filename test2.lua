@@ -724,6 +724,9 @@ local function getCurrentChallenge()
         end
     end
 
+    print(currChal)
+    print(currRew)
+    print(currWorld)
     return {currChal, currRew, currWorld}
 end
 
@@ -752,6 +755,9 @@ local function autoChall()
     local info = getCurrentChallenge()
     local info2 = CONFIG.joinerChallConfig
     
+
+    print(info)
+    print(info2)
     -- Check if ANY reward matches config
     local rewardCheck = false
     for _, rewardId in ipairs(info[2]) do
