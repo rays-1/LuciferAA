@@ -815,27 +815,29 @@ end
 local function autoChall()
     while true do
         if checkChallengeCompletion() == false then
-            local info = getCurrentChallenge()
-            local info2 = CONFIG.joinerChallConfig
-            
-            -- Check if ANY reward matches config
-            local rewardCheck = false
-            for _, rewardId in ipairs(info[2]) do
-                if tableContains(info2.selectRew[1], rewardId) then
-                    rewardCheck = true
+            if findPlayerInLobbies(game.Players.LocalPlayer.Name) ~= nil then
+                local info = getCurrentChallenge()
+                local info2 = CONFIG.joinerChallConfig
+                
+                -- Check if ANY reward matches config
+                local rewardCheck = false
+                for _, rewardId in ipairs(info[2]) do
+                    if tableContains(info2.selectRew[1], rewardId) then
+                        rewardCheck = true
+                    end
                 end
-            end
-    
-            local chalCheck = tableContains(info2.selectChall[1], info[1])
-            local worlCheck = tableContains(info2.selectWorld[1], info[3])
-    
-    
-            local startJoin = (chalCheck and rewardCheck and worlCheck)
-    
-    
-            print("CAN YOU START THE CHALLENGE?? :".. tostring(startJoin))
-            if startJoin then
-                joinRandomLobbyChallenge()
+        
+                local chalCheck = tableContains(info2.selectChall[1], info[1])
+                local worlCheck = tableContains(info2.selectWorld[1], info[3])
+        
+        
+                local startJoin = (chalCheck and rewardCheck and worlCheck)
+        
+        
+                print("CAN YOU START THE CHALLENGE?? :".. tostring(startJoin))
+                if startJoin then
+                    joinRandomLobbyChallenge()
+                end 
             end
         end
         task.wait(5)
