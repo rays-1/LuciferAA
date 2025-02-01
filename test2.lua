@@ -567,6 +567,7 @@ end
 local function tableContains(tbl, value)
     for _, v in pairs(tbl) do
         -- If the current element is a table, recurse into it
+        print(tostring(v) .. " == ".. tostring(value))
         if type(v) == "table" then
             if tableContains(v, value) then
                 return true
@@ -807,7 +808,7 @@ local function autoChall()
                    and tableContains(info2.selectWorld, info[3])
 
 
-    print("CAN YOU START THE CHALLENGE?? :"..startJoin)
+    print("CAN YOU START THE CHALLENGE?? :".. tostring(startJoin))
     if startJoin then
         if checkChallengeCompletion() == false then
             print("Player has not completed challenge. proceed to complete")
