@@ -816,7 +816,7 @@ end
 local function autoChall()
     while true do
         if checkChallengeCompletion() == false then
-            if findPlayerInLobbies(game.Players.LocalPlayer.Name) ~= nil then
+            if findPlayerInLobbies(game.Players.LocalPlayer.Name) == nil then
                 local info = getCurrentChallenge()
                 local info2 = CONFIG.joinerChallConfig
                 
