@@ -573,6 +573,20 @@ local function tableContains(tbl, value)
     return false
 end
 
+local function findWorldByActID(act_id)
+    -- Iterate through each world in the Worlds table
+    for world_name, acts in pairs(Worlds) do
+        -- Check each act in the current world
+        for act_name, id in pairs(acts) do
+            if id == act_id then
+                -- Return the world name if the act_id matches
+                return world_name
+            end
+        end
+    end
+    -- If no match is found, return nil
+    return nil
+end
 --  Auto Join Systems Logic
 local function followPlayer()
     while true do
@@ -739,7 +753,7 @@ local function getCurrentChallenge()
                 currRew[i] = v["item_id"]
             end
         elseif key:match("current_level_id") then
-            currWorld = val
+            currWorld = findWorldByActID(val)
         elseif key:match("current_challenge") then
             currChal = val
         end
@@ -766,10 +780,6 @@ local function checkChallengeCompletion()
     end
 
     return cleared
-end
-
-local function getChallengeLobby()
-    local rooms = workspace._CHALLENGES.Challenges:GetChildren()
 end
 
 local function autoChall()
