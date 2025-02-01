@@ -802,8 +802,20 @@ local function autoChall()
             rewardCheck = true
         end
     end
+    for i, v in pairs(info2.selectChall) do
+        print(tostring(i).." : "..tostring(v))
+    end
+    for i, v in pairs(info2.selectRew) do
+        print(tostring(i).." : "..tostring(v))
+    end
+    for i, v in pairs(info2.selectWorld) do
+        print(tostring(i).." : "..tostring(v))
+    end
+    local chalCheck = tableContains(info2.selectChall, info[1])
+    local worlCheck = tableContains(info2.selectWorld, info[3])
 
-    local startJoin = tableContains(info2.selectChall, info[1]) and rewardCheck and tableContains(info2.selectWorld, info[3])
+
+    local startJoin = (chalCheck and rewardCheck and worlCheck)
 
 
     print("CAN YOU START THE CHALLENGE?? :".. tostring(startJoin))
