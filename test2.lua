@@ -436,7 +436,7 @@ local function joinRandomLobby()
     for i = 1, 9 do
         local lobbyName = "_lobbytemplategreen" .. i
         local lobby = workspace._LOBBIES.Story:FindFirstChild(lobbyName)
-        if lobby and lobby:FindFirstChild("World") then
+        if lobby and lobby:FindFirstChild("Active").Value == false then
             local playersFolder = lobby:FindFirstChild("Players")
             if playersFolder then
                 if #playersFolder:GetChildren() == 0 then
@@ -447,6 +447,27 @@ local function joinRandomLobby()
         end
     end
     CONFIG.joinerConfig.lobby = freeLobby
+    if freeLobby then
+        safeJoinLobby(freeLobby)
+    end
+    task.wait()
+end
+
+local function joinRandomLobbyChallenge()
+    local freeLobby
+    for i = 6, 9 do
+        local lobbyName = "_lobbytemplate" .. i
+        local lobby = workspace._CHALLENGES.Challenges:FindFirstChild(lobbyName)
+        if lobby and lobby:FindFirstChild("Active").Value == false then
+            local playersFolder = lobby:FindFirstChild("Players")
+            if playersFolder then
+                if #playersFolder:GetChildren() == 0 then
+                    freeLobby = lobbyName
+                end
+            end
+        end
+    end
+    CONFIG.joinerChallConfig.lobby = freeLobby
     if freeLobby then
         safeJoinLobby(freeLobby)
     end
@@ -773,7 +794,9 @@ local function autoChall()
 
     if startJoin then
         if checkChallengeCompletion() == false then
-            --implement logic
+            print("Player has not completed challenge. proceed to complete")
+            joinRandomLobbyChallenge()
+            
         else
             print("Challenge is Completed!!!")
         end
