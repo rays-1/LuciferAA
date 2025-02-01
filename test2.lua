@@ -32,6 +32,7 @@ local CONFIG = {
         }
     },
      joinerChallConfig = {
+        enabled = false,
         lobby = "",
         selectWorld = {
 
@@ -951,6 +952,15 @@ local ChallJoiner = autoJoinChallSection:AddToggle("JoinChallEnabled", {
     Description = "Auto Join Challenge",
     Default = false
 })
+ChallJoiner:OnChanged(function()
+    CONFIG.joinerChallConfig.enabled = Options.JoinChallEnabled.Value
+    if CONFIG.joinerChallConfig.enabled then
+        startAutoChallenge()
+    else
+        stopAutoChallenge()
+    end
+end)
+
 local challSelectChall = autoJoinChallSection:AddDropdown("SelectChallenge", {
     Title = "Select Challenge",
     Description = "Select which challenges to do",
