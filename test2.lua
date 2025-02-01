@@ -565,16 +565,16 @@ local function restoreGame()
 end
 
 local function tableContains(tbl, value)
-    for _, v in pairs(tbl) do
+    for x, v in pairs(tbl) do
         -- If the current element is a table, recurse into it
-        print(tostring(v) .. " == ".. tostring(value))
-        if type(v) == "table" then
-            if tableContains(v, value) then
+        print(tostring(x) .. " == ".. tostring(value))
+        if type(x) == "table" then
+            if tableContains(x, value) then
                 return true
             end
         else
             -- If the current element matches the value, return true
-            if v == value then
+            if x == value then
                 return true
             end
         end
@@ -803,9 +803,7 @@ local function autoChall()
         end
     end
 
-    local startJoin = tableContains(info2.selectChall, info[1]) 
-                   and rewardCheck 
-                   and tableContains(info2.selectWorld, info[3])
+    local startJoin = tableContains(info2.selectChall, info[1]) and rewardCheck and tableContains(info2.selectWorld, info[3])
 
 
     print("CAN YOU START THE CHALLENGE?? :".. tostring(startJoin))
