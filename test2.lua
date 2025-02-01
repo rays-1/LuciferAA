@@ -820,17 +820,17 @@ local function autoChall()
     -- Check if ANY reward matches config
     local rewardCheck = false
     for _, rewardId in ipairs(info[2]) do
-        if tableContains(info2.selectRew, rewardId) then
+        if tableContains(info2.selectRew[1], rewardId) then
             rewardCheck = true
         end
     end
 
-    printTable(info2.selectChall)
-    printTable(info2.selectRew)
-    printTable(info2.selectWorld)
+    printTable(info2.selectChall[1])
+    printTable(info2.selectRew[1])
+    printTable(info2.selectWorld[1])
 
-    local chalCheck = tableContains(info2.selectChall, info[1])
-    local worlCheck = tableContains(info2.selectWorld, info[3])
+    local chalCheck = tableContains(info2.selectChall[1], info[1])
+    local worlCheck = tableContains(info2.selectWorld[1], info[3])
 
 
     local startJoin = (chalCheck and rewardCheck and worlCheck)
@@ -1044,7 +1044,7 @@ local challSelectChall = autoJoinChallSection:AddDropdown("SelectChallenge", {
     Callback = function (Value)
         print(Value)
         CONFIG.joinerChallConfig.selectChall = {
-            unpack(Value)
+            Value
         }
     end
 })
