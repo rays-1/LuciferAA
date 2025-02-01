@@ -787,14 +787,12 @@ local function autoChall()
     local info2 = CONFIG.joinerChallConfig
     
 
-    print(info)
-    print(info2)
+    print("HELLO!")
     -- Check if ANY reward matches config
     local rewardCheck = false
     for _, rewardId in ipairs(info[2]) do
         if tableContains(info2.selectRew, rewardId) then
             rewardCheck = true
-            break
         end
     end
 
