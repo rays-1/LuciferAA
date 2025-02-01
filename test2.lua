@@ -796,6 +796,17 @@ local function autoChall()
         end
     end
 
+        -- Load SimpleSpy
+    local success, err = pcall(function()
+        getgenv().SimpleSpy = loadstring(game:HttpGet("https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua"))()
+    end)
+
+    -- Check if SimpleSpy loaded
+    if not SimpleSpy or err then
+        warn("SimpleSpy failed to load:", err)
+        return
+    end
+
     print(SimpleSpy:ValueToString(info))
     print(SimpleSpy:ValueToString(info2))
 
