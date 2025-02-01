@@ -797,7 +797,7 @@ local function autoChall()
     end
 
     for i,v in pairs(CONFIG.joinerChallConfig.selectChall) do
-        print(v.." == "..info[1])
+        print(v)
     end
     for i,v in pairs(CONFIG.joinerChallConfig.selectRew) do
         for x,y in pairs(info[2]) do
