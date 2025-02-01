@@ -456,7 +456,7 @@ end
 local function joinRandomLobbyChallenge()
     local freeLobby
     for i = 6, 9 do
-        local lobbyName = "_lobbytemplate" .. i
+        local lobbyName = "_lobbytemplate31" .. i
         local lobby = workspace._CHALLENGES.Challenges:FindFirstChild(lobbyName)
         if lobby and lobby:FindFirstChild("Active").Value == false then
             local playersFolder = lobby:FindFirstChild("Players")
