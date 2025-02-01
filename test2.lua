@@ -798,10 +798,24 @@ local function autoChall()
         end
     end
 
+    for i,v in pairs(CONFIG.joinerChallConfig.selectChall) do
+        print(v.." == "..info[1])
+    end
+    for i,v in pairs(CONFIG.joinerChallConfig.selectRew) do
+        for x,y in pairs(info[2]) do
+            print(v.." == "..y)
+        end
+    end
+    for i,v in pairs(CONFIG.joinerChallConfig.selectWorld) do
+        print(v.." == "..info[3])
+    end
+
     local startJoin = tableContains(info2.selectChall, info[1]) 
                    and rewardCheck 
                    and tableContains(info2.selectWorld, info[3])
 
+
+    print("CAN YOU START THE CHALLENGE?? :"..startJoin)
     if startJoin then
         if checkChallengeCompletion() == false then
             print("Player has not completed challenge. proceed to complete")
