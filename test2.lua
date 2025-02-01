@@ -468,6 +468,7 @@ local function joinRandomLobbyChallenge()
         end
     end
     CONFIG.joinerChallConfig.lobby = freeLobby
+    print("Joining lobby"..tostring(freeLobby))
     if freeLobby then
         safeJoinLobby(freeLobby)
     end
