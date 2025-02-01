@@ -564,6 +564,28 @@ local function restoreGame()
     table.clear(originalProperties)
 end
 
+local function printTable(tbl, indent)
+    -- Default indentation level
+    indent = indent or 0
+
+    -- Iterate through the table
+    for key, value in pairs(tbl) do
+        -- Create indentation string
+        local indentation = string.rep("  ", indent)
+
+        -- Handle different types of values
+        if type(value) == "table" then
+            -- If the value is a table, print the key and recurse
+            print(indentation .. tostring(key) .. ": {")
+            printTable(value, indent + 1)
+            print(indentation .. "}")
+        else
+            -- Print the key-value pair
+            print(indentation .. tostring(key) .. ": " .. tostring(value))
+        end
+    end
+end
+
 local function tableContains(tbl, value)
     for x, v in pairs(tbl) do
         -- If the current element is a table, recurse into it
@@ -802,15 +824,11 @@ local function autoChall()
             rewardCheck = true
         end
     end
-    for i, v in pairs(info2.selectChall) do
-        print(tostring(i).." : "..tostring(v))
-    end
-    for i, v in pairs(info2.selectRew) do
-        print(tostring(i).." : "..tostring(v))
-    end
-    for i, v in pairs(info2.selectWorld) do
-        print(tostring(i).." : "..tostring(v))
-    end
+
+    printTable(info2.selectChall)
+    printTable(info2.selectRew)
+    printTable(info2.selectWorld)
+
     local chalCheck = tableContains(info2.selectChall, info[1])
     local worlCheck = tableContains(info2.selectWorld, info[3])
 
@@ -1026,7 +1044,7 @@ local challSelectChall = autoJoinChallSection:AddDropdown("SelectChallenge", {
     Callback = function (Value)
         print(Value)
         CONFIG.joinerChallConfig.selectChall = {
-            Value
+            unpack(Value)
         }
     end
 })
