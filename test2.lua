@@ -565,12 +565,17 @@ local function restoreGame()
 end
 
 local function tableContains(tbl, value)
-    for _, v in ipairs(tbl) do
-        print("CHECK: ")
-        print(v)
-        print(value)
-        if v == value then
-            return true
+    for _, v in pairs(tbl) do
+        -- If the current element is a table, recurse into it
+        if type(v) == "table" then
+            if tableContains(v, value) then
+                return true
+            end
+        else
+            -- If the current element matches the value, return true
+            if v == value then
+                return true
+            end
         end
     end
     return false
@@ -753,12 +758,12 @@ local function getCurrentChallenge()
     for key, val in pairs(deets) do
         if key:match("current_reward") then
             for i,v in ipairs(deets[key]["_rewards"][1]["item"]) do
-                currRew[i] = v["item_id"]
+                currRew[i] = tostring(v["item_id"])
             end
         elseif key:match("current_level_id") then
-            currWorld = findWorldByActID(val)
+            currWorld = tostring(findWorldByActID(val))
         elseif key:match("current_challenge") then
-            currChal = val
+            currChal = tostring(val)
         end
     end
 
