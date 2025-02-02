@@ -60,7 +60,7 @@ local CONFIG = {
     DEBUG_MODE = true,
     LuciferVer = "v0.1.0",
     AutoSellCooldown = 0.5,
-    LobbyCheckInterval = 5
+    LobbyCheckInterval = 1
 }
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
