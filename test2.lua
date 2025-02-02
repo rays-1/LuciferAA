@@ -282,11 +282,15 @@ InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 Window:SelectTab(1)
 
--- UI Variables
+-- Thread Variables
 local autoJoining
+local autoJoiningLegend
+local autoJoiningRaid
 local followingPLayer
 local waitingPlayer
 local autoChallenge
+
+-- UI Variables
 local teleportClickCount = 0
 local isTeleporting = false
 local friendIsIn = false
@@ -443,6 +447,27 @@ local function findPlayerInLobbies(targetName)
     return nil
 end
 
+local function findPlayerInRaids(targetName)
+    local allLobbies = getLobbies()
+    for _, lobby in ipairs(allLobbies) do
+        local lobbyFullName = lobby:GetFullName()
+        local lobbyName = lobby.Name
+        if lobbyFullName then
+            if lobby.Parent.Name == "Raid" then
+                local playersFolder = lobby:FindFirstChild("Players")
+                if playersFolder then
+                    for _, objValue in ipairs(playersFolder:GetChildren()) do
+                        if tostring(objValue.Value) == targetName then
+                             return lobbyName
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return nil
+end
+
 -- Lobby Joining Logic
 local function safeJoinLobby(lobbyName)
 
@@ -474,6 +499,28 @@ local function joinRandomLobby()
     end
     task.wait()
 end
+local function joinRandomRaid()
+    local freeLobby
+    for i = 1, 5 do
+        local lobbyName = "_lobbytemplate" .. i
+        local lobby = workspace._RAID.Raid:FindFirstChild(lobbyName)
+        if lobby and lobby:FindFirstChild("Active").Value == false then
+            local playersFolder = lobby:FindFirstChild("Players")
+            if playersFolder then
+                if #playersFolder:GetChildren() == 0 then
+                    freeLobby = lobbyName
+                    
+                end
+            end
+        end
+    end
+    CONFIG.joinerRaidConfig.lobby = freeLobby
+    if freeLobby then
+        safeJoinLobby(freeLobby)
+    end
+    task.wait()
+end
+
 
 local function joinRandomLobbyChallenge()
     local freeLobby
@@ -689,6 +736,28 @@ local function lockInLevel()
     end
     lockRemote:InvokeServer(unpack(args))
 end
+local function lockInLegend()
+    local args = {
+        [1] = CONFIG.joinerLegendConfig.lobby,
+        [2] = CONFIG.joinerLegendConfig.Act,
+        [3] = CONFIG.joinerConfig.friendOnly,
+        [4] = "Hard"
+    }
+
+    lockRemote:InvokeServer(unpack(args))
+end
+
+local function lockInRaid()
+    local args = {
+        [1] = CONFIG.joinerRaidConfig.lobby,
+        [2] = CONFIG.joinerRaidConfig.Act,
+        [3] = CONFIG.joinerConfig.friendOnly,
+        [4] = "Hard"
+    }
+
+    lockRemote:InvokeServer(unpack(args))
+end
+
 local function waitPlayer()
     while true do
         task.wait(3)
@@ -740,6 +809,57 @@ local function stopJoin()
     end
     print("\n=== AUTO-JOIN SYSTEM DEACTIVATED ===")
 end
+
+local function autoJoinLegend()
+    while true do
+        local currlob = findPlayerInLobbies(game.Players.LocalPlayer.Name)
+        if currlob then
+            lockInLegend()
+        else
+            print("Player Not In Lobby")
+            joinRandomLobby()
+        end
+        task.wait(CONFIG.LobbyCheckInterval)
+    end
+end
+
+local function startJoinLegend()
+    autoJoiningLegend = manageSystem(autoJoiningLegend, autoJoinLegend, stopJoinLegen, "AUTO-JOIN LEGEND")
+ end
+ 
+ local function stopJoinLegend()
+     if autoJoiningLegend then
+         task.cancel(autoJoiningLegend)
+         autoJoiningLegend = nil
+     end
+     print("\n=== AUTO-JOIN LEGEND SYSTEM DEACTIVATED ===")
+ end
+
+ local function autoJoinRaid()
+    while true do
+        local currlob = findPlayerInRaids(game.Players.LocalPlayer.Name)
+        if currlob then
+            lockInRaid()
+        else
+            print("Player Not In Lobby")
+            joinRandomRaid()
+        end
+        task.wait(CONFIG.LobbyCheckInterval)
+    end
+end
+
+local function startJoinRaid()
+    autoJoiningRaid = manageSystem(autoJoiningRaid, autoJoinRaid, stopJoinRaid, "AUTO-JOIN LEGEND")
+ end
+ 
+ local function stopJoinRaid()
+     if autoJoiningRaid then
+         task.cancel(autoJoiningRaid)
+         autoJoiningRaid = nil
+     end
+     print("\n=== AUTO-JOIN LEGEND SYSTEM DEACTIVATED ===")
+ end
+
 
 local function startFollow()
     followingPLayer = manageSystem(followingPLayer,followPlayer, stopFollow, "AUTO-FOLLOW")
@@ -1159,6 +1279,46 @@ local LegendSelectWorld = autoJoinLegenSection:AddDropdown("SelectWorld2", {
         LegendSelectAct:SetValue("Act 1")
     end
 })
+
+local RaidJoiner = autoJoinRaidSection:AddToggle("JoinRaidEnabled", {
+    Title = "Enable Auto Raid",
+    Default = CONFIG.joinerRaidConfig.enabled,
+    Callback = function(Value)
+        CONFIG.joinerRaidConfig.enabled = Value
+        if CONFIG.joinerRaidConfig.enabled then
+            -- startJoin()
+        else
+            -- stopJoin()
+        end
+    end
+})
+
+local RaidSelectAct = autoJoinRaidSection:AddDropdown("SelectAct3", {
+    Title = "Select Act",
+    Description = "Pick an act to join",
+    Values = {},
+    Default = CONFIG.joinerRaidConfig.Act,
+    Multi = false,
+    Callback = function(Value)
+        CONFIG.joinerRaidConfig.Act = WorldsRaid[CONFIG.joinerRaidConfig.World][Value]
+    end
+})
+
+local RaidSelectWorld = autoJoinRaidSection:AddDropdown("SelectWorld3", {
+    Title = "Select World",
+    Description = "Pick a world to join",
+    Values = worldNamesRaid,
+    Default = CONFIG.joinerRaidConfig.World,
+    Multi = false,
+    Callback = function(Value)
+        CONFIG.joinerRaidConfig.World = Value
+        RaidSelectAct:SetValues(getRaids(CONFIG.joinerRaidConfig.World))
+        CONFIG.joinerRaidConfig.Act = WorldsRaid[CONFIG.joinerRaidConfig.World]["Act 1"]
+        RaidSelectAct:SetValue("Act 1")
+    end
+})
+
+
 
 
 -- Initialization Logic
