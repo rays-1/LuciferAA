@@ -888,7 +888,7 @@ friendOnly:OnChanged(function(Value)
     CONFIG.joinerConfig.friendOnly = Value
 end)
 
-local leaveLobbyButton = autoJoinWorldSection:AddButton({
+local leaveLobbyButton = joinerSets:AddButton({
     Title = "Leave Current Lobby",
     Description = "Leave lobby",
     Callback = function()
@@ -907,7 +907,7 @@ local autoJoinEnable = autoJoinWorldSection:AddToggle("autoJoinEnable", {
         end
     end
 })
-local HardMode = autoJoinWorldSection:AddToggle("hardModeToggle", {
+local HardMode = joinerSets:AddToggle("hardModeToggle", {
     Title = "Enable Hard Mode",
     Default = false,
     Callback = function(Value)
