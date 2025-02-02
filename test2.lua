@@ -1248,9 +1248,9 @@ local LegendJoiner = autoJoinLegenSection:AddToggle("JoinLegenEnabled", {
     Callback = function(Value)
         CONFIG.joinerLegendConfig.enabled = Value
         if CONFIG.joinerLegendConfig.enabled then
-            -- startJoin()
+           startJoinLegend()
         else
-            -- stopJoin()
+           stopJoinLegend()
         end
     end
 })
@@ -1286,9 +1286,9 @@ local RaidJoiner = autoJoinRaidSection:AddToggle("JoinRaidEnabled", {
     Callback = function(Value)
         CONFIG.joinerRaidConfig.enabled = Value
         if CONFIG.joinerRaidConfig.enabled then
-            -- startJoin()
+            startJoinRaid()
         else
-            -- stopJoin()
+            stopJoinRaid()
         end
     end
 })
