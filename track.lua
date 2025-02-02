@@ -39,7 +39,7 @@ local remoteFunctionNames = {
     "get_lobby_more_params",
     -- "request_current_gold_shop", --gold shop
     -- "request_current_madoka_shop", --event quest shop
-    "request_current_raid_shop" 
+    -- "request_current_raidshop_shop" --raid shop
     -- "poll_active_items" -- bulma shop
 }
 
@@ -52,3 +52,43 @@ for _, child in pairs(clientToServerFolder:GetChildren()) do
         end
     end
 end
+
+
+local remoteHooks = {}
+local originalEvent, originalFunction
+
+local remoteEvent = Instance.new("RemoteEvent")
+local remoteFunction = Instance.new("RemoteFunction")
+
+-- Hook function for RemoteEvents
+local function newFireServer(remote, ...)
+    if remoteHooks[remote] then
+        local args = {...}
+        args = {remoteHooks[remote](unpack(args))}
+        return originalEvent(remote, unpack(args))
+    end
+    return originalEvent(remote, ...)
+end
+
+-- Hook function for RemoteFunctions
+local function newInvokeServer(remote, ...)
+    if remoteHooks[remote] then
+        local args = {...}
+        args = {remoteHooks[remote](unpack(args))}
+        return originalFunction(remote, unpack(args))
+    end
+    return originalFunction(remote, ...)
+end
+
+-- Main hook function
+function HookRemote(remote, func)
+    if typeof(remote) == "Instance" and (remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction")) then
+        remoteHooks[remote] = func
+    end
+end
+
+HookRemote(buyBannerRemote, function(...)
+    local args = {...}
+    print("here!")
+    return unpack(args)
+end)

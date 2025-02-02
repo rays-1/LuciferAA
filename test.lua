@@ -25,64 +25,51 @@ local function recordMacroEntry(entry)
     table.insert(recordedMacro, entry)
 end
 
--- Hook Spawn Unit Remote
-spawnUnitRemote.OnClientInvoke = function(...)
-    local args = {...}
-    if isRecording then
-        local uuid = args[1]
-        local cframe = tostring(args[2]) -- Convert CFrame to string for serialization
 
-        -- Record the spawn event
-        recordMacroEntry({
-            type = "spawn_unit",
-            unit = uuid,
-            cframe = cframe,
-            money = getPlayerMoney()
-        })
-    end
-    return unpack(args) -- Pass the original arguments back
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+if not RunService:IsClient() then
+    error("This script must run on the client!")
 end
 
--- Hook Upgrade Unit Remote
-upgradeUnitRemote.OnClientInvoke = function(...)
-    local args = {...}
-    if isRecording then
-        local unit = args[1]
-        local uuid = unit:GetAttribute("_SPAWN_UNIT_UUID") -- Extract UUID from attributes
+local spawnUnitRemote = game:GetService("ReplicatedStorage"):WaitForChild("endpoints"):WaitForChild("client_to_server")
+    :WaitForChild("buy_from_banner")
 
-        -- Record the upgrade event
-        recordMacroEntry({
-            type = "upgrade_unit_ingame",
-            unit = uuid,
-            money = getPlayerMoney()
-        })
-    end
-    return unpack(args)
+local originalFireServer = nil
+local originalInvokeServer = nil
+
+local function remoteHandler(remote, methodName, args)
+    print("hello")
+    print("Arguments:", unpack(args))
+    return args
 end
 
--- Hook Sell Unit Remote
-sellUnitRemote.OnClientInvoke = function(...)
-    local args = {...}
-    if isRecording then
-        local unit = args[1]
-        local uuid = unit:GetAttribute("_SPAWN_UNIT_UUID") -- Extract UUID from attributes
+local function hookRemote()
+    -- Backup original functions
+    -- originalFireServer = hookfunction(spawnUnitRemote.FireServer, function(remote, ...)
+    --     -- Call the handler with the intercepted arguments
+    --     local args = { ... }
+    --     remoteHandler(remote, "FireServer", args)
 
-        -- Record the sell event
-        recordMacroEntry({
-            type = "sell_unit_ingame",
-            unit = uuid,
-            money = getPlayerMoney()
-        })
-    end
-    return unpack(args)
+    --     -- Call the original FireServer function to preserve functionality
+    --     return originalFireServer(remote, unpack(args))
+    -- end)
+
+    originalInvokeServer = hookfunction(spawnUnitRemote.InvokeServer, function(remote, ...)
+        local args = { ... }
+        remoteHandler(remote, "InvokeServer", args)
+        return originalInvokeServer(remote, unpack(args))
+    end)
 end
+
+hookRemote()
 
 -- Function to save recorded macro as JSON
 local function saveMacroToJson()
     local jsonData = HttpService:JSONEncode(recordedMacro)
     print("Recorded Macro (JSON):")
     print(jsonData)
-    
+
     -- Optionally, write to a file if running locally
     -- (This part only works in environments with file system access, e.g., Synapse X)
     if isfile then
