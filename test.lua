@@ -113,13 +113,9 @@ local function stopRecording()
     saveMacroToJson()
 end
 
--- Bind chat commands to control recording
-game.Players.LocalPlayer.Chatted:Connect(function(msg)
-    if msg == "/startmacro" then
-        startRecording()
-    elseif msg == "/stopmacro" then
-        stopRecording()
-    end
-end)
-
 print("Macro recorder loaded. Use /startmacro and /stopmacro to control recording.")
+startRecording()
+
+task.wait(30)
+
+stopRecording()
