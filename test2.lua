@@ -44,6 +44,18 @@ local CONFIG = {
 
         }
     },
+    joinerLegendConfig = {
+        enabled = false,
+        lobby = "",
+        World = "",
+        Act = "",
+    },
+    joinerRaidConfig = {
+        enabled = false,
+        lobby = "",
+        World = "",
+        Act = "",
+    },
     DEBUG_MODE = true,
     LuciferVer = "v0.1.0",
     AutoSellCooldown = 0.5,
@@ -212,8 +224,16 @@ end
 CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World]["Act 1"]
 
 local worldNames = {}
+local worldNamesLegend = {}
+local worldNamesRaid = {}
 for name in pairs(Worlds) do
     table.insert(worldNames, name)
+end
+for name in pairs(WorldsLegend) do
+    table.insert(worldNamesLegend, name)
+end
+for name in pairs(WorldsRaid) do
+    table.insert(worldNamesRaid, name)
 end
 
 -- UI Setup
@@ -244,6 +264,8 @@ local joinerSets = Tabs.Joiner:AddSection("Joiner Settings",1)
 local friendSection = Tabs.Joiner:AddSection("Join Friend", 2)
 local autoJoinWorldSection = Tabs.Joiner:AddSection("Auto Join World", 3)
 local autoJoinChallSection = Tabs.Joiner:AddSection("Auto Join Challenge",4)
+local autoJoinLegenSection = Tabs.Joiner:AddSection("Auto Join Legend",5)
+local autoJoinRaidSection = Tabs.Joiner:AddSection("Auto Join Raid",5)
 
 local shopMainSection = Tabs.Shop:AddSection("Auto Sell Configuration", 1)
 
@@ -1071,6 +1093,44 @@ local challSelectWorld = autoJoinChallSection:AddDropdown("SelectWorld", {
         CONFIG.joinerChallConfig.selectWorld = {
             Value
         }
+    end
+})
+
+local LegendJoiner = autoJoinLegenSection:AddToggle("JoinLegenEnabled", {
+    Title = "Enable Auto Legend",
+    Default = CONFIG.joinerLegendConfig.enabled,
+    Callback = function(Value)
+        CONFIG.joinerLegendConfig.enabled = Value
+        if CONFIG.joinerLegendConfig.enabled then
+            -- startJoin()
+        else
+            -- stopJoin()
+        end
+    end
+})
+
+
+local LegendSelectAct = autoJoinLegenSection:AddDropdown("SelectAct2", {
+    Title = "Select Act",
+    Description = "Pick an act to join",
+    Values = getActsForWorld(CONFIG.joinerLegendConfig.World),
+    Default = "",
+    Multi = false,
+    Callback = function(Value)
+        CONFIG.joinerLegendConfig.Act = WorldsLegend[CONFIG.joinerLegendConfig.World][Value]
+    end
+})
+
+local LegendSelectWorld = autoJoinLegenSection:AddDropdown("SelectWorld2", {
+    Title = "Select World",
+    Description = "Pick a world to join",
+    Values = worldNamesLegend,
+    Default = CONFIG.joinerLegendConfig.World,
+    Multi = false,
+    Callback = function(Value)
+        CONFIG.joinerLegendConfig.World = Value
+        LegendSelectAct:SetValues(getActsForWorld(CONFIG.joinerLegendConfig.World))
+        CONFIG.joinerLegendConfig.Act = WorldsLegend[CONFIG.joinerLegendConfig.World]["Act 1"]
     end
 })
 
