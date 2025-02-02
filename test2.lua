@@ -1109,11 +1109,10 @@ local LegendJoiner = autoJoinLegenSection:AddToggle("JoinLegenEnabled", {
     end
 })
 
-
 local LegendSelectAct = autoJoinLegenSection:AddDropdown("SelectAct2", {
     Title = "Select Act",
     Description = "Pick an act to join",
-    Values = getActsForWorld(CONFIG.joinerLegendConfig.World),
+    Values = {},
     Default = "",
     Multi = false,
     Callback = function(Value)
