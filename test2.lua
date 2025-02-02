@@ -840,7 +840,7 @@ local function autoJoinLegend()
             lockInLegend()
         else
             print("Player Not In Lobby")
-            joinRandomLobby()
+            joinRandomLegend()
         end
         task.wait(CONFIG.LobbyCheckInterval)
     end
