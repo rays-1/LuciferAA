@@ -499,6 +499,29 @@ local function joinRandomLobby()
     end
     task.wait()
 end
+
+local function joinRandomLegend()
+    local freeLobby
+    for i = 1, 9 do
+        local lobbyName = "_lobbytemplategreen" .. i
+        local lobby = workspace._LOBBIES.Story:FindFirstChild(lobbyName)
+        if lobby and lobby:FindFirstChild("Active").Value == false then
+            local playersFolder = lobby:FindFirstChild("Players")
+            if playersFolder then
+                if #playersFolder:GetChildren() == 0 then
+                    freeLobby = lobbyName
+                    
+                end
+            end
+        end
+    end
+    CONFIG.joinerLegendConfig.lobby = freeLobby
+    if freeLobby then
+        safeJoinLobby(freeLobby)
+    end
+    task.wait()
+end
+
 local function joinRandomRaid()
     local freeLobby
     for i = 1, 5 do
