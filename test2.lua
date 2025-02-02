@@ -790,6 +790,7 @@ local function getLegends(worldName)
     local worldData = WorldsLegend[worldName]
     local acts = {}
     for key in pairs(worldData) do
+        print("Key: "..tostring(key))
         if key:match("Act %d") then
             table.insert(acts, key)
         end
