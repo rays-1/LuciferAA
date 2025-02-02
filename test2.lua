@@ -502,7 +502,7 @@ end
 local function joinRandomRaid()
     local freeLobby
     for i = 1, 5 do
-        local lobbyName = "_lobbytemplate" .. i
+        local lobbyName = "_lobbytemplate21" .. i
         local lobby = workspace._RAID.Raid:FindFirstChild(lobbyName)
         if lobby and lobby:FindFirstChild("Active").Value == false then
             local playersFolder = lobby:FindFirstChild("Players")
@@ -849,7 +849,7 @@ local function startJoinLegend()
 end
 
 local function startJoinRaid()
-    autoJoiningRaid = manageSystem(autoJoiningRaid, autoJoinRaid, stopJoinRaid, "AUTO-JOIN LEGEND")
+    autoJoiningRaid = manageSystem(autoJoiningRaid, autoJoinRaid, stopJoinRaid, "AUTO-JOIN RAID")
  end
  
  local function stopJoinRaid()
@@ -857,7 +857,7 @@ local function startJoinRaid()
          task.cancel(autoJoiningRaid)
          autoJoiningRaid = nil
      end
-     print("\n=== AUTO-JOIN LEGEND SYSTEM DEACTIVATED ===")
+     print("\n=== AUTO-JOIN RAID SYSTEM DEACTIVATED ===")
  end
 
 
