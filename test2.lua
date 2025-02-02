@@ -22,6 +22,7 @@ local CONFIG = {
     },
     joinerConfig = {
         waitForFriend = false,
+        waitTil = 0,
         enabled = false,
         friendOnly = false,
         lobby = "",
@@ -31,7 +32,7 @@ local CONFIG = {
             Act = nil -- Will be loaded later
         }
     },
-     joinerChallConfig = {
+    joinerChallConfig = {
         enabled = false,
         lobby = "",
         selectWorld = {
@@ -74,6 +75,7 @@ local clientToServer = endpoints:WaitForChild("client_to_server")
 local sellEndpoint = clientToServer:WaitForChild("sell_units")
 local joinRemote = clientToServer:WaitForChild("request_join_lobby")
 local leaveRemote = clientToServer:WaitForChild("request_leave_lobby")
+local startRemote = clientToServer:WaitForChild("request_start_game")
 local lockRemote = clientToServer:WaitForChild("request_lock_level")
 local WorldsSrc = data:WaitForChild("Worlds")
 local originalProperties = {}
@@ -809,11 +811,24 @@ local function waitPlayer()
         end
     end
 end
+
+local function reqStartGame()
+    local currlob = findPlayerInLobbies(game.Players.LocalPlayer.Name)
+    if currlob then
+        local args = {
+            [1] = currlob
+        }
+        startRemote:InvokeServer(unpack(args))
+    end
+end
+
 local function autoJoinWorld()
     while true do
         local currlob = findPlayerInLobbies(game.Players.LocalPlayer.Name)
         if currlob then
             lockInLevel()
+            task.wait(CONFIG.joinerConfig.waitTil)
+            reqStartGame()
         else
             print("Player Not In Lobby")
             joinRandomLobby()
@@ -838,6 +853,8 @@ local function autoJoinLegend()
         local currlob = findPlayerInLobbies(game.Players.LocalPlayer.Name)
         if currlob then
             lockInLegend()
+            task.wait(CONFIG.joinerConfig.waitTil)
+            reqStartGame()
         else
             print("Player Not In Lobby")
             joinRandomLegend()
@@ -863,6 +880,8 @@ local function startJoinLegend()
         local currlob = findPlayerInRaids(game.Players.LocalPlayer.Name)
         if currlob then
             lockInRaid()
+            task.wait(CONFIG.joinerConfig.waitTil)
+            reqStartGame()
         else
             print("Player Not In Lobby")
             joinRandomRaid()
@@ -1051,12 +1070,6 @@ end
 local Options = Fluent.Options
 
 -- UI Elements
-local friendOnly = joinerSets:AddToggle("FriendsOnlyEnabled", {Title = "Friends Only?",Default = CONFIG.joinerConfig.friendOnly})
-
-friendOnly:OnChanged(function(Value)
-    CONFIG.joinerConfig.friendOnly = Value
-end)
-
 local leaveLobbyButton = joinerSets:AddButton({
     Title = "Leave Current Lobby",
     Description = "Leave lobby",
@@ -1064,6 +1077,12 @@ local leaveLobbyButton = joinerSets:AddButton({
         leaveLobbyy()
     end
 })
+local friendOnly = joinerSets:AddToggle("FriendsOnlyEnabled", {Title = "Friends Only?",Default = CONFIG.joinerConfig.friendOnly})
+
+friendOnly:OnChanged(function(Value)
+    CONFIG.joinerConfig.friendOnly = Value
+end)
+
 local autoJoinEnable = autoJoinWorldSection:AddToggle("autoJoinEnable", {
     Title = "Enable Auto Join",
     Default = CONFIG.joinerConfig.enabled,
@@ -1087,6 +1106,17 @@ local HardMode = joinerSets:AddToggle("hardModeToggle", {
         end
     end
 })
+local TimetoLock = joinerSets:AddSlider("TimeToLock",{
+    Title = "Wait Seconds To Start",
+    Default = 0,
+    Min = 0,
+    Max = 20,
+    Rounding = 1,
+    Callback = function(Value)
+        CONFIG.joinerConfig.waitTil = Value
+    end
+})
+
 local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Title = "Select Act",
     Description = "Pick an act to join",
