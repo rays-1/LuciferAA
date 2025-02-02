@@ -786,6 +786,31 @@ local function getActsForWorld(worldName)
     return acts
 end
 
+local function getLegends(worldName)
+    local worldData = WorldsLegend[worldName]
+    local acts = {}
+    for key in pairs(worldData) do
+        if key:match("Act %d") then
+            table.insert(acts, key)
+        end
+    end
+    table.sort(acts)
+    return acts
+end
+
+local function getRaids(worldName)
+    local worldData = WorldsRaid[worldName]
+    local acts = {}
+    for key in pairs(worldData) do
+        if key:match("Act %d") then
+            table.insert(acts, key)
+        end
+    end
+    table.sort(acts)
+    return acts
+end
+
+
 local function getRewards()
     return {"StarFruit","StarFruitGreen","StarFruitRed","StarFruitPink","StarFruitBlue","StarFruitEpic"}
 end
@@ -1128,8 +1153,9 @@ local LegendSelectWorld = autoJoinLegenSection:AddDropdown("SelectWorld2", {
     Multi = false,
     Callback = function(Value)
         CONFIG.joinerLegendConfig.World = Value
-        LegendSelectAct:SetValues(getActsForWorld(CONFIG.joinerLegendConfig.World))
+        LegendSelectAct:SetValues(getLegends(CONFIG.joinerLegendConfig.World))
         CONFIG.joinerLegendConfig.Act = WorldsLegend[CONFIG.joinerLegendConfig.World]["Act 1"]
+        LegendSelectAct:SetValue("Act 1")
     end
 })
 
