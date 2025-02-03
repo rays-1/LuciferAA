@@ -328,11 +328,14 @@ local teleportClickCount = 0
 local isTeleporting = false
 local friendIsIn = false
 
-local p = workspace._MAP_CONFIG.GetLevelData:InvokeServer()
-local macroConfig = {
-    GameMode = p["_gamemode"],
-    Name = p["_location_name"]
-}
+if game.PlaceId ~= CONSTANTS.TELEPORT_ID then
+    local p = workspace._MAP_CONFIG.GetLevelData:InvokeServer()
+    local macroConfig = {
+        GameMode = p["_gamemode"],
+        Name = p["_location_name"]
+    } 
+end
+
 -- Macro Functions
 -- Macro Functions
 local function StringToCFrame(String)
