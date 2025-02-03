@@ -1608,15 +1608,16 @@ local CreateMacro = macroRecorder:AddInput("CreateMacro",{
     Title = "Create Macro",
     Placeholder = "Enter name here..",
     Default = "",
-    Finished = true,
-    Callback = function (value)
-        if value ~= "" then
-            notify("Macro Created",value)
-            saveMacro(value, {})
-            refreshMacroList()
-        end
-    end
+    Finished = false
 })
+
+CreateMacro:OnChanged(function (value)
+    if value ~= "" and CreateMacro.Finished then
+        notify("Macro Created",value)
+        saveMacro(value, {})
+        refreshMacroList()
+    end
+end)
 
 local RecordMacro = macroRecorder:AddToggle("RecordMacro",{
     Title = "Record Macro",
