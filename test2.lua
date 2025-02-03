@@ -57,6 +57,12 @@ local CONFIG = {
         World = "",
         Act = "",
     },
+    MacroConfig = {
+        SelectedMacro = "",
+        WorldsMacro = {
+
+        }
+    },
     DEBUG_MODE = true,
     LuciferVer = "v0.1.0",
     AutoSellCooldown = 0.5,
@@ -77,6 +83,10 @@ local joinRemote = clientToServer:WaitForChild("request_join_lobby")
 local leaveRemote = clientToServer:WaitForChild("request_leave_lobby")
 local startRemote = clientToServer:WaitForChild("request_start_game")
 local lockRemote = clientToServer:WaitForChild("request_lock_level")
+local spawnUnitRemote = clientToServer:WaitForChild("spawn_unit")
+local upgradeUnitRemote = clientToServer:WaitForChild("upgrade_unit_ingame")
+local sellUnitRemote = clientToServer:WaitForChild("sell_unit_ingame")
+local UnitsData = require(data.Units)
 local WorldsSrc = data:WaitForChild("Worlds")
 local originalProperties = {}
 local optimized = false
@@ -163,7 +173,8 @@ end)
 if not success or not ItemInventoryService then
     error("Failed to load ItemInventoryServiceClient: " .. tostring(err))
 end
-
+local profileData = ItemInventoryService.session.collection.collection_profile_data
+local equippedUnits = profileData.equipped_units
 
 -- Get World Data
 local Worlds = {}
@@ -252,7 +263,8 @@ local Window = Fluent:CreateWindow({
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
     Farm = Window:AddTab({ Title = "Farm", Icon = "activity" }),
-    Joiner = Window:AddTab({ Title = "Joiner", Icon = "lucide-timer" }),
+    Joiner = Window:AddTab({ Title = "Joiner", Icon = "wifi" }),
+    Macro = Window:AddTab({Title = "Macro", Icon = "pencil"}),
     ["Farm Config"] = Window:AddTab({ Title = "Farm Config", Icon = "settings" }),
     Shop = Window:AddTab({ Title = "Shop", Icon = "shopping-cart" }),
     Misc = Window:AddTab({ Title = "Misc", Icon = "box" }),
@@ -275,6 +287,8 @@ local miscMainSection = Tabs.Misc:AddSection("Optimization Settings", 1)
 local miscExtraSection = Tabs.Misc:AddSection("Other Utilities", 2)
 local diagnosticsSection = Tabs.Misc:AddSection("Diagnostics", 3)
 
+local macroRecorder = Tabs.Macro:AddSection("Macro Recorder",1)
+
 Tabs["Farm Config"]:AddSection("Combat Settings", 1)
 Tabs["Farm Config"]:AddSection("Target Filters", 2)
 
@@ -291,6 +305,15 @@ local autoJoiningRaid
 local followingPLayer
 local waitingPlayer
 local autoChallenge
+
+-- Macro Variables
+local isRecording = false
+local isPlaying = false
+local recordedActions = {}
+local macroStartTime = 0
+local logArray = {}
+local currUnitNames = {}
+local isMacroPlaying = false
 
 -- UI Variables
 local teleportClickCount = 0
@@ -679,6 +702,14 @@ local function printTable(tbl, indent)
             print(indentation .. tostring(key) .. ": " .. tostring(value))
         end
     end
+end
+
+local function saveMacro(macroName, macroData)
+    local filePath = "LuciferMacros" .. "/" .. macroName .. ".json"
+    local HttpService = game:GetService("HttpService")
+    local json = HttpService:JSONEncode(macroData)
+    writefile(filePath, json)
+    print("Macro saved to:", filePath)
 end
 
 local function tableContains(tbl, value)
@@ -1371,8 +1402,62 @@ local RaidSelectWorld = autoJoinRaidSection:AddDropdown("SelectWorld3", {
     end
 })
 
+local macroDirectory = "LuciferMacros"
 
+if not isfolder(macroDirectory) then
+    makefolder(macroDirectory)
+    print("Created folder:", macroDirectory)
+end
 
+local CreateMacro = macroRecorder:AddInput("CreateMacro",{
+    Title = "Create Macro",
+    Placeholder = "Enter name here..",
+    Default = "",
+    Finished = false,
+    Callback = function (Value)
+        
+    end
+})
+
+local SelectMacro = macroRecorder:AddDropdown("SelectMacro",{
+    Title = "Select Macro",
+    Description = "Select Macro to Record/Play",
+    Values = {},
+    Default = "",
+    Multi = false,
+    Callback = function (Value)
+        
+    end
+})
+local RecordMacro = macroRecorder:AddToggle("RecordMacro",{
+    Title = "Play Macro",
+    Default = false,
+})
+
+local PlayMacro = macroRecorder:AddToggle("PlayMacro",{
+    Title = "Play Macro",
+    Default = false,
+})
+
+RecordMacro:OnChanged(function (Value)
+    if Options.RecordMacro.Value then
+        if Options.PlayMacro.Value then
+            PlayMacro:SetValue(false)
+        end
+    else
+
+    end
+end)
+
+PlayMacro:OnChanged(function (Value)
+    if Options.PlayMacro.Value then
+        if Options.RecordMacro.Value then
+            RecordMacro:SetValue(false)
+        end
+    else
+
+    end
+end)
 
 -- Initialization Logic
 AutoSellEnabledToggle:SetValue(CONFIG.autoSellConfig.AutoSellEnabled)
