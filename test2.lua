@@ -1575,13 +1575,6 @@ local RaidSelectWorld = autoJoinRaidSection:AddDropdown("SelectWorld3", {
     end
 })
 
-local CreateMacro = macroRecorder:AddInput("CreateMacro",{
-    Title = "Create Macro",
-    Placeholder = "Enter name here..",
-    Default = "",
-    Finished = false,
-})
-
 local SelectMacro = macroRecorder:AddDropdown("SelectMacro",{
     Title = "Select Macro",
     Description = "Select Macro to Record/Play",
@@ -1591,15 +1584,6 @@ local SelectMacro = macroRecorder:AddDropdown("SelectMacro",{
     Callback = function (Value)
         
     end
-})
-local RecordMacro = macroRecorder:AddToggle("RecordMacro",{
-    Title = "Play Macro",
-    Default = false,
-})
-
-local PlayMacro = macroRecorder:AddToggle("PlayMacro",{
-    Title = "Play Macro",
-    Default = false,
 })
 
 -- Update macro UI elements
@@ -1616,13 +1600,28 @@ local function refreshMacroList()
     SelectMacro:SetValues(macroNames)
 end
 
-CreateMacro:OnChanged(function(value)
-    if value ~= "" then
-        saveMacro(value, {})
-        refreshMacroList()
-        CreateMacro:SetValue("")
+local CreateMacro = macroRecorder:AddInput("CreateMacro",{
+    Title = "Create Macro",
+    Placeholder = "Enter name here..",
+    Default = "",
+    Finished = false,
+    Callback = function (value)
+        if value ~= "" then
+            saveMacro(value, {})
+            refreshMacroList()
+        end
     end
-end)
+})
+
+local RecordMacro = macroRecorder:AddToggle("RecordMacro",{
+    Title = "Play Macro",
+    Default = false,
+})
+
+local PlayMacro = macroRecorder:AddToggle("PlayMacro",{
+    Title = "Play Macro",
+    Default = false,
+})
 
 RecordMacro:OnChanged(function(value)
     isRecording = value
