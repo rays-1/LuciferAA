@@ -1612,6 +1612,7 @@ local CreateMacro = macroRecorder:AddInput("CreateMacro",{
 })
 
 CreateMacro:OnChanged(function (value)
+    print(CreateMacro.Finished)
     if value ~= "" then
         notify("Macro Created",value)
         saveMacro(value, {})
