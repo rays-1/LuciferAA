@@ -94,7 +94,6 @@ local lockRemote = clientToServer:WaitForChild("request_lock_level")
 local spawnUnitRemote = clientToServer:WaitForChild("spawn_unit")
 local upgradeUnitRemote = clientToServer:WaitForChild("upgrade_unit_ingame")
 local sellUnitRemote = clientToServer:WaitForChild("sell_unit_ingame")
-local p = workspace._MAP_CONFIG.GetLevelData:InvokeServer()
 local UnitsData = require(data.Units)
 local WorldsSrc = data:WaitForChild("Worlds")
 local originalProperties = {}
@@ -328,6 +327,8 @@ local isMacroPlaying = false
 local teleportClickCount = 0
 local isTeleporting = false
 local friendIsIn = false
+
+local p = workspace._MAP_CONFIG.GetLevelData:InvokeServer()
 local macroConfig = {
     GameMode = p["_gamemode"],
     Name = p["_location_name"]
@@ -399,17 +400,17 @@ local function logArguments(remoteName, ...)
     table.insert(logArray, stepData)
 end
 
-local function saveMacro(macroName)
-    local filePath = macroDirectory .. "/" .. macroName .. ".json"
-    local HttpService = game:GetService("HttpService")
-    local structuredData = {
-        MacroConfig = macroConfig,
-        Steps = logArray
-    }
-    local json = HttpService:JSONEncode(structuredData)
-    writefile(filePath, json)
-    print("Macro saved to:", filePath)
-end
+-- local function saveMacro(macroName)
+--     local filePath = macroDirectory .. "/" .. macroName .. ".json"
+--     local HttpService = game:GetService("HttpService")
+--     local structuredData = {
+--         MacroConfig = macroConfig,
+--         Steps = logArray
+--     }
+--     local json = HttpService:JSONEncode(structuredData)
+--     writefile(filePath, json)
+--     print("Macro saved to:", filePath)
+-- end
 
 local function loadMacro(macroName)
     local filePath = macroDirectory .. "/" .. macroName .. ".json"
