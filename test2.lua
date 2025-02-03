@@ -1,4 +1,12 @@
 -- Constants and Configurations
+local macroDirectory = "LuciferMacros"
+
+if not isfolder(macroDirectory) then
+    makefolder(macroDirectory)
+    print("Created folder:", macroDirectory)
+end
+
+
 local CONSTANTS = {
     MAX_ATTEMPTS = 5,
     TELEPORT_ID =  8304191830,
@@ -86,6 +94,7 @@ local lockRemote = clientToServer:WaitForChild("request_lock_level")
 local spawnUnitRemote = clientToServer:WaitForChild("spawn_unit")
 local upgradeUnitRemote = clientToServer:WaitForChild("upgrade_unit_ingame")
 local sellUnitRemote = clientToServer:WaitForChild("sell_unit_ingame")
+local p = workspace._MAP_CONFIG.GetLevelData:InvokeServer()
 local UnitsData = require(data.Units)
 local WorldsSrc = data:WaitForChild("Worlds")
 local originalProperties = {}
@@ -319,6 +328,168 @@ local isMacroPlaying = false
 local teleportClickCount = 0
 local isTeleporting = false
 local friendIsIn = false
+local macroConfig = {
+    GameMode = p["_gamemode"],
+    Name = p["_location_name"]
+}
+-- Macro Functions
+-- Macro Functions
+local function StringToCFrame(String)
+    local Split = string.split(String, ",")
+    return CFrame.new(Split[1],Split[2],Split[3],Split[4],Split[5],Split[6],Split[7],Split[8],Split[9],Split[10],Split[11],Split[12])
+end
+
+local function argumentsToString(stepData)
+    local result = {}
+    for key, value in pairs(stepData) do
+        table.insert(result, key .. ": " .. tostring(value))
+    end
+    return table.concat(result, ", ")
+end
+
+local function findUID(unitName)
+    for _, UID in pairs(equippedUnits) do
+        if profileData["owned_units"][UID]["unit_id"] == unitName then
+            return UID
+        end
+    end
+    return nil
+end
+
+local function logArguments(remoteName, ...)
+    if isMacroPlaying or not isRecording then return end
+
+    local args = {...}
+    local stepData = {}
+    local timestamp = os.clock() - macroStartTime
+    
+    if remoteName == "spawn_unit" then
+        local unitName = profileData["owned_units"][args[1]]["unit_id"]
+        local cframe = args[2]
+        local cost = UnitsData[unitName]["cost"]
+        stepData = {
+            type = "spawn_unit",
+            unit = unitName,
+            cframe = tostring(cframe),
+            cost = cost,
+            time = timestamp
+        }
+    elseif remoteName == "upgrade_unit_ingame" then
+        local unitInstance = args[1]
+        local unitUpgNum = unitInstance._stats.upgrade.Value+1 or 1
+        local unitName = unitInstance._stats.id.Value
+        local cframe = unitInstance.PrimaryPart and unitInstance._shadow.CFrame or CFrame.new()
+        local cost = UnitsData[unitName]["upgrade"][tonumber(unitUpgNum)].cost
+        stepData = {
+            type = "upgrade_unit_ingame",
+            cframe = tostring(cframe),
+            cost = cost,
+            time = timestamp
+        }
+    elseif remoteName == "sell_unit_ingame" then
+        local unitInstance = args[1]
+        local cframe = unitInstance.PrimaryPart and unitInstance._shadow.CFrame or CFrame.new()
+        stepData = {
+            type = "sell_unit_ingame",
+            cframe = tostring(cframe),
+            time = timestamp
+        }
+    end
+    
+    table.insert(logArray, stepData)
+end
+
+local function saveMacro(macroName)
+    local filePath = macroDirectory .. "/" .. macroName .. ".json"
+    local HttpService = game:GetService("HttpService")
+    local structuredData = {
+        MacroConfig = macroConfig,
+        Steps = logArray
+    }
+    local json = HttpService:JSONEncode(structuredData)
+    writefile(filePath, json)
+    print("Macro saved to:", filePath)
+end
+
+local function loadMacro(macroName)
+    local filePath = macroDirectory .. "/" .. macroName .. ".json"
+    if not isfile(filePath) then
+        warn("Macro file not found:", filePath)
+        return false
+    end
+    
+    local HttpService = game:GetService("HttpService")
+    local json = readfile(filePath)
+    local loadedData = HttpService:JSONDecode(json)
+    logArray = loadedData.Steps or {}
+    macroConfig = loadedData.MacroConfig or {}
+    return true
+end
+
+local function playMacro()
+    if isMacroPlaying then return end
+    isMacroPlaying = true
+    
+    local startTime = os.clock()
+    for i, stepData in ipairs(logArray) do
+        local elapsedTime = os.clock() - startTime
+        local waitTime = stepData.time - elapsedTime
+        
+        if waitTime > 0 then
+            task.wait(waitTime)
+        end
+        
+        local stepString = argumentsToString(stepData)
+        print("Replaying Step ["..i.."]: "..stepString)
+        if stepData.type == "spawn_unit" then
+            local unitName = findUID(stepData.unit)
+            local cframe = StringToCFrame(stepData.cframe)
+            local cost = stepData.cost
+            repeat task.wait() until game:GetService("Players").LocalPlayer._stats.resource.Value >= cost
+            spawnUnitRemote:InvokeServer(unitName, cframe)
+        elseif stepData.type == "upgrade_unit_ingame" then
+            local cframe = StringToCFrame(stepData.cframe).Position
+            local targetUnit = nil
+            local cost = stepData.cost
+            repeat task.wait() until game:GetService("Players").LocalPlayer._stats.resource.Value >= cost
+            for _, unit in ipairs(workspace._UNITS:GetChildren()) do
+                local playr = unit:FindFirstChild("_stats"):FindFirstChild("player")
+                if playr and tostring(unit._stats.player.Value) == game.Players.LocalPlayer.Name then
+                    if unit.PrimaryPart and unit:FindFirstChild("_shadow").CFrame.Position == cframe then
+                        targetUnit = unit
+                        break
+                    end    
+                end
+            end
+            if not targetUnit then
+                warn("Failed to find unit with CFrame:", stepData.cframe)
+                continue
+            end
+            upgradeUnitRemote:InvokeServer(targetUnit)
+        elseif stepData.type == "sell_unit_ingame" then
+            local cframe = StringToCFrame(stepData.cframe).Position
+            local targetUnit = nil
+            for _, unit in ipairs(workspace._UNITS:GetChildren()) do
+                local playr = unit:FindFirstChild("_stats"):FindFirstChild("player")
+                if playr and tostring(unit._stats.player.Value) == game.Players.LocalPlayer.Name then
+                    if unit.PrimaryPart and unit:FindFirstChild("_shadow").CFrame.Position == cframe then
+                        targetUnit = unit
+                        break
+                    end    
+                end
+            end
+            if not targetUnit then
+                warn("Failed to find unit with CFrame:", stepData.cframe)
+                continue
+            end
+            sellUnitRemote:InvokeServer(targetUnit)
+        end
+        task.wait(1)
+    end
+    print("Macro playback complete.")
+    isMacroPlaying = false
+end
+
 
 -- Unit Processing Logic
 local function printUnitInfo(unitName, rarity, uniqueId, upgrade)
@@ -728,6 +899,8 @@ local function tableContains(tbl, value)
     end
     return false
 end
+
+
 
 local function findWorldByActID(act_id)
     -- Iterate through each world in the Worlds table
@@ -1402,21 +1575,11 @@ local RaidSelectWorld = autoJoinRaidSection:AddDropdown("SelectWorld3", {
     end
 })
 
-local macroDirectory = "LuciferMacros"
-
-if not isfolder(macroDirectory) then
-    makefolder(macroDirectory)
-    print("Created folder:", macroDirectory)
-end
-
 local CreateMacro = macroRecorder:AddInput("CreateMacro",{
     Title = "Create Macro",
     Placeholder = "Enter name here..",
     Default = "",
     Finished = false,
-    Callback = function (Value)
-        
-    end
 })
 
 local SelectMacro = macroRecorder:AddDropdown("SelectMacro",{
@@ -1439,25 +1602,73 @@ local PlayMacro = macroRecorder:AddToggle("PlayMacro",{
     Default = false,
 })
 
-RecordMacro:OnChanged(function (Value)
-    if Options.RecordMacro.Value then
-        if Options.PlayMacro.Value then
-            PlayMacro:SetValue(false)
+-- Update macro UI elements
+local function refreshMacroList()
+    local macros = listfiles(macroDirectory)
+    local macroNames = {}
+    
+    for _, path in ipairs(macros) do
+        if string.sub(path, -5) == ".json" then
+            table.insert(macroNames, string.match(path, "([^/]+)%.json$"))
         end
-    else
+    end
+    
+    SelectMacro:SetValues(macroNames)
+end
 
+CreateMacro:OnChanged(function(value)
+    if value ~= "" then
+        saveMacro(value, {})
+        refreshMacroList()
+        CreateMacro:SetValue("")
     end
 end)
 
-PlayMacro:OnChanged(function (Value)
-    if Options.PlayMacro.Value then
-        if Options.RecordMacro.Value then
-            RecordMacro:SetValue(false)
-        end
+RecordMacro:OnChanged(function(value)
+    isRecording = value
+    if value then
+        macroStartTime = os.clock()
+        logArray = {}
+        print("Recording started...")
     else
-
+        print("Recording stopped. Total actions:", #logArray)
     end
 end)
+
+PlayMacro:OnChanged(function(value)
+    if value then
+        if loadMacro(Options.SelectMacro.Value) then
+            playMacro()
+        end
+        PlayMacro:SetValue(false)
+    end
+end)
+
+-- Initial refresh
+refreshMacroList()
+
+-- Remote Interception
+local mt = getrawmetatable(game)
+local oldInvokeServer = mt.__namecall
+setreadonly(mt, false)
+
+mt.__namecall = newcclosure(function(self, ...)
+    local method = getnamecallmethod()
+    if method == "InvokeServer" then
+        local remoteName = tostring(self)
+        
+        if self == spawnUnitRemote then
+            logArguments("spawn_unit", ...)
+        elseif self == upgradeUnitRemote then
+            logArguments("upgrade_unit_ingame", ...)
+        elseif self == sellUnitRemote then
+            logArguments("sell_unit_ingame", ...)
+        end
+    end
+    return oldInvokeServer(self, ...)
+end)
+
+setreadonly(mt, true)
 
 -- Initialization Logic
 AutoSellEnabledToggle:SetValue(CONFIG.autoSellConfig.AutoSellEnabled)
