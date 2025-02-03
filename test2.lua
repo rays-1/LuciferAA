@@ -1607,6 +1607,7 @@ local CreateMacro = macroRecorder:AddInput("CreateMacro",{
     Finished = false,
     Callback = function (value)
         if value ~= "" then
+            notify("Macro Created",value)
             saveMacro(value, {})
             refreshMacroList()
         end
