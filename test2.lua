@@ -1608,7 +1608,7 @@ local CreateMacro = macroRecorder:AddInput("CreateMacro",{
     Title = "Create Macro",
     Placeholder = "Enter name here..",
     Default = "",
-    Finished = false,
+    Finished = true,
     Callback = function (value)
         if value ~= "" then
             notify("Macro Created",value)
@@ -1619,7 +1619,7 @@ local CreateMacro = macroRecorder:AddInput("CreateMacro",{
 })
 
 local RecordMacro = macroRecorder:AddToggle("RecordMacro",{
-    Title = "Play Macro",
+    Title = "Record Macro",
     Default = false,
 })
 
