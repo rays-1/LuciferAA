@@ -463,6 +463,7 @@ local function loadMacro(macroName)
     macroConfig = loadedData.MacroConfig or {}
     logArray = loadedData.Steps or {}
     printTable(loadedData)
+    task.wait(1)
     return true
 end
 
