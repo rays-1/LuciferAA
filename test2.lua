@@ -1634,6 +1634,7 @@ RecordMacro:OnChanged(function(value)
     else
         if Options.PlayMacro.Value then
             notify("Turning off Macro to record..")
+            PlayMacro:SetValue(false)
         else
             isRecording = value
             if value then
@@ -1657,6 +1658,7 @@ PlayMacro:OnChanged(function(value)
     else
         if Options.RecordMacro.Value then
             notify("Turning off Recorder to record.")
+            RecordMacro:SetValue(false)
         else
             isMacroPlaying = value
             if value then
