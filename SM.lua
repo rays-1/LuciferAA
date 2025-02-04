@@ -78,52 +78,62 @@ local SaveManager = {} do
 		self:BuildFolderTree()
 	end
 
-	function SaveManager:Save()
-		if (not name) then
-			return false, "no config file is selected"
-		end
-
-		local fullPath = self.Folder .. "/settings/options.json"
-
+	function SaveManager:Save(name)
+		-- Use the provided name or fallback to "PlayerName_LuciferAA"
+		local fileName = name or "PlayerName_LuciferAA"
+		local fullPath = self.Folder .. "/" .. fileName .. ".json"
 		local data = {
 			objects = {}
 		}
-
-		for idx, option in next, SaveManager.Options do
-			if not self.Parser[option.Type] then continue end
-			if self.Ignore[idx] then continue end
-
-			table.insert(data.objects, self.Parser[option.Type].Save(idx, option))
-		end	
-
+	
+		-- Save all options from Fluent.Options
+		for idx, option in pairs(Fluent.Options) do
+			if self.Parser[option.Type] then
+				table.insert(data.objects, self.Parser[option.Type].Save(idx, option))
+			end
+		end
+	
+		-- Encode and write to file
 		local success, encoded = pcall(httpService.JSONEncode, httpService, data)
 		if not success then
-			return false, "failed to encode data"
+			warn("Failed to encode data:", encoded)
+			return false, "Encoding error"
 		end
-
+	
 		writefile(fullPath, encoded)
+		print("Config saved successfully to:", fullPath)
 		return true
 	end
 
-	function SaveManager:Load()
-		if (not name) then
-			return false, "no config file is selected"
+	function SaveManager:Load(name)
+		-- Use the provided name or fallback to "PlayerName_LuciferAA"
+		local fileName = name or "PlayerName_LuciferAA"
+		local filePath = self.Folder .. "/" .. fileName .. ".json"
+	
+		-- Check if the file exists
+		if not isfile(filePath) then
+			warn("Config file does not exist:", filePath)
+			return false, "File not found"
 		end
-		
-		local file = self.Folder .. "/settings/options.json"
-		if not isfile(file) then return false, "invalid file" end
-
-		local success, decoded = pcall(httpService.JSONDecode, httpService, readfile(file))
-		if not success then return false, "decode error" end
-
-		for _, option in next, decoded.objects do
-			if self.Parser[option.type] then
-				task.spawn(function() self.Parser[option.type].Load(option.idx, option) end) -- task.spawn() so the config loading wont get stuck.
+	
+		-- Read and decode the file
+		local success, decoded = pcall(httpService.JSONDecode, httpService, readfile(filePath))
+		if not success then
+			warn("Failed to decode config file:", decoded)
+			return false, "Decoding error"
+		end
+	
+		-- Apply loaded data to Fluent.Options
+		for _, optionData in ipairs(decoded.objects) do
+			if self.Parser[optionData.type] then
+				task.spawn(function()
+					self.Parser[optionData.type].Load(optionData.idx, optionData)
+				end)
 			end
 		end
-
+	
+		print("Config loaded successfully!")
 		return true
-        
 	end
 
 	function SaveManager:IgnoreThemeSettings()

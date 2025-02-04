@@ -287,7 +287,7 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 -- Load settings at startup
-local success, err = SaveManager:Load(configDir)
+local success, err = SaveManager:Load(game.Players.LocalPlayer.Name)
 if not success then
     warn("Failed to load settings:", err)
 else
@@ -1762,7 +1762,7 @@ end
 for idx, option in pairs(Fluent.Options) do
     if option.OnChanged then
         option:OnChanged(function()
-            SaveManager:Save(configDir) -- Save the current state to a config file
+            SaveManager:Save(game.Players.LocalPlayer.Name)
         end)
     end
 end
