@@ -416,20 +416,45 @@ end
 --     print("Macro saved to:", filePath)
 -- end
 
+local function printTable(tbl, indent)
+    -- Default indentation level
+    indent = indent or 0
+
+    -- Iterate through the table
+    for key, value in pairs(tbl) do
+        -- Create indentation string
+        local indentation = string.rep("  ", indent)
+
+        -- Handle different types of values
+        if type(value) == "table" then
+            -- If the value is a table, print the key and recurse
+            print(indentation .. tostring(key) .. ": {")
+            printTable(value, indent + 1)
+            print(indentation .. "}")
+        else
+            -- Print the key-value pair
+            print(indentation .. tostring(key) .. ": " .. tostring(value))
+        end
+    end
+end
+
 local function loadMacro(macroName)
     local filePath = macroDirectory .. "/" .. macroName .. ".json"
-    if not isfile(filePath) then
-        warn("Macro file not found:", filePath)
-        return false
+    local file = io.open(filePath, "r")
+    if file then
+        local json = file:read("*a")
+        file:close()
+        local loadedData = game:GetService("HttpService"):JSONDecode(json)
+        printTable(loadedData)
+        logArray = loadedData.Steps or {}
+        macroConfig = loadedData.MacroConfig or {}
+        print("LogArray loaded from JSON file at:", filePath)
+            
+        return true
+    else
+        warn("Failed to open file for reading:", filePath)
     end
-    
-    local HttpService = game:GetService("HttpService")
-    local json = readfile(filePath)
-    local loadedData = HttpService:JSONDecode(json)
-    printTable(loadedData)
-    logArray = loadedData.Steps or {}
-    macroConfig = loadedData.MacroConfig or {}
-    return true
+    return false
 end
 
 local function playMacro()
@@ -850,27 +875,7 @@ local function restoreGame()
     table.clear(originalProperties)
 end
 
-local function printTable(tbl, indent)
-    -- Default indentation level
-    indent = indent or 0
 
-    -- Iterate through the table
-    for key, value in pairs(tbl) do
-        -- Create indentation string
-        local indentation = string.rep("  ", indent)
-
-        -- Handle different types of values
-        if type(value) == "table" then
-            -- If the value is a table, print the key and recurse
-            print(indentation .. tostring(key) .. ": {")
-            printTable(value, indent + 1)
-            print(indentation .. "}")
-        else
-            -- Print the key-value pair
-            print(indentation .. tostring(key) .. ": " .. tostring(value))
-        end
-    end
-end
 
 local function saveMacro(macroName, macroData)
     if macroName then
