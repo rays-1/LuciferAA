@@ -475,16 +475,12 @@ local function playMacro()
         macroPlaying = nil
     end
     macroPlaying = task.spawn(function ()
-        print("You're here..")
         isMacroPlaying = true
-        print("You're here..")
         for i, stepData in ipairs(logArray) do
             if isMacroPlaying == false then break end
             printTable(stepData)
-            print("You're here..")
             local stepString = argumentsToString(stepData)
             notify("Step ["..i.."]: "..stepString)
-            print("Replaying Step ["..i.."]: "..stepString)
             if stepData.type == "spawn_unit" then
                 local unitName = findUID(stepData.unit)
                 local cframe = StringToCFrame(stepData.cframe)
@@ -1671,7 +1667,7 @@ RecordMacro:OnChanged(function(value)
                 logArray = {}
                 notify("Recording Started",Options.SelectMacro.Value)
             else
-                saveMacro(Options.SelectMacro.Value,logArray)
+                saveMacro(Options.SelectMacro.Value,{MacroConfig = macroConfig, Steps = logArray})
                 notify("Recording Saved",Options.SelectMacro.Value)
                 print("Recording stopped. Total actions:", #logArray)
             end
