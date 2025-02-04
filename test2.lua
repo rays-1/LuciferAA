@@ -1610,7 +1610,7 @@ local CreateMacro = macroRecorder:AddInput("CreateMacro",{
     Default = "",
     Finished = false,
     Callback = function (value)
-        if value ~= "" then
+        if value ~= "" and Options.CreateMacro.Finished then
             notify("Macro Created",value)
             saveMacro(value, {})
             refreshMacroList()
