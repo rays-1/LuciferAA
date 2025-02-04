@@ -329,17 +329,17 @@ local isMacroPlaying = false
 local teleportClickCount = 0
 local isTeleporting = false
 local friendIsIn = false
+local macroConfig = {
+    GameMode = "",
+    Name = ""
+}
 
 if game.PlaceId ~= CONSTANTS.TELEPORT_ID then
     local p = workspace._MAP_CONFIG.GetLevelData:InvokeServer()
-    local macroConfig = {
-        GameMode = p["_gamemode"],
-        Name = p["_location_name"]
-    } 
-    
+    macroConfig.GameMode = p["_gamemode"]
+    macroConfig.Name = p["_location_name"]
 end
 
--- Macro Functions
 -- Macro Functions
 local function StringToCFrame(String)
     local Split = string.split(String, ",")
