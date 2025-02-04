@@ -368,7 +368,6 @@ local function logArguments(remoteName, ...)
 
     local args = {...}
     local stepData = {}
-    local timestamp = os.clock() - macroStartTime
     
     if remoteName == "spawn_unit" then
         local unitName = profileData["owned_units"][args[1]]["unit_id"]
@@ -378,8 +377,7 @@ local function logArguments(remoteName, ...)
             type = "spawn_unit",
             unit = unitName,
             cframe = tostring(cframe),
-            cost = cost,
-            time = timestamp
+            cost = cost
         }
     elseif remoteName == "upgrade_unit_ingame" then
         local unitInstance = args[1]
@@ -390,16 +388,14 @@ local function logArguments(remoteName, ...)
         stepData = {
             type = "upgrade_unit_ingame",
             cframe = tostring(cframe),
-            cost = cost,
-            time = timestamp
+            cost = cost
         }
     elseif remoteName == "sell_unit_ingame" then
         local unitInstance = args[1]
         local cframe = unitInstance.PrimaryPart and unitInstance._shadow.CFrame or CFrame.new()
         stepData = {
             type = "sell_unit_ingame",
-            cframe = tostring(cframe),
-            time = timestamp
+            cframe = tostring(cframe)
         }
     end
     
@@ -1746,13 +1742,7 @@ if CONFIG.autoSellConfig.AutoSellEnabled then
     startMonitoring()
 end
 
-SaveManager:SetLibrary(Fluent)
-InterfaceManager:SetLibrary(Fluent)
-SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes({})
-InterfaceManager:SetFolder("FluentScriptHub")
-SaveManager:SetFolder("FluentScriptHub/specific-game")
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-SaveManager:BuildConfigSection(Tabs.Settings)
+InterfaceManager:SetFolder("LuciferScriptHub")
+SaveManager:SetFolder("LuciferScriptHub/Anime_Adventures")
 notify("Lucifer", "The script has been loaded.")
 SaveManager:LoadAutoloadConfig()
