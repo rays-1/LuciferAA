@@ -469,11 +469,12 @@ end
 
 
 local function playMacro()
-    if isMacroPlaying or macroPlaying then return end
+    if isMacroPlaying or (macroPlaying == nil) then return end
     macroPlaying = task.spawn(function ()
         isMacroPlaying = true
         for i, stepData in ipairs(logArray) do
             local stepString = argumentsToString(stepData)
+            notify("Step ["..i.."]: "..stepString)
             print("Replaying Step ["..i.."]: "..stepString)
             if stepData.type == "spawn_unit" then
                 local unitName = findUID(stepData.unit)
