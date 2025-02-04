@@ -1614,6 +1614,7 @@ local CreateMacro = macroRecorder:AddInput("CreateMacro",{
             notify("Macro Created",value)
             saveMacro(value, {})
             refreshMacroList()
+            CreateMacro:SetValue("")
         end
     end
 })
