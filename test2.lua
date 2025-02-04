@@ -470,13 +470,16 @@ end
 
 
 local function playMacro()
-    print(macroPlaying ~= nil)
-    if macroPlaying ~= nil then return end
+    if macroPlaying ~= nil then 
+        task.cancel(macroPlaying)    
+        macroPlaying = nil
+    end
     macroPlaying = task.spawn(function ()
         print("You're here..")
         isMacroPlaying = true
         print("You're here..")
         for i, stepData in ipairs(logArray) do
+            if isMacroPlaying == false then break end
             printTable(stepData)
             print("You're here..")
             local stepString = argumentsToString(stepData)
@@ -487,12 +490,14 @@ local function playMacro()
                 local cframe = StringToCFrame(stepData.cframe)
                 local cost = stepData.cost
                 repeat task.wait() until game:GetService("Players").LocalPlayer._stats.resource.Value >= cost
+                if isMacroPlaying == false then break end
                 spawnUnitRemote:InvokeServer(unitName, cframe)
             elseif stepData.type == "upgrade_unit_ingame" then
                 local cframe = StringToCFrame(stepData.cframe).Position
                 local targetUnit = nil
                 local cost = stepData.cost
                 repeat task.wait() until game:GetService("Players").LocalPlayer._stats.resource.Value >= cost
+                if isMacroPlaying == false then break end
                 for _, unit in ipairs(workspace._UNITS:GetChildren()) do
                     local playr = unit:FindFirstChild("_stats"):FindFirstChild("player")
                     if playr and tostring(unit._stats.player.Value) == game.Players.LocalPlayer.Name then
