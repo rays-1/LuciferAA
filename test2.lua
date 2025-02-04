@@ -440,21 +440,18 @@ end
 
 local function loadMacro(macroName)
     local filePath = macroDirectory .. "/" .. macroName .. ".json"
-    local file = io.open(filePath, "r")
-    if file then
-        local json = file:read("*a")
-        file:close()
-        local loadedData = game:GetService("HttpService"):JSONDecode(json)
-        printTable(loadedData)
-        logArray = loadedData.Steps or {}
-        macroConfig = loadedData.MacroConfig or {}
-        print("LogArray loaded from JSON file at:", filePath)
-            
-        return true
-    else
-        warn("Failed to open file for reading:", filePath)
+    if not isfile(filePath) then
+        warn("File does not exist:", filePath)
+        return
     end
-    return false
+    local HttpService = game:GetService("HttpService")
+    local json = readfile(filePath)
+    local loadedData = HttpService:JSONDecode(json)
+    macroConfig = loadedData.MacroConfig or {}
+    logArray = loadedData.Steps or {}
+    printTable(loadedData)
+
+    return true
 end
 
 local function playMacro()
