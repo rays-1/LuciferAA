@@ -36,7 +36,7 @@ local CONFIG = {
         enabled = false,
         friendOnly = false,
         lobby = "",
-        hardMode = "Normal",
+        hardMode = false,
         worldJoinerConfig = {
             World = "Planet Greenie",
             Act = "Act 1"
@@ -993,7 +993,7 @@ local function lockInLevel()
         [1] = CONFIG.joinerConfig.lobby,
         [2] = CONFIG.joinerConfig.worldJoinerConfig.Act,
         [3] = CONFIG.joinerConfig.friendOnly,
-        [4] = CONFIG.joinerConfig.hardMode
+        [4] = CONFIG.joinerConfig.hardMode and "Hard" or "Normal"
     }
     if CONFIG.joinerConfig.worldJoinerConfig.Act == "Infinite" then
         args[4] = "Hard"
@@ -1339,9 +1339,9 @@ local HardMode = joinerSets:AddToggle("hardModeToggle", {
     Default = CONFIG.joinerConfig.hardMode,
     Callback = function(Value)
         if Value then
-           CONFIG.joinerConfig.hardMode = "Hard"
+           CONFIG.joinerConfig.hardMode = true
         else
-            CONFIG.joinerConfig.hardMode = "Normal"
+            CONFIG.joinerConfig.hardMode = false
         end
     end
 })
@@ -1544,6 +1544,7 @@ local LegendJoiner = autoJoinLegenSection:AddToggle("JoinLegenEnabled", {
     Default = CONFIG.joinerLegendConfig.enabled,
     Callback = function(Value)
         CONFIG.joinerLegendConfig.enabled = Value
+        
         if CONFIG.joinerLegendConfig.enabled then
            startJoinLegend()
         else
