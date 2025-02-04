@@ -476,6 +476,7 @@ local function playMacro()
     end
     macroPlaying = task.spawn(function ()
         isMacroPlaying = true
+        printTable(logArray)
         for i, stepData in ipairs(logArray) do
             if isMacroPlaying == false then break end
             printTable(stepData)
@@ -903,6 +904,7 @@ local function saveMacro(macroName, macroData)
     if macroName then
         local filePath = "LuciferMacros" .. "/" .. macroName .. ".json"
         local HttpService = game:GetService("HttpService")
+        printTable(macroData)
         local json = HttpService:JSONEncode(macroData)
         writefile(filePath, json)
         print("Macro saved to:", filePath) 
