@@ -123,6 +123,7 @@ local SaveManager = {} do
 		end
 
 		return true
+        
 	end
 
 	function SaveManager:IgnoreThemeSettings()

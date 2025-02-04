@@ -37,12 +37,12 @@ local InterfaceManager = {} do
 		end
 	end
 
-    function InterfaceManager:SaveSettings()
-        writefile(self.Folder .. "/options.json", httpService:JSONEncode(InterfaceManager.Settings))
+    function InterfaceManager:SaveSettings(name)
+        writefile(self.Folder .. "/"..name..".json", httpService:JSONEncode(InterfaceManager.Settings))
     end
 
-    function InterfaceManager:LoadSettings()
-        local path = self.Folder .. "/options.json"
+    function InterfaceManager:LoadSettings(name)
+        local path = self.Folder .. "/"..name..".json"
         if isfile(path) then
             local data = readfile(path)
             local success, decoded = pcall(httpService.JSONDecode, httpService, data)

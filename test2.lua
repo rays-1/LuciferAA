@@ -168,6 +168,7 @@ local Fluent = attemptLoad("https://raw.githubusercontent.com/rays-1/LuciferAA/r
 local SaveManager = attemptLoad("https://raw.githubusercontent.com/rays-1/LuciferAA/refs/heads/main/SM.lua", CONSTANTS.MAX_ATTEMPTS)
 local InterfaceManager = attemptLoad("https://raw.githubusercontent.com/rays-1/LuciferAA/refs/heads/main/IM.lua", CONSTANTS.MAX_ATTEMPTS)
 local SimpleSpy = attemptLoad("https://github.com/exxtremestuffs/SimpleSpySource/raw/master/SimpleSpy.lua",CONSTANTS.MAX_ATTEMPTS)
+local configDir = game.Players.LocalPlayer.Name.."LuciferConfig"
 -- Load Loader Module
 for attempt = 1, CONSTANTS.MAX_ATTEMPTS do
     local success, result = pcall(function()
@@ -285,6 +286,21 @@ local Tabs = {
     Misc = Window:AddTab({ Title = "Misc", Icon = "box" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
+
+SaveManager:SetLibrary(Fluent)
+SaveManager:BuildConfigSection(Tabs.Settings)
+SaveManager:BuildFolderTree()
+SaveManager:SetFolder("LuciferScriptHub/Anime_Adventures")
+InterfaceManager:SetLibrary(Fluent)
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+InterfaceManager:SetFolder("LuciferScriptHub")
+-- Load settings at startup
+local success, err = SaveManager:Load(configDir)
+if not success then
+    warn("Failed to load settings:", err)
+else
+    print("Settings loaded successfully!")
+end
 
 local MainWelcome = Tabs.Main:AddSection("Welcome to Lucifer", 1)
 local MainActions = Tabs.Main:AddSection("Quick Actions", 2)
@@ -1750,10 +1766,12 @@ if CONFIG.autoSellConfig.AutoSellEnabled then
     startMonitoring()
 end
 
-SaveManager:SetLibrary(Fluent)
-InterfaceManager:SetLibrary(Fluent)
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-SaveManager:BuildConfigSection(Tabs.Settings)
-InterfaceManager:SetFolder("LuciferScriptHub")
-SaveManager:SetFolder("LuciferScriptHub/Anime_Adventures")
+for idx, option in pairs(Fluent.Options) do
+    if option.OnChanged then
+        option:OnChanged(function()
+            SaveManager:Save(configDir) -- Save the current state to a config file
+        end)
+    end
+end
+
 notify("Lucifer", "The script has been loaded.")
