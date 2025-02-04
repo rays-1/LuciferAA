@@ -24,9 +24,11 @@ local CONFIG = {
     },
     friendJoinerConfig = {
         name = "",
+        enabled = false
     },
     friendWaiterConfig = {
-        name = ""
+        name = "",
+        enabled = false
     },
     joinerConfig = {
         waitForFriend = false,
@@ -37,7 +39,7 @@ local CONFIG = {
         hardMode = "Normal",
         worldJoinerConfig = {
             World = "Planet Greenie",
-            Act = nil -- Will be loaded later
+            Act = "Act 1"
         }
     },
     joinerChallConfig = {
@@ -67,8 +69,13 @@ local CONFIG = {
     },
     MacroConfig = {
         SelectedMacro = "",
+        PlayingMacro = false,
         WorldsMacro = {
-
+            Story = {},
+            Infinite = {},
+            Challenge = {},
+            Legend = {},
+            Raid = {}
         }
     },
     DEBUG_MODE = true,
@@ -300,10 +307,6 @@ local macroRecorder = Tabs.Macro:AddSection("Macro Recorder",1)
 Tabs["Farm Config"]:AddSection("Combat Settings", 1)
 Tabs["Farm Config"]:AddSection("Target Filters", 2)
 
-SaveManager:SetLibrary(Fluent)
-InterfaceManager:SetLibrary(Fluent)
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-SaveManager:BuildConfigSection(Tabs.Settings)
 Window:SelectTab(1)
 
 -- Thread Variables
@@ -845,7 +848,7 @@ local function optimizeGame()
                 print(string.format("Optimized Texture: %s", descendant:GetFullName()))
             end
         end
-           task.wait()
+        task.wait()
     end
 end
 
@@ -1325,7 +1328,7 @@ local autoJoinEnable = autoJoinWorldSection:AddToggle("autoJoinEnable", {
 })
 local HardMode = joinerSets:AddToggle("hardModeToggle", {
     Title = "Enable Hard Mode",
-    Default = false,
+    Default = CONFIG.joinerConfig.hardMode,
     Callback = function(Value)
         if Value then
            CONFIG.joinerConfig.hardMode = "Hard"
@@ -1336,7 +1339,7 @@ local HardMode = joinerSets:AddToggle("hardModeToggle", {
 })
 local TimetoLock = joinerSets:AddSlider("TimeToLock",{
     Title = "Wait Seconds To Start",
-    Default = 0,
+    Default = CONFIG.joinerConfig.waitTil,
     Min = 0,
     Max = 20,
     Rounding = 1,
@@ -1349,7 +1352,7 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Title = "Select Act",
     Description = "Pick an act to join",
     Values = getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World),
-    Default = "Act 1",
+    Default = CONFIG.joinerConfig.worldJoinerConfig.Act,
     Multi = false,
     Callback = function(Value)
         CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Value]
@@ -1384,12 +1387,23 @@ AutoSellEnabledToggle:OnChanged(function()
     end
 end)
 
+local function getDefaultRarities()
+    local values = {
+        ["Rare"] = CONFIG.autoSellConfig.Rare,
+        ["Epic"] = CONFIG.autoSellConfig.Epic,
+        ["Legendary"] = CONFIG.autoSellConfig.Legendary
+    }
+
+    return values
+end
+
+
 local RarityMultiDropdown = Tabs.Shop:AddDropdown("RarityMultiDropdown", {
     Title = "Auto Sell Rarities",
     Description = "Select which rarities to auto sell",
     Values = {"Rare", "Epic", "Legendary"},
     Multi = true,
-    Default = {},
+    Default = getDefaultRarities()
 })
 
 RarityMultiDropdown:OnChanged(function(Value)
@@ -1424,10 +1438,10 @@ end)
 local FriendJoiner = friendSection:AddToggle("FriendJoinerEnabled", { Title = "Enable Friend Joiner", Description = "Must be used by ALT account",Default = false })
 local FriendJoinName = friendSection:AddInput("Name", {
     Title = "Join Who?",
-    Default = "",
+    Default = CONFIG.friendJoinerConfig.name,
     Numeric = false,
-    Finished = false,
-    Placeholder = "",
+    Finished = true,
+    Placeholder = "Enter name of who to join...",
     Callback = function(Value)
        CONFIG.friendJoinerConfig.name = Value
     end
@@ -1435,10 +1449,10 @@ local FriendJoinName = friendSection:AddInput("Name", {
 local FriendWaiter = friendSection:AddToggle("FriendWaiterEnabled", { Title = "Enable Friend Waiter", Description = "Must be used by MAIN account", Default = false })
 local FriendWaitName = friendSection:AddInput("Name", {
     Title = "Wait Who?",
-    Default = "",
+    Default = CONFIG.friendWaiterConfig.name,
     Numeric = false,
-    Finished = false,
-    Placeholder = "",
+    Finished = true,
+    Placeholder = "Enter name of who to wait for...",
     Callback = function(Value)
        CONFIG.friendWaiterConfig.name = Value
     end
@@ -1470,7 +1484,7 @@ end)
 local ChallJoiner = autoJoinChallSection:AddToggle("JoinChallEnabled", {
     Title = "Enable Challenge Joiner",
     Description = "Auto Join Challenge",
-    Default = false
+    Default = CONFIG.joinerChallConfig.enabled
 })
 ChallJoiner:OnChanged(function()
     CONFIG.joinerChallConfig.enabled = Options.JoinChallEnabled.Value
@@ -1486,12 +1500,10 @@ local challSelectChall = autoJoinChallSection:AddDropdown("SelectChallenge", {
     Description = "Select which challenges to do",
     Values = getChallenges(),
     Multi = true,
-    Default = {},
+    Default = CONFIG.joinerChallConfig.selectChall,
     Callback = function (Value)
         print(Value)
-        CONFIG.joinerChallConfig.selectChall = {
-            Value
-        }
+        CONFIG.joinerChallConfig.selectChall = Value
     end
 })
 
@@ -1500,12 +1512,10 @@ local challSelectRew = autoJoinChallSection:AddDropdown("SelectReward", {
     Description = "Select which rewards to get",
     Values = getRewards(),
     Multi = true,
-    Default = {},
+    Default = CONFIG.joinerChallConfig.selectRew,
     Callback = function (Value)
         print(Value)
-        CONFIG.joinerChallConfig.selectRew = {
-            Value
-        }
+        CONFIG.joinerChallConfig.selectRew = Value
     end
 })
 
@@ -1514,12 +1524,10 @@ local challSelectWorld = autoJoinChallSection:AddDropdown("SelectWorld", {
     Description = "Select which worlds to do",
     Values = worldNames,
     Multi = true,
-    Default = {},
+    Default = CONFIG.joinerChallConfig.selectWorld,
     Callback = function (Value)
         print(Value)
-        CONFIG.joinerChallConfig.selectWorld = {
-            Value
-        }
+        CONFIG.joinerChallConfig.selectWorld = Value
     end
 })
 
@@ -1603,10 +1611,10 @@ local SelectMacro = macroRecorder:AddDropdown("SelectMacro",{
     Title = "Select Macro",
     Description = "Select Macro to Record/Play",
     Values = {},
-    Default = "",
+    Default = CONFIG.MacroConfig.SelectedMacro,
     Multi = false,
     Callback = function (Value)
-        
+        CONFIG.MacroConfig.SelectedMacro = Value
     end
 })
 
@@ -1641,12 +1649,12 @@ local CreateMacro = macroRecorder:AddInput("CreateMacro",{
 
 local RecordMacro = macroRecorder:AddToggle("RecordMacro",{
     Title = "Record Macro",
-    Default = false,
+    Default = false
 })
 
 local PlayMacro = macroRecorder:AddToggle("PlayMacro",{
     Title = "Play Macro",
-    Default = false,
+    Default = CONFIG.MacroConfig.PlayingMacro
 })
 
 RecordMacro:OnChanged(function(value)
@@ -1742,7 +1750,10 @@ if CONFIG.autoSellConfig.AutoSellEnabled then
     startMonitoring()
 end
 
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
 InterfaceManager:SetFolder("LuciferScriptHub")
 SaveManager:SetFolder("LuciferScriptHub/Anime_Adventures")
 notify("Lucifer", "The script has been loaded.")
-SaveManager:LoadAutoloadConfig()
