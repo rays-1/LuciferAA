@@ -1627,38 +1627,48 @@ local PlayMacro = macroRecorder:AddToggle("PlayMacro",{
 })
 
 RecordMacro:OnChanged(function(value)
-    if Options.SelectMacro.Value == nil then
+    if not Options.SelectMacro or not Options.SelectMacro.Value then
         notify("Select a Macro","Unable to record...")
         RecordMacro:SetValue(false)
+        return
     else
-        isRecording = value
-        if value then
-            macroStartTime = os.clock()
-            logArray = {}
-            notify("Recording Started",Options.SelectMacro.Value)
+        if Options.PlayMacro.Value then
+            notify("Turning off Macro to record..")
         else
-            saveMacro(Options.SelectMacro.Value,logArray)
-            notify("Recording Saved",Options.SelectMacro.Value)
-            print("Recording stopped. Total actions:", #logArray)
+            isRecording = value
+            if value then
+                macroStartTime = os.clock()
+                logArray = {}
+                notify("Recording Started",Options.SelectMacro.Value)
+            else
+                saveMacro(Options.SelectMacro.Value,logArray)
+                notify("Recording Saved",Options.SelectMacro.Value)
+                print("Recording stopped. Total actions:", #logArray)
+            end
         end
     end
 end)
 
 PlayMacro:OnChanged(function(value)
-    if Options.SelectMacro.Value == nil then
-        notify("Select a Macro","Unable to record...")
+    if not Options.SelectMacro or not Options.SelectMacro.Value then
+        notify("Select a Macro", "Unable to play macro...")
         PlayMacro:SetValue(false)
+        return
     else
-        isMacroPlaying = value
-        if value then
-            if loadMacro(Options.SelectMacro.Value) then
-                notify("Playing Macro",Options.SelectMacro.Value)
-                playMacro()
-            else
-                notify("Error Loading Macro",Options.SelectMacro.Value)
-            end
+        if Options.RecordMacro.Value then
+            notify("Turning off Recorder to record.")
         else
-            notify("Macro Stopped",Options.SelectMacro.Value)
+            isMacroPlaying = value
+            if value then
+                if loadMacro(Options.SelectMacro.Value) then
+                    notify("Playing Macro", Options.SelectMacro.Value)
+                    playMacro()
+                else
+                    notify("Error Loading Macro", Options.SelectMacro.Value)
+                end
+            else
+                notify("Macro Stopped", Options.SelectMacro.Value)
+            end
         end
     end
 end)
