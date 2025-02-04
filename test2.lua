@@ -1608,9 +1608,9 @@ local CreateMacro = macroRecorder:AddInput("CreateMacro",{
     Title = "Create Macro",
     Placeholder = "Enter name here..",
     Default = "",
-    Finished = false,
+    Finished = true,
     Callback = function (value)
-        if value ~= "" and Options.CreateMacro.Finished then
+        if value ~= "" then
             notify("Macro Created",value)
             saveMacro(value, {})
             refreshMacroList()
