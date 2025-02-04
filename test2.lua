@@ -286,14 +286,6 @@ local Tabs = {
     Misc = Window:AddTab({ Title = "Misc", Icon = "box" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
-
-SaveManager:SetLibrary(Fluent)
-SaveManager:BuildConfigSection(Tabs.Settings)
-SaveManager:BuildFolderTree()
-SaveManager:SetFolder("LuciferScriptHub/Anime_Adventures")
-InterfaceManager:SetLibrary(Fluent)
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-InterfaceManager:SetFolder("LuciferScriptHub")
 -- Load settings at startup
 local success, err = SaveManager:Load(configDir)
 if not success then
@@ -1774,4 +1766,11 @@ for idx, option in pairs(Fluent.Options) do
     end
 end
 
+SaveManager:SetLibrary(Fluent)
+SaveManager:BuildConfigSection(Tabs.Settings)
+SaveManager:BuildFolderTree()
+SaveManager:SetFolder("LuciferScriptHub/Anime_Adventures")
+InterfaceManager:SetLibrary(Fluent)
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+InterfaceManager:SetFolder("LuciferScriptHub")
 notify("Lucifer", "The script has been loaded.")
