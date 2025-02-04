@@ -78,12 +78,12 @@ local SaveManager = {} do
 		self:BuildFolderTree()
 	end
 
-	function SaveManager:Save(name)
+	function SaveManager:Save(dir)
 		if (not name) then
 			return false, "no config file is selected"
 		end
 
-		local fullPath = self.Folder .. "/settings/" .. name .. ".json"
+		local fullPath = self.Folder .. "/settings/" .. dir .. ".json"
 
 		local data = {
 			objects = {}
@@ -105,12 +105,12 @@ local SaveManager = {} do
 		return true
 	end
 
-	function SaveManager:Load(name)
+	function SaveManager:Load(dir)
 		if (not name) then
 			return false, "no config file is selected"
 		end
 		
-		local file = self.Folder .. "/settings/" .. name .. ".json"
+		local file = self.Folder .. "/settings/" .. dir .. ".json"
 		if not isfile(file) then return false, "invalid file" end
 
 		local success, decoded = pcall(httpService.JSONDecode, httpService, readfile(file))
