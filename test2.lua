@@ -442,17 +442,29 @@ local function loadMacro(macroName)
     local filePath = macroDirectory .. "/" .. macroName .. ".json"
     if not isfile(filePath) then
         warn("File does not exist:", filePath)
-        return
+        return false
     end
+
     local HttpService = game:GetService("HttpService")
-    local json = readfile(filePath)
-    local loadedData = HttpService:JSONDecode(json)
+    local success, json = pcall(readfile, filePath)
+    if not success then
+        warn("Failed to read file:", filePath)
+        return false
+    end
+
+    local success, loadedData = pcall(HttpService.JSONDecode, HttpService, json)
+    if not success then
+        warn("Failed to decode JSON:", filePath)
+        return false
+    end
+
     macroConfig = loadedData.MacroConfig or {}
     logArray = loadedData.Steps or {}
     printTable(loadedData)
-
     return true
 end
+
+
 
 local function playMacro()
     if isMacroPlaying then return end
