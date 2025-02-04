@@ -470,10 +470,15 @@ end
 
 
 local function playMacro()
+    print(macroPlaying ~= nil)
     if macroPlaying ~= nil then return end
     macroPlaying = task.spawn(function ()
+        print("You're here..")
         isMacroPlaying = true
+        print("You're here..")
         for i, stepData in ipairs(logArray) do
+            printTable(stepData)
+            print("You're here..")
             local stepString = argumentsToString(stepData)
             notify("Step ["..i.."]: "..stepString)
             print("Replaying Step ["..i.."]: "..stepString)
