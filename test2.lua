@@ -169,6 +169,8 @@ local Fluent = attemptLoad("https://raw.githubusercontent.com/discoart/FluentPlu
 local SaveManager = attemptLoad("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua", CONSTANTS.MAX_ATTEMPTS)
 local InterfaceManager = attemptLoad("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua", CONSTANTS.MAX_ATTEMPTS)
 local SimpleSpy = attemptLoad("https://github.com/exxtremestuffs/SimpleSpySource/raw/master/SimpleSpy.lua",CONSTANTS.MAX_ATTEMPTS)
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
 -- Load Loader Module
 for attempt = 1, CONSTANTS.MAX_ATTEMPTS do
     local success, result = pcall(function()
@@ -1839,8 +1841,6 @@ if CONFIG.autoSellConfig.AutoSellEnabled then
     startMonitoring()
 end
 
-SaveManager:SetLibrary(Fluent)
-InterfaceManager:SetLibrary(Fluent)
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 InterfaceManager:SetFolder("LuciferScriptHub")
