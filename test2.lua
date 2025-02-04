@@ -426,6 +426,7 @@ local function loadMacro(macroName)
     local HttpService = game:GetService("HttpService")
     local json = readfile(filePath)
     local loadedData = HttpService:JSONDecode(json)
+    printTable(loadedData)
     logArray = loadedData.Steps or {}
     macroConfig = loadedData.MacroConfig or {}
     return true
@@ -434,16 +435,7 @@ end
 local function playMacro()
     if isMacroPlaying then return end
     isMacroPlaying = true
-    
-    local startTime = os.clock()
     for i, stepData in ipairs(logArray) do
-        local elapsedTime = os.clock() - startTime
-        local waitTime = stepData.time - elapsedTime
-        
-        if waitTime > 0 then
-            task.wait(waitTime)
-        end
-        
         local stepString = argumentsToString(stepData)
         print("Replaying Step ["..i.."]: "..stepString)
         if stepData.type == "spawn_unit" then
@@ -1641,10 +1633,10 @@ RecordMacro:OnChanged(function(value)
         if value then
             macroStartTime = os.clock()
             logArray = {}
-            notify("Recording Started","")
+            notify("Recording Started",Options.SelectMacro.Value)
         else
             saveMacro(Options.SelectMacro.Value,logArray)
-            notify("Recording Saved","")
+            notify("Recording Saved",Options.SelectMacro.Value)
             print("Recording stopped. Total actions:", #logArray)
         end
     end
@@ -1655,7 +1647,7 @@ PlayMacro:OnChanged(function(value)
         notify("Select a Macro","Unable to record...")
         PlayMacro:SetValue(false)
     else
-        isPlaying = value
+        isMacroPlaying = value
         if value then
             if loadMacro(Options.SelectMacro.Value) then
                 notify("Playing Macro",Options.SelectMacro.Value)
