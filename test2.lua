@@ -192,7 +192,7 @@ local equippedUnits = profileData.equipped_units
 
 function SaveManager:AutoSave(name)
     if not name then
-        return false, "no config file is selected"
+        return false, "No config file is selected"
     end
     local fullPath = self.Folder .. "/" .. name .. ".json"
     local data = {
@@ -204,35 +204,48 @@ function SaveManager:AutoSave(name)
                 table.insert(data.objects, self.Parser[option.Type].Save(idx, option))
             end
         end
-    end    
+    end
     local success, encoded = pcall(httpService.JSONEncode, httpService, data)
     if not success then
-        return false, "failed to encode data"
+        return false, "Failed to encode data"
     end
     writefile(fullPath, encoded)
     return true
 end
+
 function SaveManager:AutoLoad(name)
     if not name then
-        return false, "no config file is selected"
+        return false, "No config file is selected"
     end
     local file = self.Folder .. "/" .. name .. ".json"
-    if not isfile(file) then 
-        return false, "Create Config Save File" 
+    if not isfile(file) then
+        return false, "Create Config Save File"
     end
     local success, decoded = pcall(httpService.JSONDecode, httpService, readfile(file))
-    if not success then 
-        return false, "decode error" 
+    if not success then
+        return false, "Decode error"
     end
     for _, option in next, decoded.objects do
         if self.Parser[option.type] and not self.Ignore[option.idx] then
-            task.spawn(function() 
-                self.Parser[option.type].Load(option.idx, option) 
-            end) -- task.spawn() so the config loading won't get stuck.
+            task.spawn(function()
+                self.Parser[option.type].Load(option.idx, option)
+            end)
         end
     end
     Fluent.SettingLoaded = true
     return true, decoded
+end
+
+-- Auto-load the configuration based on the player's username
+local configDir = game.Players.LocalPlayer.Name .. "LuciferConfig"
+local success, result = SaveManager:AutoLoad(configDir)
+if not success then
+    notify("Auto-Load Failed", result)
+    -- Create a new configuration file if loading fails
+    SaveManager:AutoSave(configDir)
+    notify("New Config Created", "Configuration file created for " .. configDir)
+else
+    notify("Auto-Load Successful", "Configuration loaded for " .. configDir)
 end
 
 local function createAutoSaveToggle(section, id, config)
@@ -241,20 +254,9 @@ local function createAutoSaveToggle(section, id, config)
         -- Update the configuration value
         CONFIG[id] = value
         -- Auto-save the configuration
-        SaveManager:AutoSave(game.Players.LocalPlayer.Name)
+        SaveManager:AutoSave(game.Players.LocalPlayer.Name .. "LuciferConfig")
     end)
     return toggle
-end
-
-local function createAutoSaveInput(section, id, config)
-    local input = section:AddInput(id, config)
-    input:OnChanged(function(value)
-        -- Update the configuration value
-        CONFIG[id] = value
-        -- Auto-save the configuration
-        SaveManager:AutoSave(game.Players.LocalPlayer.Name)
-    end)
-    return input
 end
 
 local function createAutoSaveDropdown(section, id, config)
@@ -263,7 +265,7 @@ local function createAutoSaveDropdown(section, id, config)
         -- Update the configuration value
         CONFIG[id] = value
         -- Auto-save the configuration
-        SaveManager:AutoSave(game.Players.LocalPlayer.Name)
+        SaveManager:AutoSave(game.Players.LocalPlayer.Name .. "LuciferConfig")
     end)
     return dropdown
 end
@@ -274,11 +276,21 @@ local function createAutoSaveSlider(section, id, config)
         -- Update the configuration value
         CONFIG[id] = value
         -- Auto-save the configuration
-        SaveManager:AutoSave(game.Players.LocalPlayer.Name)
+        SaveManager:AutoSave(game.Players.LocalPlayer.Name .. "LuciferConfig")
     end)
     return slider
 end
 
+local function createAutoSaveInput(section, id, config)
+    local input = section:AddInput(id, config)
+    input:OnChanged(function(value)
+        -- Update the configuration value
+        CONFIG[id] = value
+        -- Auto-save the configuration
+        SaveManager:AutoSave(game.Players.LocalPlayer.Name .. "LuciferConfig")
+    end)
+    return input
+end
 
 -- Get World Data
 local Worlds = {}
