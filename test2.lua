@@ -470,7 +470,7 @@ end
 
 
 local function playMacro()
-    if isMacroPlaying or (macroPlaying == nil) then return end
+    if macroPlaying == nil then return end
     macroPlaying = task.spawn(function ()
         isMacroPlaying = true
         for i, stepData in ipairs(logArray) do
