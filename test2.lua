@@ -881,11 +881,13 @@ local function printTable(tbl, indent)
 end
 
 local function saveMacro(macroName, macroData)
-    local filePath = "LuciferMacros" .. "/" .. macroName .. ".json"
-    local HttpService = game:GetService("HttpService")
-    local json = HttpService:JSONEncode(macroData)
-    writefile(filePath, json)
-    print("Macro saved to:", filePath)
+    if macroName then
+        local filePath = "LuciferMacros" .. "/" .. macroName .. ".json"
+        local HttpService = game:GetService("HttpService")
+        local json = HttpService:JSONEncode(macroData)
+        writefile(filePath, json)
+        print("Macro saved to:", filePath) 
+    end
 end
 
 local function tableContains(tbl, value)
@@ -1649,11 +1651,21 @@ RecordMacro:OnChanged(function(value)
 end)
 
 PlayMacro:OnChanged(function(value)
-    if value then
-        if loadMacro(Options.SelectMacro.Value) then
-            playMacro()
-        end
+    if Options.SelectMacro.Value == nil then
+        notify("Select a Macro","Unable to record...")
         PlayMacro:SetValue(false)
+    else
+        isPlaying = value
+        if value then
+            if loadMacro(Options.SelectMacro.Value) then
+                notify("Playing Macro",Options.SelectMacro.Value)
+                playMacro()
+            else
+                notify("Error Loading Macro",Options.SelectMacro.Value)
+            end
+        else
+            notify("Macro Stopped",Options.SelectMacro.Value)
+        end
     end
 end)
 
