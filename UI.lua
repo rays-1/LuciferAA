@@ -1,6 +1,3 @@
----@diagnostic disable: lowercase-global, undefined-global, undefined-field
-
-
 
 --[[             |
 '                |   Last changes:     
@@ -6680,7 +6677,7 @@ local InterfaceManager = {} do
 	end
 
 	function InterfaceManager:SaveSettings()
-		writefile(self.Folder .. "/options.json" httpService:JSONEncode(InterfaceManager.Settings))
+		writefile(self.Folder .. "/options.json".. httpService:JSONEncode(InterfaceManager.Settings))
 	end
 
 	function InterfaceManager:LoadSettings(name)
