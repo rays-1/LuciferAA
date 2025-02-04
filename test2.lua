@@ -313,6 +313,7 @@ local autoJoiningRaid
 local followingPLayer
 local waitingPlayer
 local autoChallenge
+local macroPlaying
 
 -- Macro Variables
 local isRecording = false
@@ -322,6 +323,7 @@ local macroStartTime = 0
 local logArray = {}
 local currUnitNames = {}
 local isMacroPlaying = false
+
 
 -- UI Variables
 local teleportClickCount = 0
@@ -467,58 +469,61 @@ end
 
 
 local function playMacro()
-    if isMacroPlaying then return end
-    isMacroPlaying = true
-    for i, stepData in ipairs(logArray) do
-        local stepString = argumentsToString(stepData)
-        print("Replaying Step ["..i.."]: "..stepString)
-        if stepData.type == "spawn_unit" then
-            local unitName = findUID(stepData.unit)
-            local cframe = StringToCFrame(stepData.cframe)
-            local cost = stepData.cost
-            repeat task.wait() until game:GetService("Players").LocalPlayer._stats.resource.Value >= cost
-            spawnUnitRemote:InvokeServer(unitName, cframe)
-        elseif stepData.type == "upgrade_unit_ingame" then
-            local cframe = StringToCFrame(stepData.cframe).Position
-            local targetUnit = nil
-            local cost = stepData.cost
-            repeat task.wait() until game:GetService("Players").LocalPlayer._stats.resource.Value >= cost
-            for _, unit in ipairs(workspace._UNITS:GetChildren()) do
-                local playr = unit:FindFirstChild("_stats"):FindFirstChild("player")
-                if playr and tostring(unit._stats.player.Value) == game.Players.LocalPlayer.Name then
-                    if unit.PrimaryPart and unit:FindFirstChild("_shadow").CFrame.Position == cframe then
-                        targetUnit = unit
-                        break
-                    end    
+    if isMacroPlaying or macroPlaying then return end
+    macroPlaying = task.spawn(function ()
+        isMacroPlaying = true
+        for i, stepData in ipairs(logArray) do
+            local stepString = argumentsToString(stepData)
+            print("Replaying Step ["..i.."]: "..stepString)
+            if stepData.type == "spawn_unit" then
+                local unitName = findUID(stepData.unit)
+                local cframe = StringToCFrame(stepData.cframe)
+                local cost = stepData.cost
+                repeat task.wait() until game:GetService("Players").LocalPlayer._stats.resource.Value >= cost
+                spawnUnitRemote:InvokeServer(unitName, cframe)
+            elseif stepData.type == "upgrade_unit_ingame" then
+                local cframe = StringToCFrame(stepData.cframe).Position
+                local targetUnit = nil
+                local cost = stepData.cost
+                repeat task.wait() until game:GetService("Players").LocalPlayer._stats.resource.Value >= cost
+                for _, unit in ipairs(workspace._UNITS:GetChildren()) do
+                    local playr = unit:FindFirstChild("_stats"):FindFirstChild("player")
+                    if playr and tostring(unit._stats.player.Value) == game.Players.LocalPlayer.Name then
+                        if unit.PrimaryPart and unit:FindFirstChild("_shadow").CFrame.Position == cframe then
+                            targetUnit = unit
+                            break
+                        end    
+                    end
                 end
-            end
-            if not targetUnit then
-                warn("Failed to find unit with CFrame:", stepData.cframe)
-                continue
-            end
-            upgradeUnitRemote:InvokeServer(targetUnit)
-        elseif stepData.type == "sell_unit_ingame" then
-            local cframe = StringToCFrame(stepData.cframe).Position
-            local targetUnit = nil
-            for _, unit in ipairs(workspace._UNITS:GetChildren()) do
-                local playr = unit:FindFirstChild("_stats"):FindFirstChild("player")
-                if playr and tostring(unit._stats.player.Value) == game.Players.LocalPlayer.Name then
-                    if unit.PrimaryPart and unit:FindFirstChild("_shadow").CFrame.Position == cframe then
-                        targetUnit = unit
-                        break
-                    end    
+                if not targetUnit then
+                    warn("Failed to find unit with CFrame:", stepData.cframe)
+                    continue
                 end
+                upgradeUnitRemote:InvokeServer(targetUnit)
+            elseif stepData.type == "sell_unit_ingame" then
+                local cframe = StringToCFrame(stepData.cframe).Position
+                local targetUnit = nil
+                for _, unit in ipairs(workspace._UNITS:GetChildren()) do
+                    local playr = unit:FindFirstChild("_stats"):FindFirstChild("player")
+                    if playr and tostring(unit._stats.player.Value) == game.Players.LocalPlayer.Name then
+                        if unit.PrimaryPart and unit:FindFirstChild("_shadow").CFrame.Position == cframe then
+                            targetUnit = unit
+                            break
+                        end    
+                    end
+                end
+                if not targetUnit then
+                    warn("Failed to find unit with CFrame:", stepData.cframe)
+                    continue
+                end
+                sellUnitRemote:InvokeServer(targetUnit)
             end
-            if not targetUnit then
-                warn("Failed to find unit with CFrame:", stepData.cframe)
-                continue
-            end
-            sellUnitRemote:InvokeServer(targetUnit)
+            task.wait(1)
         end
-        task.wait(1)
-    end
-    print("Macro playback complete.")
-    isMacroPlaying = false
+        print("Macro playback complete.")
+        isMacroPlaying = false
+        macroPlaying = nil
+    end)
 end
 
 
