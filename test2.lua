@@ -91,6 +91,7 @@ local Loader
 local src = ReplicatedStorage:WaitForChild("src")
 local data = src:WaitForChild("Data")
 local UnitData = require(data.Units)
+local httpService = game:GetService("HttpService")
 local endpoints = ReplicatedStorage:WaitForChild("endpoints")
 local clientToServer = endpoints:WaitForChild("client_to_server")
 local sellEndpoint = clientToServer:WaitForChild("sell_units")
@@ -179,8 +180,6 @@ for attempt = 1, CONSTANTS.MAX_ATTEMPTS do
     end
     task.wait(1)
 end
-
-
 --  Load ItemInventoryService
 local success, err = pcall(function()
     ItemInventoryService = Loader.load_client_service(script, "ItemInventoryServiceClient")
@@ -190,6 +189,96 @@ if not success or not ItemInventoryService then
 end
 local profileData = ItemInventoryService.session.collection.collection_profile_data
 local equippedUnits = profileData.equipped_units
+
+function SaveManager:AutoSave(name)
+    if not name then
+        return false, "no config file is selected"
+    end
+    local fullPath = self.Folder .. "/" .. name .. ".json"
+    local data = {
+        objects = {}
+    }
+    for idx, option in next, SaveManager.Options do
+        if self.Parser[option.Type] then
+            if not self.Ignore[idx] then
+                table.insert(data.objects, self.Parser[option.Type].Save(idx, option))
+            end
+        end
+    end    
+    local success, encoded = pcall(httpService.JSONEncode, httpService, data)
+    if not success then
+        return false, "failed to encode data"
+    end
+    writefile(fullPath, encoded)
+    return true
+end
+function SaveManager:AutoLoad(name)
+    if not name then
+        return false, "no config file is selected"
+    end
+    local file = self.Folder .. "/" .. name .. ".json"
+    if not isfile(file) then 
+        return false, "Create Config Save File" 
+    end
+    local success, decoded = pcall(httpService.JSONDecode, httpService, readfile(file))
+    if not success then 
+        return false, "decode error" 
+    end
+    for _, option in next, decoded.objects do
+        if self.Parser[option.type] and not self.Ignore[option.idx] then
+            task.spawn(function() 
+                self.Parser[option.type].Load(option.idx, option) 
+            end) -- task.spawn() so the config loading won't get stuck.
+        end
+    end
+    Fluent.SettingLoaded = true
+    return true, decoded
+end
+
+local function createAutoSaveToggle(section, id, config)
+    local toggle = section:AddToggle(id, config)
+    toggle:OnChanged(function(value)
+        -- Update the configuration value
+        CONFIG[id] = value
+        -- Auto-save the configuration
+        SaveManager:AutoSave(game.Players.LocalPlayer.Name)
+    end)
+    return toggle
+end
+
+local function createAutoSaveInput(section, id, config)
+    local input = section:AddInput(id, config)
+    input:OnChanged(function(value)
+        -- Update the configuration value
+        CONFIG[id] = value
+        -- Auto-save the configuration
+        SaveManager:AutoSave(game.Players.LocalPlayer.Name)
+    end)
+    return input
+end
+
+local function createAutoSaveDropdown(section, id, config)
+    local dropdown = section:AddDropdown(id, config)
+    dropdown:OnChanged(function(value)
+        -- Update the configuration value
+        CONFIG[id] = value
+        -- Auto-save the configuration
+        SaveManager:AutoSave(game.Players.LocalPlayer.Name)
+    end)
+    return dropdown
+end
+
+local function createAutoSaveSlider(section, id, config)
+    local slider = section:AddSlider(id, config)
+    slider:OnChanged(function(value)
+        -- Update the configuration value
+        CONFIG[id] = value
+        -- Auto-save the configuration
+        SaveManager:AutoSave(game.Players.LocalPlayer.Name)
+    end)
+    return slider
+end
+
 
 -- Get World Data
 local Worlds = {}
@@ -1308,13 +1397,13 @@ local leaveLobbyButton = joinerSets:AddButton({
         leaveLobbyy()
     end
 })
-local friendOnly = joinerSets:AddToggle("FriendsOnlyEnabled", {Title = "Friends Only?",Default = CONFIG.joinerConfig.friendOnly})
+local friendOnly = createAutoSaveToggle(joinerSets,"FriendsOnlyEnabled", {Title = "Friends Only?",Default = CONFIG.joinerConfig.friendOnly})
 
 friendOnly:OnChanged(function(Value)
     CONFIG.joinerConfig.friendOnly = Value
 end)
 
-local autoJoinEnable = autoJoinWorldSection:AddToggle("autoJoinEnable", {
+local autoJoinEnable = createAutoSaveToggle(autoJoinWorldSection,"autoJoinEnable", {
     Title = "Enable Auto Join",
     Default = CONFIG.joinerConfig.enabled,
     Callback = function(Value)
@@ -1326,7 +1415,7 @@ local autoJoinEnable = autoJoinWorldSection:AddToggle("autoJoinEnable", {
         end
     end
 })
-local HardMode = joinerSets:AddToggle("hardModeToggle", {
+local HardMode = createAutoSaveToggle(joinerSets,"hardModeToggle", {
     Title = "Enable Hard Mode",
     Default = CONFIG.joinerConfig.hardMode,
     Callback = function(Value)
@@ -1337,7 +1426,7 @@ local HardMode = joinerSets:AddToggle("hardModeToggle", {
         end
     end
 })
-local TimetoLock = joinerSets:AddSlider("TimeToLock",{
+local TimetoLock = createAutoSaveSlider(joinerSets,"TimeToLock",{
     Title = "Wait Seconds To Start",
     Default = CONFIG.joinerConfig.waitTil,
     Min = 0,
@@ -1348,7 +1437,7 @@ local TimetoLock = joinerSets:AddSlider("TimeToLock",{
     end
 })
 
-local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
+local actSection = createAutoSaveDropdown(autoJoinWorldSection,"actPicker", {
     Title = "Select Act",
     Description = "Pick an act to join",
     Values = getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World),
@@ -1359,7 +1448,7 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     end
 })
 
-local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
+local worldSection = createAutoSaveDropdown(autoJoinWorldSection,"worldPicker", {
     Title = "Auto Join World",
     Description = "Pick a world to join",
     Values = worldNames,
@@ -1373,7 +1462,7 @@ local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
     end
 })
 
-local AutoSellEnabledToggle = shopMainSection:AddToggle("AutoSellEnabled", {
+local AutoSellEnabledToggle = createAutoSaveToggle(shopMainSection,"AutoSellEnabled", {
     Title = "Enable Auto Sell",
     Default = CONFIG.autoSellConfig.AutoSellEnabled
 })
@@ -1398,7 +1487,7 @@ local function getDefaultRarities()
 end
 
 
-local RarityMultiDropdown = Tabs.Shop:AddDropdown("RarityMultiDropdown", {
+local RarityMultiDropdown = createAutoSaveDropdown(Tabs.Shop,"RarityMultiDropdown", {
     Title = "Auto Sell Rarities",
     Description = "Select which rarities to auto sell",
     Values = {"Rare", "Epic", "Legendary"},
@@ -1424,7 +1513,7 @@ RarityMultiDropdown:OnChanged(function(Value)
     end
 end)
 
-local OptimizerToggle = miscMainSection:AddToggle("OptimizerEnabled", { Title = "Enable Optimizer", Default = false })
+local OptimizerToggle = createAutoSaveToggle(miscMainSection,"OptimizerEnabled", { Title = "Enable Optimizer", Default = false })
 OptimizerToggle:OnChanged(function()
     if Options.OptimizerEnabled.Value then
         optimizeGame()
@@ -1435,8 +1524,8 @@ OptimizerToggle:OnChanged(function()
     end
 end)
 
-local FriendJoiner = friendSection:AddToggle("FriendJoinerEnabled", { Title = "Enable Friend Joiner", Description = "Must be used by ALT account",Default = false })
-local FriendJoinName = friendSection:AddInput("Name", {
+local FriendJoiner = createAutoSaveToggle(friendSection,"FriendJoinerEnabled", { Title = "Enable Friend Joiner", Description = "Must be used by ALT account",Default = false })
+local FriendJoinName = createAutoSaveInput(friendSection,"NameJoin", {
     Title = "Join Who?",
     Default = CONFIG.friendJoinerConfig.name,
     Numeric = false,
@@ -1446,8 +1535,8 @@ local FriendJoinName = friendSection:AddInput("Name", {
        CONFIG.friendJoinerConfig.name = Value
     end
 })
-local FriendWaiter = friendSection:AddToggle("FriendWaiterEnabled", { Title = "Enable Friend Waiter", Description = "Must be used by MAIN account", Default = false })
-local FriendWaitName = friendSection:AddInput("Name", {
+local FriendWaiter = createAutoSaveToggle(friendSection,"FriendWaiterEnabled", { Title = "Enable Friend Waiter", Description = "Must be used by MAIN account", Default = false })
+local FriendWaitName = createAutoSaveInput(friendSection,"NameWait", {
     Title = "Wait Who?",
     Default = CONFIG.friendWaiterConfig.name,
     Numeric = false,
@@ -1481,7 +1570,7 @@ FriendWaiter:OnChanged(function()
         stopWait()
     end
 end)
-local ChallJoiner = autoJoinChallSection:AddToggle("JoinChallEnabled", {
+local ChallJoiner = createAutoSaveToggle(autoJoinChallSection,"JoinChallEnabled", {
     Title = "Enable Challenge Joiner",
     Description = "Auto Join Challenge",
     Default = CONFIG.joinerChallConfig.enabled
@@ -1495,7 +1584,7 @@ ChallJoiner:OnChanged(function()
     end
 end)
 
-local challSelectChall = autoJoinChallSection:AddDropdown("SelectChallenge", {
+local challSelectChall = createAutoSaveDropdown(autoJoinChallSection,"SelectChallenge", {
     Title = "Select Challenge",
     Description = "Select which challenges to do",
     Values = getChallenges(),
@@ -1507,7 +1596,7 @@ local challSelectChall = autoJoinChallSection:AddDropdown("SelectChallenge", {
     end
 })
 
-local challSelectRew = autoJoinChallSection:AddDropdown("SelectReward", {
+local challSelectRew = createAutoSaveDropdown(autoJoinChallSection,"SelectReward", {
     Title = "Select Reward",
     Description = "Select which rewards to get",
     Values = getRewards(),
@@ -1519,7 +1608,7 @@ local challSelectRew = autoJoinChallSection:AddDropdown("SelectReward", {
     end
 })
 
-local challSelectWorld = autoJoinChallSection:AddDropdown("SelectWorld", {
+local challSelectWorld = createAutoSaveDropdown(autoJoinChallSection,"SelectWorld", {
     Title = "Select World",
     Description = "Select which worlds to do",
     Values = worldNames,
@@ -1531,7 +1620,7 @@ local challSelectWorld = autoJoinChallSection:AddDropdown("SelectWorld", {
     end
 })
 
-local LegendJoiner = autoJoinLegenSection:AddToggle("JoinLegenEnabled", {
+local LegendJoiner = createAutoSaveToggle(autoJoinLegenSection,"JoinLegenEnabled", {
     Title = "Enable Auto Legend",
     Default = CONFIG.joinerLegendConfig.enabled,
     Callback = function(Value)
@@ -1544,7 +1633,7 @@ local LegendJoiner = autoJoinLegenSection:AddToggle("JoinLegenEnabled", {
     end
 })
 
-local LegendSelectAct = autoJoinLegenSection:AddDropdown("SelectAct2", {
+local LegendSelectAct = createAutoSaveDropdown(autoJoinLegenSection,"SelectAct2", {
     Title = "Select Act",
     Description = "Pick an act to join",
     Values = {},
@@ -1555,7 +1644,7 @@ local LegendSelectAct = autoJoinLegenSection:AddDropdown("SelectAct2", {
     end
 })
 
-local LegendSelectWorld = autoJoinLegenSection:AddDropdown("SelectWorld2", {
+local LegendSelectWorld = createAutoSaveDropdown(autoJoinLegenSection,"SelectWorld2", {
     Title = "Select World",
     Description = "Pick a world to join",
     Values = worldNamesLegend,
@@ -1569,7 +1658,7 @@ local LegendSelectWorld = autoJoinLegenSection:AddDropdown("SelectWorld2", {
     end
 })
 
-local RaidJoiner = autoJoinRaidSection:AddToggle("JoinRaidEnabled", {
+local RaidJoiner = createAutoSaveToggle(autoJoinRaidSection,"JoinRaidEnabled", {
     Title = "Enable Auto Raid",
     Default = CONFIG.joinerRaidConfig.enabled,
     Callback = function(Value)
@@ -1582,7 +1671,7 @@ local RaidJoiner = autoJoinRaidSection:AddToggle("JoinRaidEnabled", {
     end
 })
 
-local RaidSelectAct = autoJoinRaidSection:AddDropdown("SelectAct3", {
+local RaidSelectAct = createAutoSaveDropdown(autoJoinRaidSection,"SelectAct3", {
     Title = "Select Act",
     Description = "Pick an act to join",
     Values = {},
@@ -1593,7 +1682,7 @@ local RaidSelectAct = autoJoinRaidSection:AddDropdown("SelectAct3", {
     end
 })
 
-local RaidSelectWorld = autoJoinRaidSection:AddDropdown("SelectWorld3", {
+local RaidSelectWorld = createAutoSaveDropdown(autoJoinRaidSection,"SelectWorld3", {
     Title = "Select World",
     Description = "Pick a world to join",
     Values = worldNamesRaid,
@@ -1607,7 +1696,7 @@ local RaidSelectWorld = autoJoinRaidSection:AddDropdown("SelectWorld3", {
     end
 })
 
-local SelectMacro = macroRecorder:AddDropdown("SelectMacro",{
+local SelectMacro = createAutoSaveDropdown(macroRecorder,"SelectMacro",{
     Title = "Select Macro",
     Description = "Select Macro to Record/Play",
     Values = {},
@@ -1632,7 +1721,7 @@ local function refreshMacroList()
     SelectMacro:SetValues(macroNames)
 end
 
-local CreateMacro = macroRecorder:AddInput("CreateMacro",{
+local CreateMacro = createAutoSaveInput(macroRecorder,"CreateMacro",{
     Title = "Create Macro",
     Placeholder = "Enter name here..",
     Default = "",
@@ -1647,12 +1736,12 @@ local CreateMacro = macroRecorder:AddInput("CreateMacro",{
     end
 })
 
-local RecordMacro = macroRecorder:AddToggle("RecordMacro",{
+local RecordMacro = createAutoSaveToggle(macroRecorder,"RecordMacro",{
     Title = "Record Macro",
     Default = false
 })
 
-local PlayMacro = macroRecorder:AddToggle("PlayMacro",{
+local PlayMacro = createAutoSaveToggle(macroRecorder,"PlayMacro",{
     Title = "Play Macro",
     Default = CONFIG.MacroConfig.PlayingMacro
 })
@@ -1756,4 +1845,13 @@ InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 InterfaceManager:SetFolder("LuciferScriptHub")
 SaveManager:SetFolder("LuciferScriptHub/Anime_Adventures")
+-- Auto-load the configuration based on the player's username
+local playerName = game.Players.LocalPlayer.Name.."LuciferConfig"
+local success, result = SaveManager:AutoLoad(playerName)
+if not success then
+    notify("Auto-Load Failed", result)
+else
+    notify("Auto-Load Successful", "Configuration loaded for " .. playerName)
+end
+
 notify("Lucifer", "The script has been loaded.")
