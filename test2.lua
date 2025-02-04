@@ -334,6 +334,7 @@ if game.PlaceId ~= CONSTANTS.TELEPORT_ID then
         GameMode = p["_gamemode"],
         Name = p["_location_name"]
     } 
+    
 end
 
 -- Macro Functions
@@ -1630,13 +1631,20 @@ local PlayMacro = macroRecorder:AddToggle("PlayMacro",{
 })
 
 RecordMacro:OnChanged(function(value)
-    isRecording = value
-    if value then
-        macroStartTime = os.clock()
-        logArray = {}
-        print("Recording started...")
+    if Options.SelectMacro.Value == nil then
+        notify("Select a Macro","Unable to record...")
+        RecordMacro:SetValue(false)
     else
-        print("Recording stopped. Total actions:", #logArray)
+        isRecording = value
+        if value then
+            macroStartTime = os.clock()
+            logArray = {}
+            notify("Recording Started","")
+        else
+            saveMacro(Options.SelectMacro.Value,logArray)
+            notify("Recording Saved","")
+            print("Recording stopped. Total actions:", #logArray)
+        end
     end
 end)
 
@@ -1652,28 +1660,30 @@ end)
 -- Initial refresh
 refreshMacroList()
 
--- Remote Interception
-local mt = getrawmetatable(game)
-local oldInvokeServer = mt.__namecall
-setreadonly(mt, false)
-
-mt.__namecall = newcclosure(function(self, ...)
-    local method = getnamecallmethod()
-    if method == "InvokeServer" then
-        local remoteName = tostring(self)
-        
-        if self == spawnUnitRemote then
-            logArguments("spawn_unit", ...)
-        elseif self == upgradeUnitRemote then
-            logArguments("upgrade_unit_ingame", ...)
-        elseif self == sellUnitRemote then
-            logArguments("sell_unit_ingame", ...)
+if game.PlaceId ~= CONSTANTS.TELEPORT_ID then
+    local mt = getrawmetatable(game)
+    local oldInvokeServer = mt.__namecall
+    setreadonly(mt, false)
+    
+    mt.__namecall = newcclosure(function(self, ...)
+        local method = getnamecallmethod()
+        if method == "InvokeServer" then
+            local remoteName = tostring(self)
+            
+            if self == spawnUnitRemote then
+                logArguments("spawn_unit", ...)
+            elseif self == upgradeUnitRemote then
+                logArguments("upgrade_unit_ingame", ...)
+            elseif self == sellUnitRemote then
+                logArguments("sell_unit_ingame", ...)
+            end
         end
-    end
-    return oldInvokeServer(self, ...)
-end)
+        return oldInvokeServer(self, ...)
+    end)
+    
+    setreadonly(mt, true)
+end
 
-setreadonly(mt, true)
 
 -- Initialization Logic
 AutoSellEnabledToggle:SetValue(CONFIG.autoSellConfig.AutoSellEnabled)
