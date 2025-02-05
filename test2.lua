@@ -1374,7 +1374,7 @@ local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
         CONFIG.joinerConfig.worldJoinerConfig.World = Options.worldPicker.Value
         actSection:SetValues(getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World))
         CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value]
-        actSection:SetValue(Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value])
+        actSection:SetValue(Options.actPicker.Value)
     end
 })
 
@@ -1718,6 +1718,13 @@ end)
 refreshMacroList()
 
 if game.PlaceId ~= CONSTANTS.TELEPORT_ID then
+    local args = {
+        [1] = "disable_effects",
+        [2] = true
+    }
+    
+    game:GetService("ReplicatedStorage"):WaitForChild("endpoints"):WaitForChild("client_to_server"):WaitForChild("toggle_setting"):InvokeServer(unpack(args))
+
     local mt = getrawmetatable(game)
     local oldInvokeServer = mt.__namecall
     setreadonly(mt, false)
