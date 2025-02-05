@@ -1770,12 +1770,12 @@ if CONFIG.autoSellConfig.AutoSellEnabled then
     startMonitoring()
 end
 
-local success, err = SaveManager:Load(game.Players.LocalPlayer.Name)
-if not success then
-    warn("Failed to load settings:", err)
-else
-    print("Settings loaded successfully!")
-end
+-- local success, err = SaveManager:Load(game.Players.LocalPlayer.Name)
+-- if not success then
+--     warn("Failed to load settings:", err)
+-- else
+--     print("Settings loaded successfully!")
+-- end
 
 for idx, option in pairs(Fluent.Options) do
     if option.OnChanged then
