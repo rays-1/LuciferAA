@@ -38,8 +38,8 @@ local CONFIG = {
         lobby = "",
         hardMode = false,
         worldJoinerConfig = {
-            World = "Planet Greenie",
-            Act = "Act 1"
+            World = "",
+            Act = ""
         }
     },
     joinerChallConfig = {
@@ -233,7 +233,7 @@ for _, moduleScript in ipairs(WorldsSrc:GetChildren()) do
                 local formatted = {
                 }
     
-                if worldEntry.infinite then
+                if worldEntry["infinite"].id then
                     formatted["Infinite"] = worldEntry.infinite.id or nil
                 end
                 -- Parse levels
@@ -250,8 +250,6 @@ for _, moduleScript in ipairs(WorldsSrc:GetChildren()) do
         end
     end
 end
-
-CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World]["Act 1"]
 
 local worldNames = {}
 local worldNamesLegend = {}
@@ -1176,10 +1174,10 @@ local function getActsForWorld(worldName)
     for key in pairs(worldData) do
         if key:match("Act %d") then
             table.insert(acts, key)
+        elseif key == "Infinite" then
+            table.insert(acts,key)
         end
     end
-    acts["Infinite"] = worldData.Infinite
-    table.sort(acts)
     return acts
 end
 
