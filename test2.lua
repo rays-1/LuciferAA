@@ -159,7 +159,7 @@ end
 
 
 local function notify(title, content)
-    Fluent:Notify({ Title = title, Content = content, Duration = 5 })
+    Fluent:Notify({ Title = title, Content = content, Duration = 1 })
 end
 
 
@@ -850,7 +850,6 @@ local function optimizeGame()
                 print(string.format("Optimized Texture: %s", descendant:GetFullName()))
             end
         end
-        task.wait()
     end
 end
 
