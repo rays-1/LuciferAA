@@ -1770,6 +1770,13 @@ if CONFIG.autoSellConfig.AutoSellEnabled then
     startMonitoring()
 end
 
+local success, err = SaveManager:Load(game.Players.LocalPlayer.Name)
+if not success then
+    warn("Failed to load settings:", err)
+else
+    print("Settings loaded successfully!")
+end
+
 for idx, option in pairs(Fluent.Options) do
     if option.OnChanged then
         option:OnChanged(function()
@@ -1783,12 +1790,6 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 SaveManager:BuildFolderTree()
 SaveManager:SetFolder("LuciferScriptHub/Anime_Adventures")
 -- Load settings at startup
-local success, err = SaveManager:Load(game.Players.LocalPlayer.Name)
-if not success then
-    warn("Failed to load settings:", err)
-else
-    print("Settings loaded successfully!")
-end
 InterfaceManager:SetLibrary(Fluent)
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 InterfaceManager:SetFolder("LuciferScriptHub")
