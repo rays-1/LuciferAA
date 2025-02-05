@@ -731,7 +731,6 @@ local function joinRandomLobby()
             if playersFolder then
                 if #playersFolder:GetChildren() == 0 then
                     freeLobby = lobbyName
-                    
                 end
             end
         end
@@ -1065,6 +1064,9 @@ local function autoJoinWorld()
         else
             print("Player Not In Lobby")
             joinRandomLobby()
+            lockInLevel()
+            task.wait(CONFIG.joinerConfig.waitTil)
+            reqStartGame()
         end
         task.wait(CONFIG.LobbyCheckInterval)
     end
