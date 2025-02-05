@@ -832,11 +832,11 @@ local function optimizeGame()
             end
 
             if descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
-                 if pcall(function() return descendant.MeshId end) then
+                 if pcall(function() return descendant.Transparency end) then
                     originalProperties[descendant].Transparency = descendant.Transparency
                     descendant.Transparency = 1
                  end
-                  if pcall(function() return descendant.TextureId end) then
+                  if pcall(function() return descendant.Transparency end) then
                     originalProperties[descendant].Transparency = descendant.Transparency
                     descendant.Transparency = 1
                  end
@@ -1060,6 +1060,7 @@ local function autoJoinWorld()
             task.wait(CONFIG.joinerConfig.waitTil)
             reqStartGame()
         else
+            printTable(CONFIG.joinerConfig.worldJoinerConfig)
             print("Player Not In Lobby")
             joinRandomLobby()
             lockInLevel()
