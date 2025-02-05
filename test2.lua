@@ -1356,8 +1356,11 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Values = getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World),
     Default = CONFIG.joinerConfig.worldJoinerConfig.Act,
     Multi = false,
-    Callback = function(Value)
-        CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Value]
+    Callback = function()
+        CONFIG.joinerConfig.worldJoinerConfig.Act = Options.actPicker.Value
+        if CONFIG.joinerConfig.worldJoinerConfig.World ~= "" then
+            CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Value] 
+        end
     end
 })
 
@@ -1367,11 +1370,11 @@ local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
     Values = worldNames,
     Default = CONFIG.joinerConfig.worldJoinerConfig.World,
     Multi = false,
-    Callback = function(Value)
-        CONFIG.joinerConfig.worldJoinerConfig.World = Value
-        actSection:SetValues(getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World))
-        CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World]["Act 1"]
-        actSection:SetValue("Act 1")
+    Callback = function()
+        CONFIG.joinerConfig.worldJoinerConfig.World = Options.worldPicker.Value
+        if CONFIG.joinerConfig.worldJoinerConfig.World ~= "" then
+            actSection:SetValues(getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World)) 
+        end
     end
 })
 
