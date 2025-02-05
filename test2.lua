@@ -1179,6 +1179,7 @@ local function getActsForWorld(worldName)
             table.insert(acts,key)
         end
     end
+    table.sort(acts)
     return acts
 end
 
@@ -1355,7 +1356,7 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Title = "Select Act",
     Description = "Pick an act to join",
     Values = {},
-    Default = CONFIG.joinerConfig.worldJoinerConfig.Act,
+    Default = "",
     Multi = false,
     Callback = function()
         CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value]
@@ -1374,7 +1375,7 @@ local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
         CONFIG.joinerConfig.worldJoinerConfig.World = Options.worldPicker.Value
         actSection:SetValues(getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World))
         CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value]
-        actSection:SetValue(Options.actPicker.Value)
+        actSection:SetValue(CONFIG.joinerConfig.worldJoinerConfig.Act)
     end
 })
 
