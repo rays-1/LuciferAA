@@ -1473,11 +1473,9 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Title = "Select Act",
     Description = "Pick an act to join",
     Values = {},
-    Default = "",
+    Default = CONFIG.joinerConfig.worldJoinerConfig.Act,
     Multi = false,
     Callback = function()
-        print("Value is")
-        print(Options.actPicker.Value)
         CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value]
         printTable(CONFIG.joinerConfig.worldJoinerConfig)
     end
