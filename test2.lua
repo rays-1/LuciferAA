@@ -78,6 +78,7 @@ local CONFIG = {
             Raid = {}
         }
     },
+    OPTIMIZED = false,
     DEBUG_MODE = true,
     LuciferVer = "v0.1.0",
     AutoSellCooldown = 0.5,
@@ -1425,16 +1426,20 @@ RarityMultiDropdown:OnChanged(function(Value)
     end
 end)
 
-local OptimizerToggle = miscMainSection:AddToggle("OptimizerEnabled", { Title = "Enable Optimizer", Default = false })
-OptimizerToggle:OnChanged(function()
-    if Options.OptimizerEnabled.Value then
-        optimizeGame()
-        notify("Optimization Applied", "Optimizations activated")
-    else
-        restoreGame()
-         notify("Optimization Disabled", "Optimizations disabled")
+local OptimizerToggle = miscMainSection:AddToggle("OptimizerEnabled", {
+    Title = "Enable Optimizer",
+    Default = false,
+    Callback = function(value)
+        CONFIG.OPTIMIZED = Options.OptimizerEnabled.Value
+        if Options.OptimizerEnabled.Value then
+            optimizeGame()
+            notify("Optimization Applied", "Optimizations activated")
+        else
+            restoreGame()
+            notify("Optimization Disabled", "Optimizations disabled")
+        end
     end
-end)
+})
 
 local FriendJoiner = friendSection:AddToggle("FriendJoinerEnabled", { Title = "Enable Friend Joiner", Description = "Must be used by ALT account",Default = false })
 local FriendJoinName = friendSection:AddInput("Name", {
