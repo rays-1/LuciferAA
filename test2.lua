@@ -1358,7 +1358,7 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Default = CONFIG.joinerConfig.worldJoinerConfig.Act,
     Multi = false,
     Callback = function()
-        CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.SelectAct2.Options]
+        CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value]
     end
 })
 
@@ -1558,7 +1558,7 @@ local LegendSelectAct = autoJoinLegenSection:AddDropdown("SelectAct2", {
     Default = CONFIG.joinerLegendConfig.Act,
     Multi = false,
     Callback = function()
-        CONFIG.joinerLegendConfig.Act = WorldsLegend[CONFIG.joinerLegendConfig.World][Options.SelectAct2.Options]
+        CONFIG.joinerLegendConfig.Act = WorldsLegend[CONFIG.joinerLegendConfig.World][Options.SelectAct2.Value]
     end
 })
 
