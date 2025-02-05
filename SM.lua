@@ -1,5 +1,28 @@
 local httpService = game:GetService("HttpService")
 
+
+local function printTable(tbl, indent)
+    -- Default indentation level
+    indent = indent or 0
+
+    -- Iterate through the table
+    for key, value in pairs(tbl) do
+        -- Create indentation string
+        local indentation = string.rep("  ", indent)
+
+        -- Handle different types of values
+        if type(value) == "table" then
+            -- If the value is a table, print the key and recurse
+            print(indentation .. tostring(key) .. ": {")
+            printTable(value, indent + 1)
+            print(indentation .. "}")
+        else
+            -- Print the key-value pair
+            print(indentation .. tostring(key) .. ": " .. tostring(value))
+        end
+    end
+end
+
 local SaveManager = {} do
 	SaveManager.Folder = "FluentSettings"
 	SaveManager.Ignore = {}
@@ -123,6 +146,7 @@ local SaveManager = {} do
 			return false, "Decoding error"
 		end
 	
+		printTable(decoded.objects)
 		print("Decoded objects:", decoded.objects)
 		-- Apply loaded data to Fluent.Options
 		for _, option in next, decoded.objects do

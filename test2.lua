@@ -286,13 +286,7 @@ local Tabs = {
     Misc = Window:AddTab({ Title = "Misc", Icon = "box" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
--- Load settings at startup
-local success, err = SaveManager:Load(game.Players.LocalPlayer.Name)
-if not success then
-    warn("Failed to load settings:", err)
-else
-    print("Settings loaded successfully!")
-end
+
 
 local MainWelcome = Tabs.Main:AddSection("Welcome to Lucifer", 1)
 local MainActions = Tabs.Main:AddSection("Quick Actions", 2)
@@ -1771,6 +1765,13 @@ SaveManager:SetLibrary(Fluent)
 SaveManager:BuildConfigSection(Tabs.Settings)
 SaveManager:BuildFolderTree()
 SaveManager:SetFolder("LuciferScriptHub/Anime_Adventures")
+-- Load settings at startup
+local success, err = SaveManager:Load(game.Players.LocalPlayer.Name)
+if not success then
+    warn("Failed to load settings:", err)
+else
+    print("Settings loaded successfully!")
+end
 InterfaceManager:SetLibrary(Fluent)
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 InterfaceManager:SetFolder("LuciferScriptHub")
