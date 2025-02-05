@@ -833,12 +833,12 @@ local function optimizeGame()
 
             if descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
                  if pcall(function() return descendant.MeshId end) then
-                    originalProperties[descendant].MeshId = descendant.MeshId
-                     descendant.MeshId = ""
+                    originalProperties[descendant].Transparency = descendant.Transparency
+                    descendant.Transparency = 1
                  end
                   if pcall(function() return descendant.TextureId end) then
-                     originalProperties[descendant].TextureId = descendant.TextureId
-                     descendant.TextureId = ""
+                    originalProperties[descendant].Transparency = descendant.Transparency
+                    descendant.Transparency = 1
                  end
                 print(string.format("Optimized Mesh: %s", descendant:GetFullName()))
             end
@@ -875,11 +875,11 @@ local function restoreGame()
             end
 
             if descendant:IsA("MeshPart") or descendant:IsA("SpecialMesh") then
-                 if props.MeshId and pcall(function() descendant.MeshId = props.MeshId end) then
-                     descendant.MeshId = props.MeshId
+                if props.Transparency and pcall(function() descendant.Transparency = props.Transparency end) then
+                    descendant.Transparency = props.Transparency
                 end
-                if props.TextureId and pcall(function() descendant.TextureId = props.TextureId end) then
-                    descendant.TextureId = props.TextureId
+                if props.Transparency and pcall(function() descendant.Transparency = props.Transparency end) then
+                    descendant.Transparency = props.Transparency
                 end
                   print(string.format("Restored Mesh: %s", descendant:GetFullName()))
             end
@@ -1357,10 +1357,7 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Default = CONFIG.joinerConfig.worldJoinerConfig.Act,
     Multi = false,
     Callback = function()
-        CONFIG.joinerConfig.worldJoinerConfig.Act = Options.actPicker.Value
-        if CONFIG.joinerConfig.worldJoinerConfig.World ~= "" then
-            CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value] 
-        end
+        CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.SelectAct2.Options]
     end
 })
 
@@ -1373,9 +1370,9 @@ local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
     Multi = false,
     Callback = function()
         CONFIG.joinerConfig.worldJoinerConfig.World = Options.worldPicker.Value
-        if CONFIG.joinerConfig.worldJoinerConfig.World ~= "" then
-            actSection:SetValues(getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World)) 
-        end
+        actSection:SetValues(getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World))
+        CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value]
+        actSection:SetValue(Options.actPicker.Value)
     end
 })
 
@@ -1559,8 +1556,8 @@ local LegendSelectAct = autoJoinLegenSection:AddDropdown("SelectAct2", {
     Values = {},
     Default = CONFIG.joinerLegendConfig.Act,
     Multi = false,
-    Callback = function(Value)
-        CONFIG.joinerLegendConfig.Act = WorldsLegend[CONFIG.joinerLegendConfig.World][Value]
+    Callback = function()
+        CONFIG.joinerLegendConfig.Act = WorldsLegend[CONFIG.joinerLegendConfig.World][Options.SelectAct2.Options]
     end
 })
 
@@ -1570,11 +1567,11 @@ local LegendSelectWorld = autoJoinLegenSection:AddDropdown("SelectWorld2", {
     Values = worldNamesLegend,
     Default = CONFIG.joinerLegendConfig.World,
     Multi = false,
-    Callback = function(Value)
-        CONFIG.joinerLegendConfig.World = Value
+    Callback = function()
+        CONFIG.joinerLegendConfig.World = Options.SelectWorld2.Value
         LegendSelectAct:SetValues(getLegends(CONFIG.joinerLegendConfig.World))
-        CONFIG.joinerLegendConfig.Act = WorldsLegend[CONFIG.joinerLegendConfig.World]["Act 1"]
-        LegendSelectAct:SetValue("Act 1")
+        CONFIG.joinerLegendConfig.Act = WorldsLegend[CONFIG.joinerLegendConfig.World][Options.SelectAct2.Value]
+        LegendSelectAct:SetValue(Options.SelectAct2.Value)
     end
 })
 
@@ -1597,8 +1594,8 @@ local RaidSelectAct = autoJoinRaidSection:AddDropdown("SelectAct3", {
     Values = {},
     Default = CONFIG.joinerRaidConfig.Act,
     Multi = false,
-    Callback = function(Value)
-        CONFIG.joinerRaidConfig.Act = WorldsRaid[CONFIG.joinerRaidConfig.World][Value]
+    Callback = function()
+        CONFIG.joinerRaidConfig.Act = WorldsRaid[CONFIG.joinerRaidConfig.World][Options.SelectAct3.Value]
     end
 })
 
@@ -1608,11 +1605,11 @@ local RaidSelectWorld = autoJoinRaidSection:AddDropdown("SelectWorld3", {
     Values = worldNamesRaid,
     Default = CONFIG.joinerRaidConfig.World,
     Multi = false,
-    Callback = function(Value)
-        CONFIG.joinerRaidConfig.World = Value
+    Callback = function()
+        CONFIG.joinerRaidConfig.World = Options.SelectWorld3.Value
         RaidSelectAct:SetValues(getRaids(CONFIG.joinerRaidConfig.World))
-        CONFIG.joinerRaidConfig.Act = WorldsRaid[CONFIG.joinerRaidConfig.World]["Act 1"]
-        RaidSelectAct:SetValue("Act 1")
+        CONFIG.joinerRaidConfig.Act = WorldsRaid[CONFIG.joinerRaidConfig.World][Options.SelectAct3.Value]
+        RaidSelectAct:SetValue(Options.SelectAct3.Value)
     end
 })
 
