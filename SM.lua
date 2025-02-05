@@ -80,7 +80,7 @@ local SaveManager = {} do
 
 	function SaveManager:Save(name)
 		-- Use the provided name or fallback to "PlayerName_LuciferAA"
-		local fileName = name or "PlayerName_LuciferAA"
+		local fileName = name.."_LuciferAA" or "PlayerName_LuciferAA"
 		local fullPath = self.Folder .. "/" .. fileName .. ".json"
 		local data = {
 			objects = {}
@@ -107,7 +107,7 @@ local SaveManager = {} do
 
 	function SaveManager:Load(name)
 		-- Use the provided name or fallback to "PlayerName_LuciferAA"
-		local fileName = name or "PlayerName_LuciferAA"
+		local fileName = name.."_LuciferAA" or "PlayerName_LuciferAA"
 		local filePath = self.Folder .. "/" .. fileName .. ".json"
 	
 		-- Check if the file exists
@@ -123,15 +123,16 @@ local SaveManager = {} do
 			return false, "Decoding error"
 		end
 	
+		print("Decoded objects:", decoded.objects)
 		-- Apply loaded data to Fluent.Options
-		for _, optionData in ipairs(decoded.objects) do
-			if self.Parser[optionData.type] then
+		for _, option in next, decoded.objects do
+			if self.Parser[option.type] and not self.Ignore[option.idx] then
 				task.spawn(function()
-					self.Parser[optionData.type].Load(optionData.idx, optionData)
+					self.Parser[option.type].Load(option.idx, option)
 				end)
 			end
 		end
-	
+		
 		print("Config loaded successfully!")
 		return true
 	end
