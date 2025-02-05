@@ -1353,16 +1353,17 @@ local TimetoLock = joinerSets:AddSlider("TimeToLock",{
 local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Title = "Select Act",
     Description = "Pick an act to join",
-    Values = getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World),
+    Values = {},
     Default = CONFIG.joinerConfig.worldJoinerConfig.Act,
     Multi = false,
     Callback = function()
         CONFIG.joinerConfig.worldJoinerConfig.Act = Options.actPicker.Value
         if CONFIG.joinerConfig.worldJoinerConfig.World ~= "" then
-            CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Value] 
+            CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value] 
         end
     end
 })
+
 
 local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
     Title = "Auto Join World",
@@ -1512,7 +1513,7 @@ local challSelectChall = autoJoinChallSection:AddDropdown("SelectChallenge", {
     Default = CONFIG.joinerChallConfig.selectChall,
     Callback = function (Value)
         print(Value)
-        CONFIG.joinerChallConfig.selectChall = Value
+        CONFIG.joinerChallConfig.selectChall = Options.SelectChallenge.Value
     end
 })
 
@@ -1524,7 +1525,7 @@ local challSelectRew = autoJoinChallSection:AddDropdown("SelectReward", {
     Default = CONFIG.joinerChallConfig.selectRew,
     Callback = function (Value)
         print(Value)
-        CONFIG.joinerChallConfig.selectRew = Value
+        CONFIG.joinerChallConfig.selectRew = Options.SelectReward.Value
     end
 })
 
@@ -1534,18 +1535,16 @@ local challSelectWorld = autoJoinChallSection:AddDropdown("SelectWorld", {
     Values = worldNames,
     Multi = true,
     Default = CONFIG.joinerChallConfig.selectWorld,
-    Callback = function (Value)
-        print(Value)
-        CONFIG.joinerChallConfig.selectWorld = Value
+    Callback = function ()
+        CONFIG.joinerChallConfig.selectWorld = Options.SelectWorld.Value
     end
 })
 
 local LegendJoiner = autoJoinLegenSection:AddToggle("JoinLegenEnabled", {
     Title = "Enable Auto Legend",
     Default = CONFIG.joinerLegendConfig.enabled,
-    Callback = function(Value)
-        CONFIG.joinerLegendConfig.enabled = Value
-        
+    Callback = function()
+        CONFIG.joinerLegendConfig.enabled = Options.JoinLegenEnabled.Value
         if CONFIG.joinerLegendConfig.enabled then
            startJoinLegend()
         else
