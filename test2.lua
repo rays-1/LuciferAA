@@ -1533,8 +1533,6 @@ local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
     end
 })
 
-worldSection:SetValue(CONFIG.joinerConfig.worldJoinerConfig.World)
-
 local LegendJoiner = autoJoinLegenSection:AddToggle("JoinLegenEnabled", {
     Title = "Enable Auto Legend",
     Default = CONFIG.joinerLegendConfig.enabled,
@@ -1618,9 +1616,6 @@ local RaidSelectWorld = autoJoinRaidSection:AddDropdown("SelectWorld3", {
         end
     end
 })
-
-RaidSelectWorld:SetValue(CONFIG.joinerRaidConfig.World)
-RaidSelectAct:SetValue(WorldsRaid[CONFIG.joinerRaidConfig.World][Options.SelectAct3.Value])
 
 local SelectMacro = macroRecorder:AddDropdown("SelectMacro",{
     Title = "Select Macro",
