@@ -101,9 +101,10 @@ local SaveManager = {} do
 		self:BuildFolderTree()
 	end
 
-	function SaveManager:Save(name)
+	function SaveManager:Save(name,folder)
 		-- Use the provided name or fallback to "PlayerName_LuciferAA"
 		local fileName = name.."_LuciferAA" or "PlayerName_LuciferAA"
+		self.Folder = folder
 		local fullPath = self.Folder .. "/" .. fileName .. ".json"
 		local data = {
 			objects = {}
@@ -128,9 +129,10 @@ local SaveManager = {} do
 		return true
 	end
 
-	function SaveManager:Load(name)
+	function SaveManager:Load(name,folder)
 		-- Use the provided name or fallback to "PlayerName_LuciferAA"
 		local fileName = name.."_LuciferAA" or "PlayerName_LuciferAA"
+		self.Folder = folder
 		local filePath = self.Folder .. "/" .. fileName .. ".json"
 	
 		-- Check if the file exists

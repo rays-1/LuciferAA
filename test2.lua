@@ -1749,9 +1749,9 @@ if game.PlaceId ~= CONSTANTS.TELEPORT_ID then
     
     setreadonly(mt, true)
 end
-
+SaveManager:SetLibrary(Fluent)
 task.defer(function()
-    SaveManager:Load(game.Players.LocalPlayer.Name)
+    SaveManager:Load(game.Players.LocalPlayer.Name,"LuciferScriptHub/Anime_Adventures")
 end)
 
 -- Initialization Logic
@@ -1777,7 +1777,7 @@ for idx, option in pairs(Fluent.Options) do
     if option.OnChanged then
         option:OnChanged(function(Value)
             print(tostring(option).." | "..tostring(Value))
-            SaveManager:Save(game.Players.LocalPlayer.Name)
+            SaveManager:Save(game.Players.LocalPlayer.Name,"LuciferScriptHub/Anime_Adventures")
         end)
     end
 end
@@ -1791,10 +1791,9 @@ RaidSelectAct:SetValue(Options.SelectAct3.Value)
 print("Setting value to: ",Options.actPicker.Value)
 actSection:SetValue(Options.actPicker.Value)
 
-SaveManager:SetLibrary(Fluent)
+
 SaveManager:BuildConfigSection(Tabs.Settings)
 SaveManager:BuildFolderTree()
-SaveManager:SetFolder("LuciferScriptHub/Anime_Adventures")
 -- Load settings at startup
 InterfaceManager:SetLibrary(Fluent)
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
