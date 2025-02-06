@@ -1524,8 +1524,14 @@ local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
     Multi = false,
     Callback = function()
         if Options.worldPicker and Options.worldPicker.Value then
-            CONFIG.joinerConfig.worldJoinerConfig.World = Options.actPicker.Value
-            actSection:SetValues(getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World))
+            local selectedWorld = Options.worldPicker.Value
+            CONFIG.joinerConfig.worldJoinerConfig.World = selectedWorld
+            local acts = getActsForWorld(selectedWorld)
+            if #acts == 0 then
+                warn("No acts found for world:", selectedWorld)
+            else
+                actSection:SetValues(acts)
+            end
             CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value]
             actSection:SetValue(Options.actPicker.Value)
         end
