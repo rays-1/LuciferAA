@@ -1750,6 +1750,11 @@ if game.PlaceId ~= CONSTANTS.TELEPORT_ID then
     setreadonly(mt, true)
 end
 SaveManager:SetLibrary(Fluent)
+SaveManager:BuildConfigSection(Tabs.Settings)
+SaveManager:BuildFolderTree()
+InterfaceManager:SetLibrary(Fluent)
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+InterfaceManager:SetFolder("LuciferScriptHub")
 task.defer(function()
     SaveManager:Load(game.Players.LocalPlayer.Name,"LuciferScriptHub/Anime_Adventures")
 end)
@@ -1791,11 +1796,4 @@ RaidSelectAct:SetValue(Options.SelectAct3.Value)
 print("Setting value to: ",Options.actPicker.Value)
 actSection:SetValue(Options.actPicker.Value)
 
-
-SaveManager:BuildConfigSection(Tabs.Settings)
-SaveManager:BuildFolderTree()
--- Load settings at startup
-InterfaceManager:SetLibrary(Fluent)
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-InterfaceManager:SetFolder("LuciferScriptHub")
 notify("Lucifer", "The script has been loaded.")
