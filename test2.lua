@@ -1756,7 +1756,7 @@ InterfaceManager:SetLibrary(Fluent)
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 InterfaceManager:SetFolder("LuciferScriptHub")
 task.defer(function()
-    SaveManager:Load(game.Players.LocalPlayer.Name,"LuciferScriptHub/Anime_Adventures")
+    SaveManager:Load(game.Players.LocalPlayer.Name,"LuciferScriptHub")
 end)
 
 -- Initialization Logic
@@ -1782,7 +1782,7 @@ for idx, option in pairs(Fluent.Options) do
     if option.OnChanged then
         option:OnChanged(function(Value)
             print(tostring(option).." | "..tostring(Value))
-            SaveManager:Save(game.Players.LocalPlayer.Name,"LuciferScriptHub/Anime_Adventures")
+            SaveManager:Save(game.Players.LocalPlayer.Name,"LuciferScriptHub")
         end)
     end
 end
