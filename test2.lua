@@ -172,6 +172,7 @@ local InterfaceManager = attemptLoad("https://raw.githubusercontent.com/rays-1/L
 local SimpleSpy = attemptLoad("https://github.com/exxtremestuffs/SimpleSpySource/raw/master/SimpleSpy.lua",CONSTANTS.MAX_ATTEMPTS)
 local configDir = game.Players.LocalPlayer.Name.."LuciferConfig"
 -- Load Loader Module
+SaveManager:SetLibrary(Fluent)
 for attempt = 1, CONSTANTS.MAX_ATTEMPTS do
     local success, result = pcall(function()
         Loader = require(ReplicatedStorage.src.Loader)
@@ -1793,7 +1794,6 @@ task.spawn(function()
 end)
 
 print("Initializing SaveManager...")
-SaveManager:SetLibrary(Fluent)
 SaveManager:BuildConfigSection(Tabs.Settings)
 SaveManager:BuildFolderTree()
 InterfaceManager:SetLibrary(Fluent)

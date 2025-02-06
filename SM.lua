@@ -147,8 +147,6 @@ local SaveManager = {} do
 			warn("Failed to decode config file:", decoded)
 			return false, "Decoding error"
 		end
-	
-		printTable(decoded.objects)
 		print("Decoded objects:", decoded.objects)
 		-- Apply loaded data to Fluent.Options
 		for _, option in next, decoded.objects do
