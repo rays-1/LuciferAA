@@ -1755,13 +1755,6 @@ task.spawn(function()
     end
 end)
 
--- local success, err = SaveManager:Load(game.Players.LocalPlayer.Name)
--- if not success then
---     warn("Failed to load settings:", err)
--- else
---     print("Settings loaded successfully!")
--- end
-
 for idx, option in pairs(Fluent.Options) do
     if option.OnChanged then
         option:OnChanged(function(Value)
@@ -1769,6 +1762,13 @@ for idx, option in pairs(Fluent.Options) do
             SaveManager:Save(game.Players.LocalPlayer.Name)
         end)
     end
+end
+
+local success, err = SaveManager:Load(game.Players.LocalPlayer.Name)
+if not success then
+    warn("Failed to load settings:", err)
+else
+    print("Settings loaded successfully!")
 end
 
 SaveManager:SetLibrary(Fluent)
