@@ -1039,16 +1039,6 @@ end
 
 local Options = Fluent.Options
 
-task.defer(function()
-    print("Loading configuration...")
-    local success, err = SaveManager:Load(game.Players.LocalPlayer.Name,"LuciferScriptHub")
-    if not success then
-        warn("Failed to load configuration:", err)
-    else
-        print("Configuration loaded successfully!")
-    end
-end)
-
 local function autoJoinWorld()
     while true do
         if Options.actPicker.Value and Options.worldPicker.Value then
@@ -1763,7 +1753,15 @@ if game.PlaceId ~= CONSTANTS.TELEPORT_ID then
     setreadonly(mt, true)
 end
 
+
+
 -- Initialization Logic
+
+task.defer(function()
+    SaveManager:Load(game.Players.LocalPlayer.Name,"LuciferScriptHub")
+end)
+
+
 AutoSellEnabledToggle:SetValue(CONFIG.autoSellConfig.AutoSellEnabled)
 print("\n=== INITIAL UNIT SCAN ===")
 processedUnits = {}
