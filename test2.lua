@@ -1764,6 +1764,7 @@ InterfaceManager:SetLibrary(Fluent)
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 InterfaceManager:SetFolder("LuciferScriptHub")
 
+task.wait(1)
 
 task.defer(function()
     SaveManager:Load(game.Players.LocalPlayer.Name,"LuciferScriptHub")
