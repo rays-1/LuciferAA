@@ -1506,7 +1506,7 @@ local autoJoinEnable = autoJoinWorldSection:AddToggle("autoJoinEnable", {
 local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Title = "Select Act",
     Description = "Pick an act to join",
-    Values = getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World),
+    Values = {},
     Default = CONFIG.joinerConfig.worldJoinerConfig.Act,
     Multi = false,
     Callback = function()
@@ -1517,25 +1517,17 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
 })
 
 local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
-    Title = "Auto Join World",
+    Title = "Select World",
     Description = "Pick a world to join",
     Values = worldNames,
     Default = CONFIG.joinerConfig.worldJoinerConfig.World,
     Multi = false,
     Callback = function()
         if Options.worldPicker and Options.worldPicker.Value then
-            local selectedWorld = Options.worldPicker.Value
-            CONFIG.joinerConfig.worldJoinerConfig.World = selectedWorld
-
-            -- Update acts for the selected world
-            local acts = getActsForWorld(selectedWorld)
-            if #acts > 0 then
-                actSection:SetValues(acts)
-                actSection:SetValue(acts[1]) -- Set default act
-                CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[selectedWorld][acts[1]]
-            else
-                warn("No acts found for world:", selectedWorld)
-            end
+            CONFIG.joinerConfig.worldJoinerConfig.World = Options.worldPicker.Value
+            actSection:SetValues(getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World))
+            CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value]
+            actSection:SetValue(Options.actPicker.Value)
         end
     end
 })
@@ -1613,23 +1605,15 @@ local RaidSelectAct = autoJoinRaidSection:AddDropdown("SelectAct3", {
 local RaidSelectWorld = autoJoinRaidSection:AddDropdown("SelectWorld3", {
     Title = "Select World",
     Description = "Pick a world to join",
-    Values = worldNamesRaid,
+    Values = WorldsRaid,
     Default = CONFIG.joinerRaidConfig.World,
     Multi = false,
     Callback = function()
         if Options.SelectWorld3 and Options.SelectWorld3.Value then
-            local selectedWorld = Options.SelectWorld3.Value
-            CONFIG.joinerRaidConfig.World = selectedWorld
-
-            -- Update acts for the selected world
-            local acts = getRaids(selectedWorld)
-            if #acts > 0 then
-                RaidSelectAct:SetValues(acts)
-                RaidSelectAct:SetValue(acts[1]) -- Set default act
-                CONFIG.joinerRaidConfig.Act = WorldsRaid[selectedWorld][acts[1]]
-            else
-                warn("No acts found for world:", selectedWorld)
-            end
+            CONFIG.joinerRaidConfig.World = Options.SelectWorld3.Value
+            RaidSelectAct:SetValues(getRaids(CONFIG.joinerRaidConfig.World))
+            CONFIG.joinerRaidConfig.Act = WorldsRaid[CONFIG.joinerRaidConfig.World][Options.SelectAct3.Value]
+            RaidSelectAct:SetValue(Options.SelectAct3.Value)
         end
     end
 })
