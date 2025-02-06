@@ -1756,6 +1756,10 @@ end)
 
 -- Initialization Logic
 AutoSellEnabledToggle:SetValue(CONFIG.autoSellConfig.AutoSellEnabled)
+worldSection:SetValue(CONFIG.joinerConfig.worldJoinerConfig.World)
+RaidSelectWorld:SetValue(CONFIG.joinerRaidConfig.World)
+RaidSelectAct:SetValue(CONFIG.joinerRaidConfig.Act)
+actSection:SetValue(CONFIG.joinerConfig.worldJoinerConfig.Act)
 print("\n=== INITIAL UNIT SCAN ===")
 processedUnits = {}
 local initialCollection = ItemInventoryService.session.collection.collection_profile_data.owned_units
