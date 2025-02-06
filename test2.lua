@@ -309,7 +309,7 @@ Tabs["Farm Config"]:AddSection("Combat Settings", 1)
 Tabs["Farm Config"]:AddSection("Target Filters", 2)
 
 Window:SelectTab(1)
-
+SaveManager:Load(game.Players.LocalPlayer.Name)
 -- Thread Variables
 local autoJoining
 local autoJoiningLegend
@@ -1762,13 +1762,6 @@ for idx, option in pairs(Fluent.Options) do
             SaveManager:Save(game.Players.LocalPlayer.Name)
         end)
     end
-end
-
-local success, err = SaveManager:Load(game.Players.LocalPlayer.Name)
-if not success then
-    warn("Failed to load settings:", err)
-else
-    print("Settings loaded successfully!")
 end
 
 SaveManager:SetLibrary(Fluent)
