@@ -1782,9 +1782,13 @@ for idx, option in pairs(Fluent.Options) do
     end
 end
 
+print("Setting value to: ",Options.worldPicker.Value)
 worldSection:SetValue(Options.worldPicker.Value)
+print("Setting value to: ",Options.SelectWorld3.Value)
 RaidSelectWorld:SetValue(Options.SelectWorld3.Value)
+print("Setting value to: ",Options.SelectAct3.Value)
 RaidSelectAct:SetValue(Options.SelectAct3.Value)
+print("Setting value to: ",Options.actPicker.Value)
 actSection:SetValue(Options.actPicker.Value)
 
 SaveManager:SetLibrary(Fluent)
