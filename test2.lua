@@ -1615,6 +1615,7 @@ local RaidSelectWorld = autoJoinRaidSection:AddDropdown("SelectWorld3", {
     Callback = function()
         if Options.SelectWorld3 and Options.SelectWorld3.Value then
             local selectedWorld = Options.SelectWorld3.Value
+            CONFIG.joinerRaidConfig.World = Options.SelectWorld3.Value
             local selectedAct = Options.SelectAct3.Value
             if selectedWorld then
                 local acts = getRaids(selectedWorld)
