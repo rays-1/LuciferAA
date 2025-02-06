@@ -1037,6 +1037,8 @@ local function reqStartGame()
     end
 end
 
+local Options = Fluent.Options
+
 task.defer(function()
     print("Loading configuration...")
     local success, err = SaveManager:Load(game.Players.LocalPlayer.Name,"LuciferScriptHub")
@@ -1046,8 +1048,6 @@ task.defer(function()
         print("Configuration loaded successfully!")
     end
 end)
-
-local Options = Fluent.Options
 
 local function autoJoinWorld()
     while true do
