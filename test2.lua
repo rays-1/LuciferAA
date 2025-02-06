@@ -1782,10 +1782,10 @@ for idx, option in pairs(Fluent.Options) do
     end
 end
 
-worldSection:SetValue(CONFIG.joinerConfig.worldJoinerConfig.World)
-RaidSelectWorld:SetValue(CONFIG.joinerRaidConfig.World)
-RaidSelectAct:SetValue(CONFIG.joinerRaidConfig.Act)
-actSection:SetValue(CONFIG.joinerConfig.worldJoinerConfig.Act)
+worldSection:SetValue(Options.worldPicker.Value)
+RaidSelectWorld:SetValue(Options.SelectWorld3.Value)
+RaidSelectAct:SetValue(Options.SelectAct3.Value)
+actSection:SetValue(Options.actPicker.Value)
 
 SaveManager:SetLibrary(Fluent)
 SaveManager:BuildConfigSection(Tabs.Settings)
