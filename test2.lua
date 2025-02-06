@@ -1749,15 +1749,6 @@ if game.PlaceId ~= CONSTANTS.TELEPORT_ID then
     
     setreadonly(mt, true)
 end
-SaveManager:SetLibrary(Fluent)
-SaveManager:BuildConfigSection(Tabs.Settings)
-SaveManager:BuildFolderTree()
-InterfaceManager:SetLibrary(Fluent)
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-InterfaceManager:SetFolder("LuciferScriptHub")
-task.defer(function()
-    SaveManager:Load(game.Players.LocalPlayer.Name,"LuciferScriptHub")
-end)
 
 -- Initialization Logic
 AutoSellEnabledToggle:SetValue(CONFIG.autoSellConfig.AutoSellEnabled)
@@ -1775,6 +1766,24 @@ task.spawn(function()
     end
     if CONFIG.autoSellConfig.AutoSellEnabled then
         startMonitoring()
+    end
+end)
+
+print("Initializing SaveManager...")
+SaveManager:SetLibrary(Fluent)
+SaveManager:BuildConfigSection(Tabs.Settings)
+SaveManager:BuildFolderTree()
+InterfaceManager:SetLibrary(Fluent)
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+InterfaceManager:SetFolder("LuciferScriptHub")
+
+task.defer(function()
+    print("Loading configuration...")
+    local success, err = SaveManager:Load(game.Players.LocalPlayer.Name,"LuciferScriptHub")
+    if not success then
+        warn("Failed to load configuration:", err)
+    else
+        print("Configuration loaded successfully!")
     end
 end)
 
