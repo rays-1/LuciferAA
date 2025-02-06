@@ -24,7 +24,7 @@ local function printTable(tbl, indent)
 end
 
 local SaveManager = {} do
-	SaveManager.Folder = "FluentSettings"
+	SaveManager.Folder = ""
 	SaveManager.Ignore = {}
 	SaveManager.Parser = {
 		Toggle = {
@@ -123,7 +123,7 @@ local SaveManager = {} do
 			warn("Failed to encode data:", encoded)
 			return false, "Encoding error"
 		end
-		
+
 		print("Saved: "..fullPath)
 		writefile(fullPath, encoded)
 		return true
