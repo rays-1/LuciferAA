@@ -1613,22 +1613,28 @@ local RaidSelectWorld = autoJoinRaidSection:AddDropdown("SelectWorld3", {
     Default = CONFIG.joinerRaidConfig.World,
     Multi = false,
     Callback = function()
-        if Options.SelectWorld3 and Options.SelectWorld3.Value then
-            local selectedWorld = Options.SelectWorld3.Value
-            CONFIG.joinerRaidConfig.World = Options.SelectWorld3.Value
-            local selectedAct = Options.SelectAct3.Value
-            if selectedWorld then
-                local acts = getRaids(selectedWorld)
-                RaidSelectAct:SetValues(acts)
-                if selectedAct then
-                    CONFIG.joinerRaidConfig.Act = WorldsRaid[selectedWorld][selectedAct]
-                    RaidSelectAct:SetValue(selectedAct)
+        task.defer(function()
+            if Options.SelectWorld3 and Options.SelectWorld3.Value then
+                local selectedWorld = Options.SelectWorld3.Value
+                CONFIG.joinerRaidConfig.World = selectedWorld
+                local selectedAct = Options.SelectAct3 and Options.SelectAct3.Value
+                if selectedWorld and WorldsRaid[selectedWorld] then
+                    local acts = getRaids(selectedWorld)
+                    RaidSelectAct:SetValues(acts)
+                    if selectedAct and WorldsRaid[selectedWorld][selectedAct] then
+                        CONFIG.joinerRaidConfig.Act = WorldsRaid[selectedWorld][selectedAct]
+                        RaidSelectAct:SetValue(selectedAct)
+                    elseif #acts > 0 then
+                        CONFIG.joinerRaidConfig.Act = WorldsRaid[selectedWorld][acts[1]]
+                        RaidSelectAct:SetValue(acts[1])
+                    else
+                        warn("No valid acts found for world:", selectedWorld)
+                    end
                 else
-                    CONFIG.joinerRaidConfig.Act = WorldsRaid[selectedWorld][acts[1]]
-                    RaidSelectAct:SetValue(acts[1])
+                    warn("Invalid world selected:", selectedWorld)
                 end
             end
-        end
+        end)
     end
 })
 
@@ -1795,6 +1801,10 @@ for idx, option in pairs(Fluent.Options) do
             SaveManager:Save(game.Players.LocalPlayer.Name)
         end)
     end
+end
+
+for key, option in pairs(Fluent.Options) do
+    print(key, option)
 end
 
 SaveManager:SetLibrary(Fluent)
