@@ -123,7 +123,7 @@ local SaveManager = {} do
 			warn("Failed to encode data:", encoded)
 			return false, "Encoding error"
 		end
-	
+		print("Saved: "..fullPath)
 		writefile(fullPath, encoded)
 		return true
 	end
@@ -146,7 +146,7 @@ local SaveManager = {} do
 			warn("Failed to decode config file:", decoded)
 			return false, "Decoding error"
 		end
-		print("Decoded objects:", decoded.objects)
+
 		-- Apply loaded data to Fluent.Options
 		for _, option in next, decoded.objects do
 			if self.Parser[option.type] and not self.Ignore[option.idx] then
@@ -157,7 +157,7 @@ local SaveManager = {} do
 				end)
 			end
 		end
-		
+		print("Loaded: "..filePath)
 		print("Config loaded successfully!")
 		return true
 	end
