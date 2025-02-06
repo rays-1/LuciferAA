@@ -1313,6 +1313,7 @@ local HardMode = joinerSets:AddToggle("hardModeToggle", {
         end
     end
 })
+
 local TimetoLock = joinerSets:AddSlider("TimeToLock",{
     Title = "Wait Seconds To Start",
     Default = CONFIG.joinerConfig.waitTil,
