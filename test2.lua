@@ -1779,15 +1779,16 @@ task.defer(function()
     end
 end)
 
-for idx, option in pairs(Fluent.Options) do
-    if option.OnChanged then
-        option:OnChanged(function(Value)
-            print(tostring(option).." | "..tostring(Value))
-            SaveManager:Save(game.Players.LocalPlayer.Name,"LuciferScriptHub")
-        end)
+task.spawn(function()
+    for idx, option in pairs(Fluent.Options) do
+        if option.OnChanged then
+            option:OnChanged(function(Value)
+                print(tostring(option).." | "..tostring(Value))
+                SaveManager:Save(game.Players.LocalPlayer.Name,"LuciferScriptHub")
+            end)
+        end
     end
-end
-
+end)
 
 print("Initializing SaveManager...")
 SaveManager:SetLibrary(Fluent)
