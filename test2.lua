@@ -1614,10 +1614,19 @@ local RaidSelectWorld = autoJoinRaidSection:AddDropdown("SelectWorld3", {
     Multi = false,
     Callback = function()
         if Options.SelectWorld3 and Options.SelectWorld3.Value then
-            CONFIG.joinerRaidConfig.World = Options.SelectWorld3.Value
-            RaidSelectAct:SetValues(getRaids(CONFIG.joinerRaidConfig.World))
-            CONFIG.joinerRaidConfig.Act = WorldsRaid[CONFIG.joinerRaidConfig.World][Options.SelectAct3.Value]
-            RaidSelectAct:SetValue(Options.SelectAct3.Value)
+            local selectedWorld = Options.SelectWorld3.Value
+            local selectedAct = Options.SelectAct3.Value
+            if selectedWorld then
+                local acts = getRaids(selectedWorld)
+                RaidSelectAct:SetValues(acts)
+                if selectedAct then
+                    CONFIG.joinerRaidConfig.Act = WorldsRaid[selectedWorld][selectedAct]
+                    RaidSelectAct:SetValue(selectedAct)
+                else
+                    CONFIG.joinerRaidConfig.Act = WorldsRaid[selectedWorld][acts[1]]
+                    RaidSelectAct:SetValue(acts[1])
+                end
+            end
         end
     end
 })
