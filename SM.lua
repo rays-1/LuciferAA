@@ -123,6 +123,7 @@ local SaveManager = {} do
 			warn("Failed to encode data:", encoded)
 			return false, "Encoding error"
 		end
+		
 		print("Saved: "..fullPath)
 		writefile(fullPath, encoded)
 		return true
