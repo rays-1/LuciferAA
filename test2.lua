@@ -309,7 +309,9 @@ Tabs["Farm Config"]:AddSection("Combat Settings", 1)
 Tabs["Farm Config"]:AddSection("Target Filters", 2)
 
 Window:SelectTab(1)
-SaveManager:Load(game.Players.LocalPlayer.Name)
+task.defer(function()
+    SaveManager:Load(game.Players.LocalPlayer.Name)
+end)
 -- Thread Variables
 local autoJoining
 local autoJoiningLegend
@@ -1037,20 +1039,22 @@ end
 
 local function autoJoinWorld()
     while true do
-        local currlob = findPlayerInLobbies(game.Players.LocalPlayer.Name)
-        if currlob then
-            lockInLevel()
-            task.wait(CONFIG.joinerConfig.waitTil)
-            reqStartGame()
-        else
-            printTable(CONFIG.joinerConfig.worldJoinerConfig)
-            print("Player Not In Lobby")
-            joinRandomLobby()
-            lockInLevel()
-            task.wait(CONFIG.joinerConfig.waitTil)
-            reqStartGame()
+        if Options.actPicker.Value and Options.worldPicker.Value then
+            local currlob = findPlayerInLobbies(game.Players.LocalPlayer.Name)
+            if currlob then
+                lockInLevel()
+                task.wait(CONFIG.joinerConfig.waitTil)
+                reqStartGame()
+            else
+                printTable(CONFIG.joinerConfig.worldJoinerConfig)
+                print("Player Not In Lobby")
+                joinRandomLobby()
+                lockInLevel()
+                task.wait(CONFIG.joinerConfig.waitTil)
+                reqStartGame()
+            end
+            task.wait(CONFIG.LobbyCheckInterval) 
         end
-        task.wait(CONFIG.LobbyCheckInterval)
     end
 end
 local function startJoin()
@@ -1546,7 +1550,9 @@ local LegendSelectAct = autoJoinLegenSection:AddDropdown("SelectAct2", {
     Default = CONFIG.joinerLegendConfig.Act,
     Multi = false,
     Callback = function()
-        CONFIG.joinerLegendConfig.Act = WorldsLegend[CONFIG.joinerLegendConfig.World][Options.SelectAct2.Value]
+        if Options.SelectAct2 and Options.SelectAct2.Value then
+            CONFIG.joinerLegendConfig.Act = WorldsLegend[CONFIG.joinerLegendConfig.World][Options.SelectAct2.Value]
+        end
     end
 })
 
