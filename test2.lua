@@ -312,6 +312,9 @@ Window:SelectTab(1)
 task.defer(function()
     SaveManager:Load(game.Players.LocalPlayer.Name)
 end)
+
+local Options = Fluent.Options
+
 -- Thread Variables
 local autoJoining
 local autoJoiningLegend
@@ -1289,8 +1292,6 @@ local function startAutoChallenge()
     autoChallenge = manageSystem(autoChallenge, autoChall, stopAutoChallenge, "AUTO-CHALLENGE")
 end
 
-local Options = Fluent.Options
-
 -- UI Elements
 local leaveLobbyButton = joinerSets:AddButton({
     Title = "Leave Current Lobby",
@@ -1396,25 +1397,25 @@ local OptimizerToggle = miscMainSection:AddToggle("OptimizerEnabled", {
 })
 
 local FriendJoiner = friendSection:AddToggle("FriendJoinerEnabled", { Title = "Enable Friend Joiner", Description = "Must be used by ALT account",Default = false })
-local FriendJoinName = friendSection:AddInput("Name", {
+local FriendJoinName = friendSection:AddInput("FriendJoinName", {
     Title = "Join Who?",
     Default = CONFIG.friendJoinerConfig.name,
     Numeric = false,
-    Finished = true,
+    Finished = false,
     Placeholder = "Enter name of who to join...",
     Callback = function(Value)
-       CONFIG.friendJoinerConfig.name = Value
+       CONFIG.friendJoinerConfig.name = Options.FriendJoinName.Value
     end
 })
 local FriendWaiter = friendSection:AddToggle("FriendWaiterEnabled", { Title = "Enable Friend Waiter", Description = "Must be used by MAIN account", Default = false })
-local FriendWaitName = friendSection:AddInput("Name", {
+local FriendWaitName = friendSection:AddInput("FriendWaitName", {
     Title = "Wait Who?",
     Default = CONFIG.friendWaiterConfig.name,
     Numeric = false,
-    Finished = true,
+    Finished = false,
     Placeholder = "Enter name of who to wait for...",
     Callback = function(Value)
-       CONFIG.friendWaiterConfig.name = Value
+       CONFIG.friendWaiterConfig.name = Options.FriendWaitName.Value
     end
 })
 FriendJoiner:OnChanged(function()
@@ -1563,10 +1564,12 @@ local LegendSelectWorld = autoJoinLegenSection:AddDropdown("SelectWorld2", {
     Default = CONFIG.joinerLegendConfig.World,
     Multi = false,
     Callback = function()
-        CONFIG.joinerLegendConfig.World = Options.SelectWorld2.Value
-        LegendSelectAct:SetValues(getLegends(CONFIG.joinerLegendConfig.World))
-        CONFIG.joinerLegendConfig.Act = WorldsLegend[CONFIG.joinerLegendConfig.World][Options.SelectAct2.Value]
-        LegendSelectAct:SetValue(Options.SelectAct2.Value)
+        if Options.SelectWorld2 and Options.SelectWorld2.Value then
+            CONFIG.joinerLegendConfig.World = Options.SelectWorld2.Value
+            LegendSelectAct:SetValues(getLegends(CONFIG.joinerLegendConfig.World))
+            CONFIG.joinerLegendConfig.Act = WorldsLegend[CONFIG.joinerLegendConfig.World][Options.SelectAct2.Value]
+            LegendSelectAct:SetValue(Options.SelectAct2.Value)
+        end
     end
 })
 
