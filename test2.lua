@@ -1475,25 +1475,10 @@ local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
     Default = CONFIG.joinerConfig.worldJoinerConfig.World,
     Callback = function()
         if Options.worldPicker and Options.worldPicker.Value then
-            local selectedWorld = Options.worldPicker.Value
-            CONFIG.joinerConfig.worldJoinerConfig.World = selectedWorld
-
-            -- Get acts for the selected world
-            local acts = getActsForWorld(selectedWorld)
-            if #acts == 0 then
-                warn("No acts found for world:", selectedWorld)
-            end
-
-            -- Update actPicker values
-            actSection:SetValues(acts)
-
-            -- Set a default act if available
-            if acts[1] then
-                CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[selectedWorld][acts[1]]
-                actSection:SetValue(acts[1])
-            else
-                CONFIG.joinerConfig.worldJoinerConfig.Act = nil
-            end
+            CONFIG.joinerConfig.worldJoinerConfig.World = Options.actPicker.Value
+            actSection:SetValues(getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World))
+            CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value]
+            actSection:SetValue(Options.actPicker.Value)
         end
     end
 })
@@ -1609,7 +1594,9 @@ local RaidSelectAct = autoJoinRaidSection:AddDropdown("SelectAct3", {
     Default = CONFIG.joinerRaidConfig.Act,
     Multi = false,
     Callback = function()
-        CONFIG.joinerRaidConfig.Act = Options.SelectAct3
+        if Options.SelectAct3 and Options.SelectAct3.Value then
+            CONFIG.joinerRaidConfig.Act = WorldsRaid[CONFIG.joinerRaidConfig.World][Options.SelectAct3.Value]
+        end
     end
 })
 
@@ -1620,10 +1607,12 @@ local RaidSelectWorld = autoJoinRaidSection:AddDropdown("SelectWorld3", {
     Default = CONFIG.joinerRaidConfig.World,
     Multi = false,
     Callback = function()
-        CONFIG.joinerRaidConfig.World = Options.SelectWorld3.Value
-        RaidSelectAct:SetValues(getRaids(CONFIG.joinerRaidConfig.World))
-        CONFIG.joinerRaidConfig.Act = WorldsRaid[CONFIG.joinerRaidConfig.World][Options.SelectAct3.Value]
-        RaidSelectAct:SetValue(Options.SelectAct3.Value)
+        if Options.SelectWorld3 and Options.SelectWorld3.Value then
+            CONFIG.joinerRaidConfig.World = Options.SelectWorld3.Value
+            RaidSelectAct:SetValues(getRaids(CONFIG.joinerRaidConfig.World))
+            CONFIG.joinerRaidConfig.Act = WorldsRaid[CONFIG.joinerRaidConfig.World][Options.SelectAct3.Value]
+            RaidSelectAct:SetValue(Options.SelectAct3.Value)
+        end
     end
 })
 
