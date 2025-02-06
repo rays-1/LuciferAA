@@ -1756,6 +1756,14 @@ end
 
 
 -- Initialization Logic
+print("Initializing SaveManager...")
+SaveManager:SetLibrary(Fluent)
+SaveManager:BuildConfigSection(Tabs.Settings)
+SaveManager:BuildFolderTree()
+InterfaceManager:SetLibrary(Fluent)
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+InterfaceManager:SetFolder("LuciferScriptHub")
+
 
 task.defer(function()
     SaveManager:Load(game.Players.LocalPlayer.Name,"LuciferScriptHub")
@@ -1794,12 +1802,5 @@ task.spawn(function()
     end
 end)
 
-print("Initializing SaveManager...")
-SaveManager:SetLibrary(Fluent)
-SaveManager:BuildConfigSection(Tabs.Settings)
-SaveManager:BuildFolderTree()
-InterfaceManager:SetLibrary(Fluent)
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-InterfaceManager:SetFolder("LuciferScriptHub")
 
 notify("Lucifer", "The script has been loaded.")
