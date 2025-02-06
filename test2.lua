@@ -1046,7 +1046,9 @@ task.defer(function()
         print("Configuration loaded successfully!")
     end
 end)
+
 local Options = Fluent.Options
+
 local function autoJoinWorld()
     while true do
         if Options.actPicker.Value and Options.worldPicker.Value then
