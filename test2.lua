@@ -1506,7 +1506,7 @@ local autoJoinEnable = autoJoinWorldSection:AddToggle("autoJoinEnable", {
 local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Title = "Select Act",
     Description = "Pick an act to join",
-    Values = {},
+    Values = getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World),
     Default = CONFIG.joinerConfig.worldJoinerConfig.Act,
     Multi = false,
     Callback = function()
@@ -1526,17 +1526,21 @@ local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
         if Options.worldPicker and Options.worldPicker.Value then
             local selectedWorld = Options.worldPicker.Value
             CONFIG.joinerConfig.worldJoinerConfig.World = selectedWorld
+
+            -- Update acts for the selected world
             local acts = getActsForWorld(selectedWorld)
-            if #acts == 0 then
-                warn("No acts found for world:", selectedWorld)
-            else
+            if #acts > 0 then
                 actSection:SetValues(acts)
+                actSection:SetValue(acts[1]) -- Set default act
+                CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[selectedWorld][acts[1]]
+            else
+                warn("No acts found for world:", selectedWorld)
             end
-            CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value]
-            actSection:SetValue(Options.actPicker.Value)
         end
     end
 })
+
+worldSection:SetValue(CONFIG.joinerConfig.worldJoinerConfig.World)
 
 local LegendJoiner = autoJoinLegenSection:AddToggle("JoinLegenEnabled", {
     Title = "Enable Auto Legend",
@@ -1596,7 +1600,7 @@ local RaidJoiner = autoJoinRaidSection:AddToggle("JoinRaidEnabled", {
 local RaidSelectAct = autoJoinRaidSection:AddDropdown("SelectAct3", {
     Title = "Select Act",
     Description = "Pick an act to join",
-    Values = {},
+    Values = getRaids(CONFIG.joinerRaidConfig.World),
     Default = CONFIG.joinerRaidConfig.Act,
     Multi = false,
     Callback = function()
@@ -1613,30 +1617,24 @@ local RaidSelectWorld = autoJoinRaidSection:AddDropdown("SelectWorld3", {
     Default = CONFIG.joinerRaidConfig.World,
     Multi = false,
     Callback = function()
-        task.defer(function()
-            if Options.SelectWorld3 and Options.SelectWorld3.Value then
-                local selectedWorld = Options.SelectWorld3.Value
-                CONFIG.joinerRaidConfig.World = selectedWorld
-                local selectedAct = Options.SelectAct3 and Options.SelectAct3.Value
-                if selectedWorld and WorldsRaid[selectedWorld] then
-                    local acts = getRaids(selectedWorld)
-                    RaidSelectAct:SetValues(acts)
-                    if selectedAct and WorldsRaid[selectedWorld][selectedAct] then
-                        CONFIG.joinerRaidConfig.Act = WorldsRaid[selectedWorld][selectedAct]
-                        RaidSelectAct:SetValue(selectedAct)
-                    elseif #acts > 0 then
-                        CONFIG.joinerRaidConfig.Act = WorldsRaid[selectedWorld][acts[1]]
-                        RaidSelectAct:SetValue(acts[1])
-                    else
-                        warn("No valid acts found for world:", selectedWorld)
-                    end
-                else
-                    warn("Invalid world selected:", selectedWorld)
-                end
+        if Options.SelectWorld3 and Options.SelectWorld3.Value then
+            local selectedWorld = Options.SelectWorld3.Value
+            CONFIG.joinerRaidConfig.World = selectedWorld
+
+            -- Update acts for the selected world
+            local acts = getRaids(selectedWorld)
+            if #acts > 0 then
+                RaidSelectAct:SetValues(acts)
+                RaidSelectAct:SetValue(acts[1]) -- Set default act
+                CONFIG.joinerRaidConfig.Act = WorldsRaid[selectedWorld][acts[1]]
+            else
+                warn("No acts found for world:", selectedWorld)
             end
-        end)
+        end
     end
 })
+
+RaidSelectWorld:SetValue(CONFIG.joinerRaidConfig.World)
 
 local SelectMacro = macroRecorder:AddDropdown("SelectMacro",{
     Title = "Select Macro",
