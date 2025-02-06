@@ -1773,6 +1773,16 @@ task.spawn(function()
     end
 end)
 
+SaveManager:SetLibrary(Fluent)
+SaveManager:BuildConfigSection(Tabs.Settings)
+SaveManager:BuildFolderTree()
+SaveManager:SetFolder("LuciferScriptHub/Anime_Adventures")
+-- Load settings at startup
+InterfaceManager:SetLibrary(Fluent)
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+InterfaceManager:SetFolder("LuciferScriptHub")
+notify("Lucifer", "The script has been loaded.")
+
 for idx, option in pairs(Fluent.Options) do
     if option.OnChanged then
         option:OnChanged(function(Value)
@@ -1790,13 +1800,3 @@ print("Setting value to: ",Options.SelectAct3.Value)
 RaidSelectAct:SetValue(Options.SelectAct3.Value)
 print("Setting value to: ",Options.actPicker.Value)
 actSection:SetValue(Options.actPicker.Value)
-
-SaveManager:SetLibrary(Fluent)
-SaveManager:BuildConfigSection(Tabs.Settings)
-SaveManager:BuildFolderTree()
-SaveManager:SetFolder("LuciferScriptHub/Anime_Adventures")
--- Load settings at startup
-InterfaceManager:SetLibrary(Fluent)
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-InterfaceManager:SetFolder("LuciferScriptHub")
-notify("Lucifer", "The script has been loaded.")
