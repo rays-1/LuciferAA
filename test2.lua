@@ -1783,8 +1783,10 @@ task.spawn(function()
     for idx, option in pairs(Fluent.Options) do
         if option.OnChanged then
             option:OnChanged(function(Value)
-                print(tostring(option).." | "..tostring(Value))
-                SaveManager:Save(game.Players.LocalPlayer.Name,"LuciferScriptHub")
+                if Value ~= nil then
+                    print(tostring(option).." | "..tostring(Value))
+                    SaveManager:Save(game.Players.LocalPlayer.Name,"LuciferScriptHub") 
+                end
             end)
         end
     end
