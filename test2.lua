@@ -32,6 +32,7 @@ local CONFIG = {
     },
     joinerConfig = {
         waitForFriend = false,
+        onlyJoinFriend = false,
         waitTil = 0,
         enabled = false,
         friendOnly = false,
@@ -1424,8 +1425,10 @@ FriendJoiner:OnChanged(function()
             Options.FriendWaiterEnabled.Value = false
             FriendWaiter:SetValue(false)
         end
+        CONFIG.joinerConfig.onlyJoinFriend = true
         startFollow()
     else
+        CONFIG.joinerConfig.onlyJoinFriend = false
         stopFollow()
     end
 end)
@@ -1463,7 +1466,9 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Multi = false,
     Default = CONFIG.joinerConfig.worldJoinerConfig.Act,
     Callback = function()
-        CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value]
+        if Options.actPicker and Options.actPicker.Value then
+            CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value]
+        end
     end
 })
 
@@ -1474,11 +1479,27 @@ local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
     Multi = false,
     Default = CONFIG.joinerConfig.worldJoinerConfig.World,
     Callback = function()
-        CONFIG.joinerConfig.worldJoinerConfig.World = Options.worldPicker.Value
-        actSection:SetValues(getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World))
-        CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value]
-        print("Setting actSection into: "..Options.actPicker.Value)
-        actSection:SetValue(Options.actPicker.Value)
+        if Options.worldPicker and Options.worldPicker.Value then
+            local selectedWorld = Options.worldPicker.Value
+            CONFIG.joinerConfig.worldJoinerConfig.World = selectedWorld
+
+            -- Get acts for the selected world
+            local acts = getActsForWorld(selectedWorld)
+            if #acts == 0 then
+                warn("No acts found for world:", selectedWorld)
+            end
+
+            -- Update actPicker values
+            actSection:SetValues(acts)
+
+            -- Set a default act if available
+            if acts[1] then
+                CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[selectedWorld][acts[1]]
+                actSection:SetValue(acts[1])
+            else
+                CONFIG.joinerConfig.worldJoinerConfig.Act = nil
+            end
+        end
     end
 })
 
@@ -1743,6 +1764,12 @@ if game.PlaceId ~= CONSTANTS.TELEPORT_ID then
     
     setreadonly(mt, true)
 end
+
+
+print("Initializing actPicker...")
+print("Selected World:", CONFIG.joinerConfig.worldJoinerConfig.World)
+print("Acts for selected world:")
+printTable(getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World))
 
 
 -- Initialization Logic
