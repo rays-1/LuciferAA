@@ -1787,9 +1787,9 @@ task.spawn(function()
         if option.OnChanged then
             option:OnChanged(function(Value)
                 if Value ~= nil then
-                    print(tostring(idx).." | "..tostring(Value))
                     SaveManager:Save(game.Players.LocalPlayer.Name,"LuciferScriptHub") 
                     Options = Fluent.Options
+                    print(tostring(idx).." | "..tostring(Value).." | "..tostring(Options[idx]).." | "..tostring(Options[idx].Value))
                 end
             end)
         end
