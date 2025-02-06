@@ -1609,7 +1609,7 @@ local RaidSelectAct = autoJoinRaidSection:AddDropdown("SelectAct3", {
     Default = CONFIG.joinerRaidConfig.Act,
     Multi = false,
     Callback = function()
-        CONFIG.joinerRaidConfig.Act = WorldsRaid[CONFIG.joinerRaidConfig.World][Options.SelectAct3.Value]
+        CONFIG.joinerRaidConfig.Act = Options.SelectAct3
     end
 })
 
