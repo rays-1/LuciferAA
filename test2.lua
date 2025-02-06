@@ -1765,13 +1765,6 @@ if game.PlaceId ~= CONSTANTS.TELEPORT_ID then
     setreadonly(mt, true)
 end
 
-
-print("Initializing actPicker...")
-print("Selected World:", CONFIG.joinerConfig.worldJoinerConfig.World)
-print("Acts for selected world:")
-printTable(getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World))
-
-
 -- Initialization Logic
 AutoSellEnabledToggle:SetValue(CONFIG.autoSellConfig.AutoSellEnabled)
 print("\n=== INITIAL UNIT SCAN ===")
