@@ -1441,48 +1441,6 @@ FriendWaiter:OnChanged(function()
     end
 end)
 
-local autoJoinEnable = autoJoinWorldSection:AddToggle("autoJoinEnable", {
-    Title = "Enable Auto Join",
-    Default = CONFIG.joinerConfig.enabled,
-    Callback = function(Value)
-        CONFIG.joinerConfig.enabled = Value
-        if CONFIG.joinerConfig.enabled then
-            startJoin()
-        else
-            stopJoin()
-        end
-    end
-})
-
-local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
-    Title = "Select Act",
-    Description = "Pick an act to join",
-    Values = {},
-    Multi = false,
-    Default = CONFIG.joinerConfig.worldJoinerConfig.Act,
-    Callback = function()
-        if Options.actPicker and Options.actPicker.Value then
-            CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value]
-        end
-    end
-})
-
-local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
-    Title = "Auto Join World",
-    Description = "Pick a world to join",
-    Values = worldNames,
-    Multi = false,
-    Default = CONFIG.joinerConfig.worldJoinerConfig.World,
-    Callback = function()
-        if Options.worldPicker and Options.worldPicker.Value then
-            CONFIG.joinerConfig.worldJoinerConfig.World = Options.actPicker.Value
-            actSection:SetValues(getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World))
-            CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value]
-            actSection:SetValue(Options.actPicker.Value)
-        end
-    end
-})
-
 local ChallJoiner = autoJoinChallSection:AddToggle("JoinChallEnabled", {
     Title = "Enable Challenge Joiner",
     Description = "Auto Join Challenge",
@@ -1529,6 +1487,48 @@ local challSelectWorld = autoJoinChallSection:AddDropdown("SelectWorld", {
     Default = CONFIG.joinerChallConfig.selectWorld,
     Callback = function ()
         CONFIG.joinerChallConfig.selectWorld = Options.SelectWorld.Value
+    end
+})
+
+local autoJoinEnable = autoJoinWorldSection:AddToggle("autoJoinEnable", {
+    Title = "Enable Auto Join",
+    Default = CONFIG.joinerConfig.enabled,
+    Callback = function(Value)
+        CONFIG.joinerConfig.enabled = Value
+        if CONFIG.joinerConfig.enabled then
+            startJoin()
+        else
+            stopJoin()
+        end
+    end
+})
+
+local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
+    Title = "Select Act",
+    Description = "Pick an act to join",
+    Values = {},
+    Default = CONFIG.joinerConfig.worldJoinerConfig.Act,
+    Multi = false,
+    Callback = function()
+        if Options.actPicker and Options.actPicker.Value then
+            CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value]
+        end
+    end
+})
+
+local worldSection = autoJoinWorldSection:AddDropdown("worldPicker", {
+    Title = "Auto Join World",
+    Description = "Pick a world to join",
+    Values = worldNames,
+    Default = CONFIG.joinerConfig.worldJoinerConfig.World,
+    Multi = false,
+    Callback = function()
+        if Options.worldPicker and Options.worldPicker.Value then
+            CONFIG.joinerConfig.worldJoinerConfig.World = Options.actPicker.Value
+            actSection:SetValues(getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World))
+            CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value]
+            actSection:SetValue(Options.actPicker.Value)
+        end
     end
 })
 
