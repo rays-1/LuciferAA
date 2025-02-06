@@ -310,11 +310,6 @@ Tabs["Farm Config"]:AddSection("Combat Settings", 1)
 Tabs["Farm Config"]:AddSection("Target Filters", 2)
 
 Window:SelectTab(1)
-task.defer(function()
-    SaveManager:Load(game.Players.LocalPlayer.Name)
-end)
-
-local Options = Fluent.Options
 
 -- Thread Variables
 local autoJoining
@@ -1040,7 +1035,7 @@ local function reqStartGame()
         startRemote:InvokeServer(unpack(args))
     end
 end
-
+local Options = Fluent.Options
 local function autoJoinWorld()
     while true do
         if Options.actPicker.Value and Options.worldPicker.Value then
@@ -1764,6 +1759,10 @@ if game.PlaceId ~= CONSTANTS.TELEPORT_ID then
     
     setreadonly(mt, true)
 end
+
+task.defer(function()
+    SaveManager:Load(game.Players.LocalPlayer.Name)
+end)
 
 -- Initialization Logic
 AutoSellEnabledToggle:SetValue(CONFIG.autoSellConfig.AutoSellEnabled)
