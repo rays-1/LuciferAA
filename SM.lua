@@ -153,6 +153,8 @@ local SaveManager = {} do
 			if self.Parser[option.type] and not self.Ignore[option.idx] then
 				task.spawn(function()
 					self.Parser[option.type].Load(option.idx, option)
+					print("Loading: ",option.idx)
+					printTable(option)
 				end)
 			end
 		end
