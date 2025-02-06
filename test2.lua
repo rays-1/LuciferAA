@@ -535,19 +535,6 @@ local function playMacro()
     end)
 end
 
-
--- Unit Processing Logic
-local function printUnitInfo(unitName, rarity, uniqueId, upgrade)
-    local output = string.format("Processed %s (Rarity: %s, UniqueID: %s)", unitName, rarity, uniqueId)
-    if upgrade then
-         local maxLevel = #upgrade
-        local finalDamage = upgrade[maxLevel] and upgrade[maxLevel].damage or "N/A"
-        output = output .. string.format("\n  Can upgrade to: %s damage (Lvl %d)", finalDamage, maxLevel)
-    end
-    print(output)
-end
-
-
 local function processUnit(uniqueId, unitEntry)
     if not unitEntry or not unitEntry.unit_id then
         warn("Invalid unit entry for ID: " .. tostring(uniqueId))
@@ -569,14 +556,8 @@ local function processUnit(uniqueId, unitEntry)
 
     if CONFIG.autoSellConfig[rarity] and CONFIG.autoSellConfig.AutoSellEnabled then
         if processedUnits[uniqueId] then return end
-           sellEndpoint:InvokeServer(args)
-            processedUnits[uniqueId] = true
-          printUnitInfo(unitName, rarity, uniqueId, unitInfo.upgrade)
-            print(string.format("Sold %s (Rarity: %s)", unitName, rarity))
-
-    else
-        printUnitInfo(unitName, rarity, uniqueId, unitInfo.upgrade)
-        print(string.format("Keeping %s (Rarity: %s)", unitName, rarity))
+        sellEndpoint:InvokeServer(args)
+        processedUnits[uniqueId] = true
     end
     processedUnits[uniqueId] = true
 end
@@ -584,7 +565,7 @@ end
 -- Auto-Sell System
 local monitoringTask
 local function monitorCollection()
-     processedUnits = {}
+    processedUnits = {}
     lastScan = os.time()
     while task.wait(CONFIG.autoSellConfig.Cooldown) and CONFIG.autoSellConfig.AutoSellEnabled do
         local collection = ItemInventoryService.session.collection.collection_profile_data.owned_units
@@ -596,9 +577,10 @@ local function monitorCollection()
         print("\n=== SCANNING COLLECTION ===")
 
         for uniqueId, unitEntry in pairs(collection) do
-             if unitEntry and unitEntry.unit_id then
+            if unitEntry and unitEntry.unit_id then
                 processUnit(uniqueId, unitEntry)
             end
+            task.wait()
         end
 
         print("=== SCAN COMPLETE ===\n")
@@ -1759,16 +1741,19 @@ AutoSellEnabledToggle:SetValue(CONFIG.autoSellConfig.AutoSellEnabled)
 print("\n=== INITIAL UNIT SCAN ===")
 processedUnits = {}
 local initialCollection = ItemInventoryService.session.collection.collection_profile_data.owned_units
-if initialCollection then
-    for uniqueId, unitEntry in pairs(initialCollection) do
-        if unitEntry and unitEntry.unit_id then
-            processUnit(uniqueId, unitEntry)
+task.spawn(function()
+    if initialCollection then
+        for uniqueId, unitEntry in pairs(initialCollection) do
+            if unitEntry and unitEntry.unit_id then
+                processUnit(uniqueId, unitEntry)
+            end
+            task.wait()
         end
     end
-end
-if CONFIG.autoSellConfig.AutoSellEnabled then
-    startMonitoring()
-end
+    if CONFIG.autoSellConfig.AutoSellEnabled then
+        startMonitoring()
+    end
+end)
 
 -- local success, err = SaveManager:Load(game.Players.LocalPlayer.Name)
 -- if not success then
@@ -1779,7 +1764,8 @@ end
 
 for idx, option in pairs(Fluent.Options) do
     if option.OnChanged then
-        option:OnChanged(function()
+        option:OnChanged(function(Value)
+            print(tostring(option).." | "..tostring(Value))
             SaveManager:Save(game.Players.LocalPlayer.Name)
         end)
     end
