@@ -1619,6 +1619,7 @@ local RaidSelectWorld = autoJoinRaidSection:AddDropdown("SelectWorld3", {
 })
 
 RaidSelectWorld:SetValue(CONFIG.joinerRaidConfig.World)
+RaidSelectAct:SetValue(WorldsRaid[CONFIG.joinerRaidConfig.World][Options.SelectAct3.Value])
 
 local SelectMacro = macroRecorder:AddDropdown("SelectMacro",{
     Title = "Select Macro",
