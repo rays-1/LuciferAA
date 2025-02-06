@@ -1784,7 +1784,7 @@ task.spawn(function()
         if option.OnChanged then
             option:OnChanged(function(Value)
                 if Value ~= nil then
-                    print(tostring(option).." | "..tostring(Value))
+                    print(tostring(idx).." | "..tostring(Value))
                     SaveManager:Save(game.Players.LocalPlayer.Name,"LuciferScriptHub") 
                 end
             end)
