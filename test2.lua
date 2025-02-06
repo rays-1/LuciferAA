@@ -1769,14 +1769,6 @@ task.spawn(function()
     end
 end)
 
-print("Initializing SaveManager...")
-SaveManager:SetLibrary(Fluent)
-SaveManager:BuildConfigSection(Tabs.Settings)
-SaveManager:BuildFolderTree()
-InterfaceManager:SetLibrary(Fluent)
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-InterfaceManager:SetFolder("LuciferScriptHub")
-
 task.defer(function()
     print("Loading configuration...")
     local success, err = SaveManager:Load(game.Players.LocalPlayer.Name,"LuciferScriptHub")
@@ -1786,6 +1778,14 @@ task.defer(function()
         print("Configuration loaded successfully!")
     end
 end)
+
+print("Initializing SaveManager...")
+SaveManager:SetLibrary(Fluent)
+SaveManager:BuildConfigSection(Tabs.Settings)
+SaveManager:BuildFolderTree()
+InterfaceManager:SetLibrary(Fluent)
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+InterfaceManager:SetFolder("LuciferScriptHub")
 
 for idx, option in pairs(Fluent.Options) do
     if option.OnChanged then
