@@ -125,7 +125,6 @@ local SaveManager = {} do
 		end
 	
 		writefile(fullPath, encoded)
-		print("Config saved successfully to:", fullPath)
 		return true
 	end
 

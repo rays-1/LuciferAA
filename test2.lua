@@ -1787,6 +1787,7 @@ task.spawn(function()
                 if Value ~= nil then
                     print(tostring(idx).." | "..tostring(Value))
                     SaveManager:Save(game.Players.LocalPlayer.Name,"LuciferScriptHub") 
+                    Options = Fluent.Options
                 end
             end)
         end
@@ -1799,14 +1800,5 @@ SaveManager:BuildFolderTree()
 InterfaceManager:SetLibrary(Fluent)
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 InterfaceManager:SetFolder("LuciferScriptHub")
-
-print("Setting value to: ",Options.worldPicker.Value)
-worldSection:SetValue(Options.worldPicker.Value)
-print("Setting value to: ",Options.SelectWorld3.Value)
-RaidSelectWorld:SetValue(Options.SelectWorld3.Value)
-print("Setting value to: ",Options.SelectAct3.Value)
-RaidSelectAct:SetValue(Options.SelectAct3.Value)
-print("Setting value to: ",Options.actPicker.Value)
-actSection:SetValue(Options.actPicker.Value)
 
 notify("Lucifer", "The script has been loaded.")
