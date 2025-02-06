@@ -1035,6 +1035,16 @@ local function reqStartGame()
         startRemote:InvokeServer(unpack(args))
     end
 end
+
+task.defer(function()
+    print("Loading configuration...")
+    local success, err = SaveManager:Load(game.Players.LocalPlayer.Name,"LuciferScriptHub")
+    if not success then
+        warn("Failed to load configuration:", err)
+    else
+        print("Configuration loaded successfully!")
+    end
+end)
 local Options = Fluent.Options
 local function autoJoinWorld()
     while true do
@@ -1766,16 +1776,6 @@ task.spawn(function()
     end
     if CONFIG.autoSellConfig.AutoSellEnabled then
         startMonitoring()
-    end
-end)
-
-task.defer(function()
-    print("Loading configuration...")
-    local success, err = SaveManager:Load(game.Players.LocalPlayer.Name,"LuciferScriptHub")
-    if not success then
-        warn("Failed to load configuration:", err)
-    else
-        print("Configuration loaded successfully!")
     end
 end)
 
