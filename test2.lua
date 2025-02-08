@@ -1816,15 +1816,15 @@ task.spawn(function()
 end)
 
 task.wait(2)
-if CONFIG.joinerConfig.worldJoinerConfig.World ~= "" then
-    worldSection:SetValue(CONFIG.joinerConfig.worldJoinerConfig.World)
-    actSection:SetValues(getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World))
-    actSection:SetValue(Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][CONFIG.joinerConfig.worldJoinerConfig.Act])
-end
+-- if CONFIG.joinerConfig.worldJoinerConfig.World ~= "" then
+--     worldSection:SetValue(CONFIG.joinerConfig.worldJoinerConfig.World)
+--     actSection:SetValues(getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World))
+--     actSection:SetValue(Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][CONFIG.joinerConfig.worldJoinerConfig.Act])
+-- end
 
-if CONFIG.joinerRaidConfig.World ~= "" then
-    RaidSelectWorld:SetValue(CONFIG.joinerRaidConfig.World)
-    RaidSelectAct:SetValues(getRaids(CONFIG.joinerRaidConfig.World))
-    RaidSelectAct:SetValue(WorldsRaid[CONFIG.joinerRaidConfig.World][CONFIG.joinerRaidConfig.Act])
-end
+-- if CONFIG.joinerRaidConfig.World ~= "" then
+--     RaidSelectWorld:SetValue(CONFIG.joinerRaidConfig.World)
+--     RaidSelectAct:SetValues(getRaids(CONFIG.joinerRaidConfig.World))
+--     RaidSelectAct:SetValue(WorldsRaid[CONFIG.joinerRaidConfig.World][CONFIG.joinerRaidConfig.Act])
+-- end
 notify("Lucifer", "The script has been loaded.")
