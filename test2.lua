@@ -1753,21 +1753,29 @@ if game.PlaceId ~= CONSTANTS.TELEPORT_ID then
     setreadonly(mt, true)
 end
 
-
+task.wait(2)
 
 -- Initialization Logic
 print("Initializing SaveManager...")
 SaveManager:SetLibrary(Fluent)
+printTable(SaveManager.Options)
 SaveManager:BuildConfigSection(Tabs.Settings)
 SaveManager:BuildFolderTree()
 InterfaceManager:SetLibrary(Fluent)
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 InterfaceManager:SetFolder("LuciferScriptHub")
 
-task.wait(1)
 
-task.defer(function()
-    SaveManager:Load(game.Players.LocalPlayer.Name,"LuciferScriptHub")
+task.spawn(function()
+    -- Wait until Fluent.Options is non-empty (i.e. your UI has been created)
+    while not next(Fluent.Options) do
+        task.wait(0.1)
+    end
+    print("UI options are ready. Loading config now...")
+    local success, err = SaveManager:Load(game.Players.LocalPlayer.Name, "LuciferScriptHub")
+    if not success then
+        warn("Failed to load config: " .. tostring(err))
+    end
 end)
 
 

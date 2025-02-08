@@ -148,19 +148,18 @@ local SaveManager = {} do
 			return false, "Decoding error"
 		end
 
-		-- Apply loaded data to Fluent.Options
 		for _, option in next, decoded.objects do
 			if self.Parser[option.type] and not self.Ignore[option.idx] then
-				task.spawn(function()
-					self.Parser[option.type].Load(option.idx, option)
-					print("Current Setting: "..tostring(SaveManager.Options[option.idx]))
-					printTable(SaveManager.Options[option.idx])
-					print("Updated Setting: "..tostring(option.idx))
-					-- print("Loading: ",option.idx)
-					-- printTable(option)
-				end)
+				-- Load the option synchronously
+				self.Parser[option.type].Load(option.idx, option)
+				if SaveManager.Options[option.idx] then
+					print("Loaded Option [" .. tostring(option.idx) .. "] with value: " .. tostring(SaveManager.Options[option.idx].Value))
+				else
+					print("Warning: Option [" .. tostring(option.idx) .. "] not found in Fluent.Options")
+				end
 			end
 		end
+		
 		print("Loaded: "..filePath)
 		print("Config loaded successfully!")
 		return true
