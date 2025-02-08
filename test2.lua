@@ -1516,6 +1516,8 @@ local actSection = autoJoinWorldSection:AddDropdown("actPicker", {
     Callback = function()
         if Options.actPicker and Options.actPicker.Value then
             CONFIG.joinerConfig.worldJoinerConfig.Act = Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][Options.actPicker.Value]
+        else
+            Options.actPicker:SetValue(CONFIG.joinerConfig.worldJoinerConfig.Act) -- Restore saved value
         end
     end
 })
@@ -1775,6 +1777,21 @@ task.spawn(function()
     local success, err = SaveManager:Load(game.Players.LocalPlayer.Name, "LuciferScriptHub")
     if not success then
         warn("Failed to load config: " .. tostring(err))
+    end
+
+        -- Set World FIRST to populate Acts
+    -- For autoJoinWorldSection
+    if CONFIG.joinerConfig.worldJoinerConfig.World ~= "" then
+        worldSection:SetValue(CONFIG.joinerConfig.worldJoinerConfig.World)
+        actSection:SetValues(getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World))
+        actSection:SetValue(Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][CONFIG.joinerConfig.worldJoinerConfig.Act])
+    end
+
+    -- For Raid
+    if CONFIG.joinerRaidConfig.World ~= "" then
+        RaidSelectWorld:SetValue(CONFIG.joinerRaidConfig.World)
+        RaidSelectAct:SetValues(getRaids(CONFIG.joinerRaidConfig.World))
+        RaidSelectAct:SetValue(WorldsRaid[CONFIG.joinerRaidConfig.World][CONFIG.joinerRaidConfig.Act])
     end
 end)
 
