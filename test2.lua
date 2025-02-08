@@ -1779,20 +1779,7 @@ task.spawn(function()
         warn("Failed to load config: " .. tostring(err))
     end
 
-        -- Set World FIRST to populate Acts
-    -- For autoJoinWorldSection
-    if CONFIG.joinerConfig.worldJoinerConfig.World ~= "" then
-        worldSection:SetValue(CONFIG.joinerConfig.worldJoinerConfig.World)
-        actSection:SetValues(getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World))
-        actSection:SetValue(Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][CONFIG.joinerConfig.worldJoinerConfig.Act])
-    end
 
-    -- For Raid
-    if CONFIG.joinerRaidConfig.World ~= "" then
-        RaidSelectWorld:SetValue(CONFIG.joinerRaidConfig.World)
-        RaidSelectAct:SetValues(getRaids(CONFIG.joinerRaidConfig.World))
-        RaidSelectAct:SetValue(WorldsRaid[CONFIG.joinerRaidConfig.World][CONFIG.joinerRaidConfig.Act])
-    end
 end)
 
 
@@ -1827,15 +1814,17 @@ task.spawn(function()
         end
     end
 end)
-print("Loaded Act: ", CONFIG.joinerConfig.worldJoinerConfig.Act)
-print("Loaded Raid Act: ", CONFIG.joinerRaidConfig.Act)
-print("Trying to Set Act: ", Options.actPicker.Value)
-print("Trying to Set Raid Act: ", Options.SelectAct3.Value)
 
-if Options.actPicker.Value then
-    actSection:SetValue(Options.actPicker.Value)
+task.wait(2)
+if CONFIG.joinerConfig.worldJoinerConfig.World ~= "" then
+    worldSection:SetValue(CONFIG.joinerConfig.worldJoinerConfig.World)
+    actSection:SetValues(getActsForWorld(CONFIG.joinerConfig.worldJoinerConfig.World))
+    actSection:SetValue(Worlds[CONFIG.joinerConfig.worldJoinerConfig.World][CONFIG.joinerConfig.worldJoinerConfig.Act])
 end
-if Options.SelectAct3.Value then
-    RaidSelectAct:SetValue(Options.SelectAct3.Value)
+
+if CONFIG.joinerRaidConfig.World ~= "" then
+    RaidSelectWorld:SetValue(CONFIG.joinerRaidConfig.World)
+    RaidSelectAct:SetValues(getRaids(CONFIG.joinerRaidConfig.World))
+    RaidSelectAct:SetValue(WorldsRaid[CONFIG.joinerRaidConfig.World][CONFIG.joinerRaidConfig.Act])
 end
 notify("Lucifer", "The script has been loaded.")
