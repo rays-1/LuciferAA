@@ -1810,6 +1810,15 @@ task.spawn(function()
         end
     end
 end)
+print("Loaded Act: ", CONFIG.joinerConfig.worldJoinerConfig.Act)
+print("Loaded Raid Act: ", CONFIG.joinerRaidConfig.Act)
+print("Trying to Set Act: ", Options.actPicker.Value)
+print("Trying to Set Raid Act: ", Options.SelectAct3.Value)
 
-
+if Options.actPicker.Value then
+    actSection:SetValue(Options.actPicker.Value)
+end
+if Options.SelectAct3.Value then
+    RaidSelectAct:SetValue(Options.SelectAct3.Value)
+end
 notify("Lucifer", "The script has been loaded.")
